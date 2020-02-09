@@ -1,0 +1,83 @@
+dist: bionic
+
+language: c
+
+compiler:
+    - gcc
+
+addons:
+    apt:
+        update: true
+        packages:
+            - build-essential
+            - cmake
+            - pkgconf
+            - wget
+            - ca-certificates
+            - uuid-dev
+            - udev
+            - gettext
+            - python3
+            - python3-pip
+            - python3-setuptools
+            - python3-wheel
+            - ninja-build
+
+
+before_install:
+    - mkdir .deps
+    - cd .deps
+    # libfuse
+    - sudo pip3 install --system meson
+    - wget https://github.com/libfuse/libfuse/archive/fuse-3.9.0.tar.gz -O fuse.tar.gz
+    - tar -xf fuse.tar.gz
+    - cd libfuse-fuse-3.9.0
+    - mkdir .build
+    - cd .build
+    - meson ..
+    - ninja
+    - sudo ninja install
+    - cd ..
+    - cd ..
+    # libwebsockets
+    - wget https://github.com/warmcat/libwebsockets/archive/v3.2.0.tar.gz -O libwebsockets.tar.gz
+    - tar -xf libwebsockets.tar.gz
+    - cd libwebsockets-3.2.0
+    - mkdir .build
+    - cd .build
+    - cmake ..
+    - make
+    - sudo make install
+    - cd ..
+    - cd ..
+    # jansson
+    - wget https://github.com/akheron/jansson/archive/v2.12.tar.gz -O jansson.tar.gz
+    - tar -xf jansson.tar.gz
+    - cd jansson-2.12
+    - mkdir .build
+    - cd .build
+    - cmake ..
+    - make
+    - sudo make install
+    - cd ..
+    - cd ..
+    # libwebfuse
+    - wget https://github.com/falk-werner/webfuse/archive/master.tar.gz -O webfuse.tar.gz
+    - tar -xf webfuse.tar.gz
+    - cd webfuse-master
+    - mkdir .build
+    - cd .build
+    - cmake -DWITHOUT_TESTS=ON -DWITHOUT_EXAMPLE=ON ..
+    - make
+    - sudo make install
+    - cd ..
+    - cd ..
+    - cd ..
+
+before_script:
+    - mkdir build
+    - cd build
+    - cmake ..
+
+script:
+    make
