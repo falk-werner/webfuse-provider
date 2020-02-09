@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/falk-werner/webfuse-provider.svg?branch=master)](https://travis-ci.org/falk-werner/webfuse-provider)
+
 # webfuse-provider
 
 Reference implementation of webfuse provider
