@@ -5,6 +5,7 @@
 #include <signal.h>
 
 #include "webfuse_provider.h"
+#include "static_filesystem.h"
 
 #define SERVICE_TIMEOUT (1 * 1000)
 

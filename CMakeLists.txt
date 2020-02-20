@@ -35,7 +35,9 @@ target_link_libraries(webfuse-provider-app PUBLIC webfuse-provider ${WEBFUSE_LIB
 # static-filesystem-provider
 
 add_executable(static-filesystem-provider
-	src/static_filesystem.c
+	src/static_filesystem/static_filesystem.c
+	src/static_filesystem/path.c
+	src/static_filesystem/main.c
 )
 
 target_link_libraries(static-filesystem-provider PUBLIC webfuse-provider ${WEBFUSE_LIBRARIES})
