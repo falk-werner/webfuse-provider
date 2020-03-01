@@ -80,13 +80,13 @@ int main(int argc, char* argv[])
     {
         struct wfp_client_config * config = wfp_client_config_create();
 
-        struct wfp_static_filesystem * fs = wfp_static_filesystem_create(config);
-        wfp_static_filesystem_add_text(fs, "brummni/hello_world.txt", 0444, "Hello, World!\n");
-        wfp_static_filesystem_add_text(fs, "brummni/hello_bob.txt", 0444, "Hello, Bob!\n");
-        wfp_static_filesystem_add_text(fs, "brummni/hello_bob.txt", 0444, "Hello, Alice!\n");
-        wfp_static_filesystem_add_text(fs, "bla/hello_world.txt", 0444, "Hello, World!\n");
-        wfp_static_filesystem_add_text(fs, "foo.txt", 0444, "foo\n");
-        wfp_static_filesystem_add_text(fs, "bar.txt", 0444, "bar\n");
+        struct static_filesystem * fs = static_filesystem_create(config);
+        static_filesystem_add_text(fs, "brummni/hello_world.txt", 0444, "Hello, World!\n");
+        static_filesystem_add_text(fs, "brummni/hello_bob.txt", 0444, "Hello, Bob!\n");
+        static_filesystem_add_text(fs, "brummni/hello_bob.txt", 0444, "Hello, Alice!\n");
+        static_filesystem_add_text(fs, "bla/hello_world.txt", 0444, "Hello, World!\n");
+        static_filesystem_add_text(fs, "foo.txt", 0444, "foo\n");
+        static_filesystem_add_text(fs, "bar.txt", 0444, "bar\n");
 
         struct wfp_client * client = wfp_client_create(config);
         wfp_client_connect(client, args.url);
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
         }
         
         wfp_client_dispose(client);
-        wfp_static_filesystem_dispose(fs);
+        static_filesystem_dispose(fs);
         wfp_client_config_dispose(config);
     }
 
