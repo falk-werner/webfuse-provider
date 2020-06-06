@@ -1,0 +1,6 @@
+[wrap-file]
+directory = webfuse-0.3.1
+
+source_url = https://github.com/falk-werner/webfuse/archive/v0.3.1.tar.gz
+source_filename = v0.3.1.tar.gz
+source_hash = 46624b5f29e8f87dd1aebfce3b13ca87e766bc59546b6e5f49665d2f8c555d62
