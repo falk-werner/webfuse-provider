@@ -11,8 +11,6 @@
 
 #include "webfuse_provider.h"
 
-#define SERVICE_TIMEOUT (1 * 1000)
-
 struct config
 {
     char * url;
@@ -368,7 +366,7 @@ int main(int argc, char* argv[])
 
         while (!shutdown_requested)
         {
-            wfp_client_service(client, SERVICE_TIMEOUT);
+            wfp_client_service(client);
         }
 
         wfp_client_dispose(client);
