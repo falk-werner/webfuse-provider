@@ -22,4 +22,4 @@ To install dependecies, see below.
 
 ## Further Documentation
 
--   [Webfuse Protocol](https://github.com/falk-werner/webfuse/doc/protocol.md)
+-   [Webfuse Protocol](https://github.com/falk-werner/webfuse/blob/master/doc/protocol.md)
