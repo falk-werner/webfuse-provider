@@ -1,0 +1,7 @@
+/.vscode/
+/.build/
+/.deps/
+/.settings/language.settings.xml
+/doc/api
+/subprojects/*
+!/subprojects/*.wrap
