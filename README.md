@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/falk-werner/webfuse-provider.svg?branch=master)](https://travis-ci.org/falk-werner/webfuse-provider)
+[![codecov](https://codecov.io/gh/falk-werner/webfuse-provider/branch/master/graph/badge.svg)](https://codecov.io/gh/falk-werner/webfuse-provider)
 
 # webfuse-provider
 
