@@ -1,28 +1,31 @@
 dist: bionic
-language: minimal
-services:
-  - docker
+
+language: c
+
+compiler:
+    - gcc
+
 addons:
-  apt:
-    update: true
-    packages:
-      - curl
-      - openssl
-      - ca-certificates
-      - make
-      - qemu-user-static
-env:
-  global:
-    - DOCKER_BUILDKIT=0
-  matrix:
-    - DISTRIB_ID=ubuntu VARIANT=debug        MARCH=x86_64   CHECK_TARGET=memcheck
-    - DISTRIB_ID=ubuntu VARIANT=coverage     MARCH=x86_64   CHECK_TARGET=check
-    - DISTRIB_ID=ubuntu VARIANT=release      MARCH=x86_64   CHECK_TARGET=memcheck
-    - DISTRIB_ID=ubuntu VARIANT=debug        MARCH=arm32v7  CHECK_TARGET=check
-    - DISTRIB_ID=alpine VARIANT=debug        MARCH=x86_64   CHECK_TARGET=check
+    apt:
+        update: true
+        packages:
+            - build-essential
+            - cmake
+            - pkgconf
+            - wget
+            - ca-certificates
+            - python3
+            - python3-pip
+            - python3-setuptools
+            - python3-wheel
+            - ninja-build
+
+before_install:
+    - sudo pip3 install --system meson
+
 before_script:
-- make -j4 DISTRIB_ID=$DISTRIB_ID VARIANT=$VARIANT MARCH=$MARCH
+    - meson build
+
 script:
-- make -j1 DISTRIB_ID=$DISTRIB_ID VARIANT=$VARIANT MARCH=$MARCH $CHECK_TARGET
-after_success:
-- bash <(curl -s https://codecov.io/bash)
+    - cd build
+    - meson test

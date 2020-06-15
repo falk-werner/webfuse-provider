@@ -1,9 +1,0 @@
-#!/bin/sh
-
-. DoBuildFiles/generic.properties
-
-if [ -n "$BUILD_TESTING" ]; then
-  set -- testClasses "$@"
-fi
-
-exec gradle_adapter classes "$@"
