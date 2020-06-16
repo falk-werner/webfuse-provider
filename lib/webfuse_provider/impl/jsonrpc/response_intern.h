@@ -1,5 +1,5 @@
-#ifndef WF_JSONRPC_RESPONSE_INTERN_H
-#define WF_JSONRPC_RESPONSE_INTERN_H
+#ifndef WFP_JSONRPC_RESPONSE_INTERN_H
+#define WFP_JSONRPC_RESPONSE_INTERN_H
 
 #include "webfuse_provider/impl/jsonrpc/response.h"
 
@@ -14,19 +14,19 @@ using std::size_t;
 extern "C" {
 #endif
 
-struct wf_jsonrpc_response
+struct wfp_jsonrpc_response
 {
 	json_t * result;	
 	json_t * error;
 	int id;
 };
 
-extern void wf_jsonrpc_response_init(
-	struct wf_jsonrpc_response * response,
+extern void wfp_jsonrpc_response_init(
+	struct wfp_jsonrpc_response * response,
     json_t * message);
 
-extern void wf_jsonrpc_response_cleanup(
-	struct wf_jsonrpc_response * response);
+extern void wfp_jsonrpc_response_cleanup(
+	struct wfp_jsonrpc_response * response);
 
 #ifdef __cplusplus
 }

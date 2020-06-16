@@ -26,10 +26,10 @@ void wfp_impl_readdir(
 
 void wfp_impl_readdir_default(
     struct wfp_request * request,
-    ino_t WF_UNUSED_PARAM(directory),
-    void * WF_UNUSED_PARAM(user_data))
+    ino_t WFP_UNUSED_PARAM(directory),
+    void * WFP_UNUSED_PARAM(user_data))
 {
-    wfp_impl_respond_error(request, WF_BAD_NOENTRY);
+    wfp_impl_respond_error(request, WFP_BAD_NOENTRY);
 }
 
 void wfp_impl_respond_readdir(

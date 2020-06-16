@@ -3,8 +3,8 @@
 /// \brief Webfuse provider client.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef WF_PROVIDER_CLIENT_H
-#define WF_PROVIDER_CLIENT_H
+#ifndef WFP_PROVIDER_CLIENT_H
+#define WFP_PROVIDER_CLIENT_H
 
 #include "webfuse_provider/api.h"
 

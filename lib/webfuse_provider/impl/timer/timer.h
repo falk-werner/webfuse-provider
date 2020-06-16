@@ -1,5 +1,5 @@
-#ifndef WF_TIMER_TIMER_H
-#define WF_TIMER_TIMER_H
+#ifndef WFP_TIMER_TIMER_H
+#define WFP_TIMER_TIMER_H
 
 #include "webfuse_provider/impl/timer/on_timer_fn.h"
 
@@ -8,27 +8,27 @@ extern "C"
 {
 #endif
 
-struct wf_timer;
-struct wf_timer_manager;
+struct wfp_timer;
+struct wfp_timer_manager;
 
-extern struct wf_timer *
-wf_timer_create(
-    struct wf_timer_manager * manager,
-    wf_timer_on_timer_fn * on_timer,
+extern struct wfp_timer *
+wfp_timer_create(
+    struct wfp_timer_manager * manager,
+    wfp_timer_on_timer_fn * on_timer,
     void * user_data);
 
 extern void
-wf_timer_dispose(
-    struct wf_timer * timer);
+wfp_timer_dispose(
+    struct wfp_timer * timer);
 
 extern void
-wf_timer_start(
-    struct wf_timer * timer,
+wfp_timer_start(
+    struct wfp_timer * timer,
     int timeout_ms);
 
 extern void
-wf_timer_cancel(
-    struct wf_timer * timer);
+wfp_timer_cancel(
+    struct wfp_timer * timer);
 
 #ifdef __cplusplus
 }

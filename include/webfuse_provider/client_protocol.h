@@ -8,8 +8,8 @@
 /// libwebsockets applications.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef WF_PROVIDER_CLIENT_PROTOCOL_H
-#define WF_PROVIDER_CLIENT_PROTOCOL_H
+#ifndef WFP_PROVIDER_CLIENT_PROTOCOL_H
+#define WFP_PROVIDER_CLIENT_PROTOCOL_H
 
 #include "webfuse_provider/api.h"
 

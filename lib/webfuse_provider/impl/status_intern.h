@@ -1,5 +1,5 @@
-#ifndef WF_STATUS_INTERN_H
-#define WF_STATUS_INTERN_H
+#ifndef WFP_STATUS_INTERN_H
+#define WFP_STATUS_INTERN_H
 
 #include "webfuse_provider/status.h"
 
@@ -7,9 +7,9 @@
 extern "C" {
 #endif
 
-extern int wf_status_to_rc(wf_status status);
+extern int wfp_status_to_rc(wfp_status status);
 
-extern char const * wf_status_tostring(wf_status status);
+extern char const * wfp_status_tostring(wfp_status status);
 
 #ifdef __cplusplus
 }

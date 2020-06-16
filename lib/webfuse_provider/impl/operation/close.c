@@ -5,7 +5,7 @@
 void wfp_impl_close(
     struct wfp_impl_invokation_context * context,
     json_t * params,
-    int WF_UNUSED_PARAM(id))
+    int WFP_UNUSED_PARAM(id))
 {
     size_t const param_count = json_array_size(params);
     if (4 == param_count)
@@ -29,10 +29,10 @@ void wfp_impl_close(
 }
 
 void wfp_impl_close_default(
-    ino_t WF_UNUSED_PARAM(inode),
-    uint32_t WF_UNUSED_PARAM(handle),
-    int WF_UNUSED_PARAM(flags),
-    void * WF_UNUSED_PARAM(user_data))
+    ino_t WFP_UNUSED_PARAM(inode),
+    uint32_t WFP_UNUSED_PARAM(handle),
+    int WFP_UNUSED_PARAM(flags),
+    void * WFP_UNUSED_PARAM(user_data))
 {
     // empty
 }

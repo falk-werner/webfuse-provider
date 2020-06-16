@@ -22,7 +22,7 @@
 #include "webfuse_provider/impl/jsonrpc/request.h"
 #include "webfuse_provider/impl/jsonrpc/proxy.h"
 
-#define WF_DEFAULT_TIMEOUT (10 * 1000)
+#define WFP_DEFAULT_TIMEOUT (10 * 1000)
 
 static void wfp_impl_client_protocol_respond(
     json_t * response,
@@ -30,10 +30,10 @@ static void wfp_impl_client_protocol_respond(
 {
     struct wfp_client_protocol * protocol = (struct wfp_client_protocol *) user_data;
 
-    struct wf_message * message = wf_message_create(response);
+    struct wfp_message * message = wfp_message_create(response);
     if (NULL != message)
     {
-        wf_slist_append(&protocol->messages, &message->item);
+        wfp_slist_append(&protocol->messages, &message->item);
         lws_callback_on_writable(protocol->wsi);
     }
 }
@@ -46,12 +46,12 @@ static void wfp_impl_client_protocol_process(
     json_t * message = json_loadb(data, length, 0, NULL);
     if (NULL != message)
     {
-        if (wf_jsonrpc_is_response(message))
+        if (wfp_jsonrpc_is_response(message))
         {
-            wf_jsonrpc_proxy_onresult(protocol->proxy, message);
+            wfp_jsonrpc_proxy_onresult(protocol->proxy, message);
         }
 
-        if (wf_jsonrpc_is_request(message))
+        if (wfp_jsonrpc_is_request(message))
         {
             struct wfp_impl_invokation_context context =
             {
@@ -71,7 +71,7 @@ static void
 wfp_impl_client_protocol_on_add_filesystem_finished(
 	void * user_data,
 	json_t const * result,
-	json_t const * WF_UNUSED_PARAM(error))    
+	json_t const * WFP_UNUSED_PARAM(error))    
 {
     struct wfp_client_protocol * protocol = user_data;
     if (NULL == protocol->wsi) { return; }
@@ -91,7 +91,7 @@ wfp_impl_client_protocol_on_add_filesystem_finished(
 static void wfp_impl_client_protocol_add_filesystem(
      struct wfp_client_protocol * protocol)
 {
-    wf_jsonrpc_proxy_invoke(
+    wfp_jsonrpc_proxy_invoke(
         protocol->proxy, 
         &wfp_impl_client_protocol_on_add_filesystem_finished,
         protocol,
@@ -104,7 +104,7 @@ static void
 wfp_impl_client_protocol_on_authenticate_finished(
 	void * user_data,
 	json_t const * result,
-	json_t const * WF_UNUSED_PARAM(error))    
+	json_t const * WFP_UNUSED_PARAM(error))    
 {
     struct wfp_client_protocol * protocol = user_data;
     if (NULL == protocol->wsi) { return; }
@@ -132,7 +132,7 @@ static void wfp_impl_client_protocol_authenticate(
     json_t * creds = wfp_impl_credentials_get(&credentials);
     json_incref(creds);
 
-    wf_jsonrpc_proxy_invoke(
+    wfp_jsonrpc_proxy_invoke(
         protocol->proxy, 
         &wfp_impl_client_protocol_on_authenticate_finished, 
         protocol, 
@@ -159,7 +159,7 @@ static void wfp_impl_client_protocol_handshake(
 static int wfp_impl_client_protocol_callback(
 	struct lws * wsi,
 	enum lws_callback_reasons reason,
-	void * WF_UNUSED_PARAM(user),
+	void * WFP_UNUSED_PARAM(user),
 	void * in,
 	size_t len)
 {
@@ -169,7 +169,7 @@ static int wfp_impl_client_protocol_callback(
 
     if (NULL != protocol)
     {
-        wf_timer_manager_check(protocol->timer_manager);
+        wfp_timer_manager_check(protocol->timer_manager);
 
         switch (reason)
         {
@@ -197,14 +197,14 @@ static int wfp_impl_client_protocol_callback(
                 {
                     result = 1;
                 }
-                else if (!wf_slist_empty(&protocol->messages))
+                else if (!wfp_slist_empty(&protocol->messages))
                 {
-                    struct wf_slist_item * item = wf_slist_remove_first(&protocol->messages);
-                    struct wf_message * message = wf_container_of(item, struct wf_message, item);
+                    struct wfp_slist_item * item = wfp_slist_remove_first(&protocol->messages);
+                    struct wfp_message * message = wfp_container_of(item, struct wfp_message, item);
                     lws_write(wsi, (unsigned char*) message->data, message->length, LWS_WRITE_TEXT);
-                    wf_message_dispose(message);
+                    wfp_message_dispose(message);
 
-                    if (!wf_slist_empty(&protocol->messages))
+                    if (!wfp_slist_empty(&protocol->messages))
                     {
                         lws_callback_on_writable(wsi);
                     }
@@ -226,10 +226,10 @@ static bool wfp_impl_client_protocol_send(
     bool result = false;
     struct wfp_client_protocol * protocol = user_data;
 
-    struct wf_message * message = wf_message_create(request);
+    struct wfp_message * message = wfp_message_create(request);
     if (NULL != message)
     {
-        wf_slist_append(&protocol->messages, &message->item);
+        wfp_slist_append(&protocol->messages, &message->item);
         lws_callback_on_writable(protocol->wsi);
         result = true;
     }
@@ -244,15 +244,15 @@ void wfp_impl_client_protocol_init(
 {
     protocol->is_connected = false;
     protocol->is_shutdown_requested = false;
-    wf_slist_init(&protocol->messages);
+    wfp_slist_init(&protocol->messages);
 
     protocol->wsi = NULL;
 
     protocol->request.respond = &wfp_impl_client_protocol_respond;
     protocol->request.user_data = protocol;
 
-    protocol->timer_manager = wf_timer_manager_create();
-    protocol->proxy = wf_jsonrpc_proxy_create(protocol->timer_manager, WF_DEFAULT_TIMEOUT, &wfp_impl_client_protocol_send, protocol);
+    protocol->timer_manager = wfp_timer_manager_create();
+    protocol->proxy = wfp_jsonrpc_proxy_create(protocol->timer_manager, WFP_DEFAULT_TIMEOUT, &wfp_impl_client_protocol_send, protocol);
 
     protocol->user_data = user_data;
     wfp_impl_provider_init_from_prototype(&protocol->provider, provider);
@@ -261,9 +261,9 @@ void wfp_impl_client_protocol_init(
 void wfp_impl_client_protocol_cleanup(
     struct wfp_client_protocol * protocol)
 {
-    wf_jsonrpc_proxy_dispose(protocol->proxy);
-    wf_timer_manager_dispose(protocol->timer_manager);
-    wf_message_queue_cleanup(&protocol->messages);
+    wfp_jsonrpc_proxy_dispose(protocol->proxy);
+    wfp_timer_manager_dispose(protocol->timer_manager);
+    wfp_message_queue_cleanup(&protocol->messages);
 }
 
 struct wfp_client_protocol * wfp_impl_client_protocol_create(
@@ -286,7 +286,7 @@ void wfp_impl_client_protocol_init_lws(
     struct wfp_client_protocol * protocol,
     struct lws_protocols * lws_protocol)
 {
-    lws_protocol->name = WF_PROTOCOL_NAME_PROVIDER_CLIENT;
+    lws_protocol->name = WFP_PROTOCOL_NAME_PROVIDER_CLIENT;
 	lws_protocol->callback = &wfp_impl_client_protocol_callback;
 	lws_protocol->per_session_data_size = 0;
 	lws_protocol->user = protocol;
@@ -297,8 +297,8 @@ void wfp_impl_client_protocol_connect(
     struct lws_context * context,
     char const * url)
 {
-    struct wf_url url_data;
-    bool const success = wf_url_init(&url_data, url);
+    struct wfp_url url_data;
+    bool const success = wfp_url_init(&url_data, url);
     if (success)
     {
         struct lws_client_connect_info info;
@@ -310,13 +310,13 @@ void wfp_impl_client_protocol_connect(
         info.host = info.address;
         info.origin = info.address;
         info.ssl_connection = (url_data.use_tls) ? LCCSCF_USE_SSL : 0;
-        info.protocol = WF_PROTOCOL_NAME_ADAPTER_SERVER;
-        info.local_protocol_name = WF_PROTOCOL_NAME_PROVIDER_CLIENT;
+        info.protocol = WFP_PROTOCOL_NAME_ADAPTER_SERVER;
+        info.local_protocol_name = WFP_PROTOCOL_NAME_PROVIDER_CLIENT;
         info.pwsi = &protocol->wsi;
 
         lws_client_connect_via_info(&info);
 
-        wf_url_cleanup(&url_data);
+        wfp_url_cleanup(&url_data);
     }
     else
     {

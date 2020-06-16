@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct wf_url_protocol
+struct wfp_url_protocol
 {
     char const * name;
     size_t name_length;
@@ -11,11 +11,11 @@ struct wf_url_protocol
     bool use_tls;
 };
 
-static bool wf_url_readprotocol(
-    struct wf_url * url,
+static bool wfp_url_readprotocol(
+    struct wfp_url * url,
     char const * * data)
 {
-    static struct wf_url_protocol const known_protocols[] =
+    static struct wfp_url_protocol const known_protocols[] =
     {
         {"ws://", 5, 80, false},
         {"wss://", 6, 443, true}
@@ -25,7 +25,7 @@ static bool wf_url_readprotocol(
     bool found = false;
     for(size_t i = 0; (!found) && (i < count); i++)
     {
-        struct wf_url_protocol const * protocol = &known_protocols[i];
+        struct wfp_url_protocol const * protocol = &known_protocols[i];
         if (0 == strncmp(*data, protocol->name, protocol->name_length))
         {
             url->port = protocol->default_port;
@@ -38,8 +38,8 @@ static bool wf_url_readprotocol(
     return found;
 }
 
-static bool wf_url_readhost(
-    struct wf_url * url,
+static bool wfp_url_readhost(
+    struct wfp_url * url,
     char const * * data)
 {
     char * end = strpbrk(*data, ":/");
@@ -55,8 +55,8 @@ static bool wf_url_readhost(
     return result;
 }
 
-static bool wf_url_readport(
-    struct wf_url * url,
+static bool wfp_url_readport(
+    struct wfp_url * url,
     char const * * data)
 {
     bool result;
@@ -81,8 +81,8 @@ static bool wf_url_readport(
     return result;
 }
 
-static bool wf_url_readpath(
-    struct wf_url * url,
+static bool wfp_url_readpath(
+    struct wfp_url * url,
     char const * * data)
 {
     bool const result = ('/' == **data);
@@ -93,33 +93,33 @@ static bool wf_url_readpath(
 }
 
 
-bool wf_url_init(
-    struct wf_url * url,
+bool wfp_url_init(
+    struct wfp_url * url,
     char const * value)
 {
-    memset(url, 0, sizeof(struct wf_url));
+    memset(url, 0, sizeof(struct wfp_url));
     char const * data = value;
 
     bool const result = 
-        wf_url_readprotocol(url, &data) &&
-        wf_url_readhost(url, &data) &&
-        wf_url_readport(url, &data) &&
-        wf_url_readpath(url, &data)
+        wfp_url_readprotocol(url, &data) &&
+        wfp_url_readhost(url, &data) &&
+        wfp_url_readport(url, &data) &&
+        wfp_url_readpath(url, &data)
         ;
 
     if (!result)
     {
-        wf_url_cleanup(url);
+        wfp_url_cleanup(url);
     }
 
     return result;
 }
 
-void wf_url_cleanup(
-    struct wf_url * url)
+void wfp_url_cleanup(
+    struct wfp_url * url)
 {    
     free(url->host);
     free(url->path);
-    memset(url, 0, sizeof(struct wf_url));
+    memset(url, 0, sizeof(struct wfp_url));
 }
 

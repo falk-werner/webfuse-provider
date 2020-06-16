@@ -41,7 +41,7 @@ static void webfuse_test_iproviderclient_onlookup(
     }
     catch (...)
     {
-        wfp_respond_error(request, WF_BAD);
+        wfp_respond_error(request, WFP_BAD);
     }
 }
 
@@ -65,7 +65,7 @@ static void webfuse_test_iproviderclient_ongetattr(
     }
     catch (...)
     {
-        wfp_respond_error(request, WF_BAD);
+        wfp_respond_error(request, WFP_BAD);
     }
 
 }
@@ -89,7 +89,7 @@ static void webfuse_test_iproviderclient_onreaddir(
     }
     catch (...)
     {
-        wfp_respond_error(request, WF_BAD);
+        wfp_respond_error(request, WFP_BAD);
     }
 
     wfp_dirbuffer_dispose(buffer);
@@ -116,7 +116,7 @@ static void webfuse_test_iproviderclient_onopen(
     }
     catch (...)
     {
-        wfp_respond_error(request, WF_BAD);
+        wfp_respond_error(request, WFP_BAD);
     }
 
 }
@@ -154,7 +154,7 @@ static void webfuse_test_iproviderclient_onread(
     }
     catch (...)
     {
-        wfp_respond_error(request, WF_BAD);
+        wfp_respond_error(request, WFP_BAD);
     }
 
     delete[] data;
@@ -181,14 +181,14 @@ static void webfuse_test_iproviderclient_get_credentials(
 namespace webfuse_test
 {
 
-ProviderClientException::ProviderClientException(wf_status error_code)
+ProviderClientException::ProviderClientException(wfp_status error_code)
 : runtime_error("ProviderClientException")
 , error_code_(error_code)
 {
 
 }
 
-wf_status ProviderClientException::GetErrorCode()
+wfp_status ProviderClientException::GetErrorCode()
 {
     return error_code_;
 }

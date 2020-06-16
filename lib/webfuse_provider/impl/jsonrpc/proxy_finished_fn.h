@@ -1,5 +1,5 @@
-#ifndef WF_JSONRPC_PROXY_FINISHED_FN_H
-#define WF_JSONRPC_PROXY_FINISHED_FN_H
+#ifndef WFP_JSONRPC_PROXY_FINISHED_FN_H
+#define WFP_JSONRPC_PROXY_FINISHED_FN_H
 
 #include <jansson.h>
 
@@ -8,7 +8,7 @@ extern "C"
 {
 #endif
 
-typedef void wf_jsonrpc_proxy_finished_fn(
+typedef void wfp_jsonrpc_proxy_finished_fn(
 	void * user_data,
 	json_t const * result,
     json_t const * error);

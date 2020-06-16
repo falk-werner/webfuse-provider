@@ -1,5 +1,5 @@
-#ifndef WF_UTILS_ADAPTER_CLIENT_HPP
-#define WF_UTILS_APAPTER_CLIENT_HPP
+#ifndef WFP_UTILS_ADAPTER_CLIENT_HPP
+#define WFP_UTILS_APAPTER_CLIENT_HPP
 
 #include "webfuse/adapter/client.h"
 #include <string>
@@ -13,7 +13,7 @@ class AdapterClient
     AdapterClient& operator=(AdapterClient const &) = delete;
 public:
     AdapterClient(
-        wf_client_callback_fn * callback,
+        wfp_client_callback_fn * callback,
         void * user_data,
         std::string const & url);
     ~AdapterClient();

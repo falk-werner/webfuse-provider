@@ -1,5 +1,5 @@
-#ifndef WF_PROVIDER_IMPL_OPERATION_OPEN_H
-#define WF_PROVIDER_IMPL_OPERATION_OPEN_H
+#ifndef WFP_PROVIDER_IMPL_OPERATION_OPEN_H
+#define WFP_PROVIDER_IMPL_OPERATION_OPEN_H
 
 #include "webfuse_provider/impl/provider.h"
 

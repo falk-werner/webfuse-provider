@@ -5,9 +5,9 @@ extern "C"
 {
 static webfuse_test::MockOperationContext * webfuse_test_MockOperationContext = nullptr;
 
-WF_WRAP_FUNC1(webfuse_test_MockOperationContext, 
-    struct wf_jsonrpc_proxy *,  wf_impl_operation_context_get_proxy,
-	struct wf_impl_operation_context *);
+WFP_WRAP_FUNC1(webfuse_test_MockOperationContext, 
+    struct wfp_jsonrpc_proxy *,  wfp_impl_operation_context_get_proxy,
+	struct wfp_impl_operation_context *);
 
 }
 

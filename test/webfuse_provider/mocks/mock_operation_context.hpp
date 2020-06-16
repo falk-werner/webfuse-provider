@@ -12,8 +12,8 @@ class MockOperationContext
 public:
     MockOperationContext();
     virtual ~MockOperationContext();
-    MOCK_METHOD1(wf_impl_operation_context_get_proxy, wf_jsonrpc_proxy * (
-	    struct wf_impl_operation_context * context));
+    MOCK_METHOD1(wfp_impl_operation_context_get_proxy, wfp_jsonrpc_proxy * (
+	    struct wfp_impl_operation_context * context));
 
 };
 

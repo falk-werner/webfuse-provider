@@ -63,7 +63,7 @@ private:
 extern "C"
 {
 
-static int wf_test_utils_ws_server_callback(
+static int wfp_test_utils_ws_server_callback(
     struct lws * wsi,
     enum lws_callback_reasons reason,
     void * user,
@@ -146,12 +146,12 @@ WsServer::Private::Private(std::string const & protocol, int port)
 , is_shutdown_requested(false)
 , wsi_(nullptr)
 {
-    wf_lwslog_disable();
+    wfp_lwslog_disable();
     IServer * server = this;
     memset(ws_protocols, 0, sizeof(struct lws_protocols) * 2 );
 
     ws_protocols[0].name = protocol_.c_str();
-    ws_protocols[0].callback = &wf_test_utils_ws_server_callback;
+    ws_protocols[0].callback = &wfp_test_utils_ws_server_callback;
     ws_protocols[0].per_session_data_size = 0;
     ws_protocols[0].user = reinterpret_cast<void*>(server);
 

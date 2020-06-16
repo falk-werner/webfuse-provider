@@ -1,5 +1,5 @@
-#ifndef WF_PROVIDER_IMPL_REQUEST_H
-#define WF_PROVIDER_IMPL_REQUEST_H
+#ifndef WFP_PROVIDER_IMPL_REQUEST_H
+#define WFP_PROVIDER_IMPL_REQUEST_H
 
 #include <jansson.h>
 #include "webfuse_provider/impl/provider.h"
@@ -23,7 +23,7 @@ struct wfp_request
 
 extern void wfp_impl_respond_error(
     struct wfp_request * request,
-    wf_status status);
+    wfp_status status);
 
 extern struct wfp_request * wfp_impl_request_create(
     struct wfp_request * prototype,

@@ -23,29 +23,29 @@ bool jsonrpc_send(
 
 }
 
-TEST(wf_jsonrpc_request, create_dispose)
+TEST(wfp_jsonrpc_request, create_dispose)
 {
     Context context{nullptr};
     void * user_data = reinterpret_cast<void*>(&context);
 
-    struct  wf_jsonrpc_request * request = 
-            wf_jsonrpc_request_create(42, &jsonrpc_send, user_data);
+    struct  wfp_jsonrpc_request * request = 
+            wfp_jsonrpc_request_create(42, &jsonrpc_send, user_data);
 
     ASSERT_NE(nullptr, request);
-    ASSERT_EQ(user_data, wf_jsonrpc_request_get_userdata(request));
+    ASSERT_EQ(user_data, wfp_jsonrpc_request_get_userdata(request));
 
-    wf_jsonrpc_request_dispose(request);
+    wfp_jsonrpc_request_dispose(request);
 }
 
-TEST(wf_jsonrpc_request, respond)
+TEST(wfp_jsonrpc_request, respond)
 {
     Context context{nullptr};
     void * user_data = reinterpret_cast<void*>(&context);
 
-    struct  wf_jsonrpc_request * request = 
-            wf_jsonrpc_request_create(42, &jsonrpc_send, user_data);
+    struct  wfp_jsonrpc_request * request = 
+            wfp_jsonrpc_request_create(42, &jsonrpc_send, user_data);
 
-    wf_jsonrpc_respond(request, json_string("okay"));
+    wfp_jsonrpc_respond(request, json_string("okay"));
 
     ASSERT_NE(nullptr, context.response);
 
@@ -66,15 +66,15 @@ TEST(wf_jsonrpc_request, respond)
     json_decref(response);
 }
 
-TEST(wf_jsonrpc_request, respond_error)
+TEST(wfp_jsonrpc_request, respond_error)
 {
     Context context{nullptr};
     void * user_data = reinterpret_cast<void*>(&context);
 
-    struct  wf_jsonrpc_request * request = 
-            wf_jsonrpc_request_create(42, &jsonrpc_send, user_data);
+    struct  wfp_jsonrpc_request * request = 
+            wfp_jsonrpc_request_create(42, &jsonrpc_send, user_data);
 
-    wf_jsonrpc_respond_error(request, WF_BAD, "Bad");
+    wfp_jsonrpc_respond_error(request, WFP_BAD, "Bad");
 
     ASSERT_NE(nullptr, context.response);
 
@@ -93,7 +93,7 @@ TEST(wf_jsonrpc_request, respond_error)
 
     json_t * err_code = json_object_get(err, "code");
     ASSERT_TRUE(json_is_integer(err_code));
-    ASSERT_EQ(WF_BAD, json_integer_value(err_code));
+    ASSERT_EQ(WFP_BAD, json_integer_value(err_code));
 
     json_t * err_message = json_object_get(err, "message");
     ASSERT_TRUE(json_is_string(err_message));
@@ -102,37 +102,37 @@ TEST(wf_jsonrpc_request, respond_error)
     json_decref(response);
 }
 
-TEST(wf_jsonrpc_request, is_request_object_params)
+TEST(wfp_jsonrpc_request, is_request_object_params)
 {
     json_t * request = json_object();
     json_object_set_new(request, "method", json_string("some_method"));
     json_object_set_new(request, "params", json_object());
     json_object_set_new(request, "id", json_integer(42));
 
-    ASSERT_TRUE(wf_jsonrpc_is_request(request));
+    ASSERT_TRUE(wfp_jsonrpc_is_request(request));
 
     json_decref(request);
 }
 
-TEST(wf_jsonrpc_request, is_request_fail_missing_params)
+TEST(wfp_jsonrpc_request, is_request_fail_missing_params)
 {
     json_t * request = json_object();
     json_object_set_new(request, "method", json_string("some_method"));
     json_object_set_new(request, "id", json_integer(42));
 
-    ASSERT_FALSE(wf_jsonrpc_is_request(request));
+    ASSERT_FALSE(wfp_jsonrpc_is_request(request));
 
     json_decref(request);
 }
 
-TEST(wf_jsonrpc_request, is_request_fail_params_wrong_type)
+TEST(wfp_jsonrpc_request, is_request_fail_params_wrong_type)
 {
     json_t * request = json_object();
     json_object_set_new(request, "method", json_string("some_method"));
     json_object_set_new(request, "params", json_string("invalid_params"));
     json_object_set_new(request, "id", json_integer(42));
 
-    ASSERT_FALSE(wf_jsonrpc_is_request(request));
+    ASSERT_FALSE(wfp_jsonrpc_is_request(request));
 
     json_decref(request);
 }

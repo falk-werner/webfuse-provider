@@ -193,7 +193,7 @@ static void fs_lookup(
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }
 }
 
@@ -215,7 +215,7 @@ static void fs_getattr(
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }
 }
 
@@ -247,7 +247,7 @@ static void fs_readdir(
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }
 }
 
@@ -268,12 +268,12 @@ static void fs_open(
         }
         else
         {
-            wfp_respond_error(request, WF_BAD_ACCESS_DENIED);
+            wfp_respond_error(request, WFP_BAD_ACCESS_DENIED);
         }        
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }
 }
 
@@ -305,12 +305,12 @@ static void fs_read(
         }
         else
         {
-            wfp_respond_error(request, WF_BAD);
+            wfp_respond_error(request, WFP_BAD);
         }        
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }
 }
 

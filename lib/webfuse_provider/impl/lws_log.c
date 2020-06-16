@@ -2,16 +2,16 @@
 #include <stdbool.h>
 #include <libwebsockets.h>
 
-#define WF_LWSLOG_DISABLE 0
+#define WFP_LWSLOG_DISABLE 0
 
-static bool wf_lwslog_is_diabled = false;
+static bool wfp_lwslog_is_diabled = false;
 
-void wf_lwslog_disable(void)
+void wfp_lwslog_disable(void)
 {
-    if (!wf_lwslog_is_diabled)
+    if (!wfp_lwslog_is_diabled)
     {
-	    lws_set_log_level(WF_LWSLOG_DISABLE, NULL);
-        wf_lwslog_is_diabled = true;
+	    lws_set_log_level(WFP_LWSLOG_DISABLE, NULL);
+        wfp_lwslog_is_diabled = true;
     }
 }
 

@@ -1,5 +1,5 @@
-#ifndef WF_JSONRPC_SEND_FN_H
-#define WF_JSONRPC_SEND_FN_H
+#ifndef WFP_JSONRPC_SEND_FN_H
+#define WFP_JSONRPC_SEND_FN_H
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -12,7 +12,7 @@ extern "C"
 {
 #endif
 
-typedef bool wf_jsonrpc_send_fn(
+typedef bool wfp_jsonrpc_send_fn(
 	json_t * request,
     void * user_data);
 

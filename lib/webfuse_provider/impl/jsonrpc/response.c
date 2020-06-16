@@ -3,7 +3,7 @@
 #include "webfuse_provider/status.h"
 
 bool
-wf_jsonrpc_is_response(
+wfp_jsonrpc_is_response(
     json_t * message)
 {
 	json_t * id = json_object_get(message, "id");
@@ -16,8 +16,8 @@ wf_jsonrpc_is_response(
 
 
 void
-wf_jsonrpc_response_init(
-	struct wf_jsonrpc_response * result,
+wfp_jsonrpc_response_init(
+	struct wfp_jsonrpc_response * result,
 	json_t * response)
 {
 	result->id = -1;
@@ -27,7 +27,7 @@ wf_jsonrpc_response_init(
 	json_t * id_holder = json_object_get(response, "id");
 	if (!json_is_integer(id_holder))
 	{
-		result->error = wf_jsonrpc_error(WF_BAD_FORMAT, "invalid format: missing id");
+		result->error = wfp_jsonrpc_error(WFP_BAD_FORMAT, "invalid format: missing id");
 		return;
 	}
 	
@@ -47,14 +47,14 @@ wf_jsonrpc_response_init(
 		}
 		else
 		{
-			result->error = wf_jsonrpc_error(WF_BAD_FORMAT, "invalid format: invalid error object");
+			result->error = wfp_jsonrpc_error(WFP_BAD_FORMAT, "invalid format: invalid error object");
 		}
 	}
 }
 
 void
-wf_jsonrpc_response_cleanup(
-	struct wf_jsonrpc_response * response)
+wfp_jsonrpc_response_cleanup(
+	struct wfp_jsonrpc_response * response)
 {
     if (NULL != response->result)
     {

@@ -1,5 +1,5 @@
-#ifndef WF_PROVIDER_CREDENTIALS_H
-#define WF_PROVIDER_CREDENTIALS_H
+#ifndef WFP_PROVIDER_CREDENTIALS_H
+#define WFP_PROVIDER_CREDENTIALS_H
 
 #include <webfuse_provider/api.h>
 

@@ -5,30 +5,30 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-struct wf_timer_manager
+struct wfp_timer_manager
 {
-    struct wf_timer * timers;
+    struct wfp_timer * timers;
 };
 
-struct wf_timer_manager *
-wf_timer_manager_create(void)
+struct wfp_timer_manager *
+wfp_timer_manager_create(void)
 {
-    struct wf_timer_manager * manager = malloc(sizeof(struct wf_timer_manager));
+    struct wfp_timer_manager * manager = malloc(sizeof(struct wfp_timer_manager));
     manager->timers = NULL;
 
     return manager;
 }
 
 void
-wf_timer_manager_dispose(
-    struct wf_timer_manager * manager)
+wfp_timer_manager_dispose(
+    struct wfp_timer_manager * manager)
 {
-    struct wf_timer * timer = manager->timers;
+    struct wfp_timer * timer = manager->timers;
     while (NULL != timer)
     {
-        struct wf_timer * next = timer->next;
+        struct wfp_timer * next = timer->next;
 
-        wf_timer_trigger(timer);
+        wfp_timer_trigger(timer);
         timer = next;
     }
 
@@ -36,27 +36,27 @@ wf_timer_manager_dispose(
 }
 
 
-void wf_timer_manager_check(
-    struct wf_timer_manager * manager)
+void wfp_timer_manager_check(
+    struct wfp_timer_manager * manager)
 {
-    struct wf_timer * timer = manager->timers;
+    struct wfp_timer * timer = manager->timers;
     while (NULL != timer)
     {
-        struct wf_timer * next = timer->next;
+        struct wfp_timer * next = timer->next;
 
-        if (wf_timer_is_timeout(timer))
+        if (wfp_timer_is_timeout(timer))
         {
-            wf_timer_manager_removetimer(manager, timer);
-            wf_timer_trigger(timer);
+            wfp_timer_manager_removetimer(manager, timer);
+            wfp_timer_trigger(timer);
         }
 
         timer = next;
     }    
 }
 
-void wf_timer_manager_addtimer(
-    struct wf_timer_manager * manager,
-    struct wf_timer * timer)
+void wfp_timer_manager_addtimer(
+    struct wfp_timer_manager * manager,
+    struct wfp_timer * timer)
 {
     if (NULL != manager->timers)
     {
@@ -68,12 +68,12 @@ void wf_timer_manager_addtimer(
     manager->timers = timer;
 }
 
-void wf_timer_manager_removetimer(
-    struct wf_timer_manager * manager,
-    struct wf_timer * timer)
+void wfp_timer_manager_removetimer(
+    struct wfp_timer_manager * manager,
+    struct wfp_timer * timer)
 {
-    struct wf_timer * prev = timer->prev;
-    struct wf_timer * next = timer->next;
+    struct wfp_timer * prev = timer->prev;
+    struct wfp_timer * next = timer->next;
 
     if (NULL != prev)
     {

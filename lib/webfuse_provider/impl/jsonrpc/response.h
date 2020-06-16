@@ -1,5 +1,5 @@
-#ifndef WF_JSONRPC_RESPONSE_H
-#define WF_JSONRPC_RESPONSE_H
+#ifndef WFP_JSONRPC_RESPONSE_H
+#define WFP_JSONRPC_RESPONSE_H
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -12,7 +12,7 @@ extern "C"
 {
 #endif
 
-extern bool wf_jsonrpc_is_response(
+extern bool wfp_jsonrpc_is_response(
     json_t * message);
 
 #ifdef __cplusplus

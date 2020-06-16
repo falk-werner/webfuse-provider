@@ -1,4 +1,4 @@
-#ifndef WF_JSON_MATCHER_HPP
+#ifndef WFP_JSON_MATCHER_HPP
 #define FW_JSON_MATCHER_HPP
 
 #include <gtest/gtest.h>

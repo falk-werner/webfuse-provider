@@ -2,10 +2,10 @@
 
 extern "C"
 {
-using wf_jsonrpc_test::MockTimerCallback;
+using wfp_jsonrpc_test::MockTimerCallback;
 
-static void wf_jsonrpc_test_MockTimerCallback_on_timer(
-    wf_timer * timer,
+static void wfp_jsonrpc_test_MockTimerCallback_on_timer(
+    wfp_timer * timer,
     void * user_data)
 {
     auto * self = reinterpret_cast<MockTimerCallback*>(user_data);
@@ -14,7 +14,7 @@ static void wf_jsonrpc_test_MockTimerCallback_on_timer(
 
 }
 
-namespace wf_jsonrpc_test
+namespace wfp_jsonrpc_test
 {
 
 MockTimerCallback::MockTimerCallback()
@@ -27,9 +27,9 @@ MockTimerCallback::~MockTimerCallback()
 
 }
 
-wf_timer_on_timer_fn * MockTimerCallback::on_timer_fn()
+wfp_timer_on_timer_fn * MockTimerCallback::on_timer_fn()
 {
-    return &wf_jsonrpc_test_MockTimerCallback_on_timer;
+    return &wfp_jsonrpc_test_MockTimerCallback_on_timer;
 }
 
 void * MockTimerCallback::user_data()

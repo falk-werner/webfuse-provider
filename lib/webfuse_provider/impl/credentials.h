@@ -1,5 +1,5 @@
-#ifndef WF_PROVIDER_IMPL_CREDENTIALS_H
-#define WF_PROVIDER_IMPL_CREDENTIALS_H
+#ifndef WFP_PROVIDER_IMPL_CREDENTIALS_H
+#define WFP_PROVIDER_IMPL_CREDENTIALS_H
 
 #include "webfuse_provider/credentials.h"
 #include <jansson.h>

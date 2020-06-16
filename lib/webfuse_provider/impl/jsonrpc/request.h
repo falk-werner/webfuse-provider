@@ -1,5 +1,5 @@
-#ifndef WF_JSONRPC_REQUEST_H
-#define WF_JSONRPC_REQUEST_H
+#ifndef WFP_JSONRPC_REQUEST_H
+#define WFP_JSONRPC_REQUEST_H
 
 #ifndef __cplusplus
 #include <stdarg.h>
@@ -19,29 +19,29 @@ extern "C"
 {
 #endif
 
-struct wf_jsonrpc_request;
+struct wfp_jsonrpc_request;
 
-extern bool wf_jsonrpc_is_request(
+extern bool wfp_jsonrpc_is_request(
     json_t * message);
 
-extern struct wf_jsonrpc_request *
-wf_jsonrpc_request_create(
+extern struct wfp_jsonrpc_request *
+wfp_jsonrpc_request_create(
     int id,
-    wf_jsonrpc_send_fn * send,
+    wfp_jsonrpc_send_fn * send,
     void * user_data);
 
-extern void wf_jsonrpc_request_dispose(
-    struct wf_jsonrpc_request * request);
+extern void wfp_jsonrpc_request_dispose(
+    struct wfp_jsonrpc_request * request);
 
-extern void * wf_jsonrpc_request_get_userdata(
-    struct wf_jsonrpc_request * request);
+extern void * wfp_jsonrpc_request_get_userdata(
+    struct wfp_jsonrpc_request * request);
 
-extern void wf_jsonrpc_respond(
-    struct wf_jsonrpc_request * request,
+extern void wfp_jsonrpc_respond(
+    struct wfp_jsonrpc_request * request,
     json_t * result);
 
-extern void wf_jsonrpc_respond_error(
-    struct wf_jsonrpc_request * request,
+extern void wfp_jsonrpc_respond_error(
+    struct wfp_jsonrpc_request * request,
     int code,
     char const * message);
 

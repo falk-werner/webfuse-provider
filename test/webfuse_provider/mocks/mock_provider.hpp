@@ -1,5 +1,5 @@
-#ifndef WF_MOCK_PROVIDER_HPP
-#define WF_MOCK_PROVIDER_HPP
+#ifndef WFP_MOCK_PROVIDER_HPP
+#define WFP_MOCK_PROVIDER_HPP
 
 #include "webfuse_provider/impl/provider.h"
 #include <gmock/gmock.h>

@@ -1,5 +1,5 @@
-#ifndef WF_JSONRPC_PROXY_INTERN_H
-#define WF_JSONRPC_PROXY_INTERN_H
+#ifndef WFP_JSONRPC_PROXY_INTERN_H
+#define WFP_JSONRPC_PROXY_INTERN_H
 
 #include "webfuse_provider/impl/jsonrpc/proxy.h"
 #include "webfuse_provider/impl/jsonrpc/proxy_finished_fn.h"
@@ -10,47 +10,47 @@ extern "C"
 {
 #endif
 
-struct wf_timer;
+struct wfp_timer;
 
-struct wf_jsonrpc_request
+struct wfp_jsonrpc_request
 {
     bool is_pending;
-    wf_jsonrpc_proxy_finished_fn * finished;
+    wfp_jsonrpc_proxy_finished_fn * finished;
     void * user_data;
     int id;
-    struct wf_timer * timer;
+    struct wfp_timer * timer;
 };
 
-struct wf_jsonrpc_proxy
+struct wfp_jsonrpc_proxy
 {
-    struct wf_jsonrpc_request request;
+    struct wfp_jsonrpc_request request;
     int timeout;
-    wf_jsonrpc_send_fn * send;
+    wfp_jsonrpc_send_fn * send;
     void * user_data;
 };
 
 extern void 
-wf_jsonrpc_proxy_init(
-    struct wf_jsonrpc_proxy * proxy,
-    struct wf_timer_manager * manager,
+wfp_jsonrpc_proxy_init(
+    struct wfp_jsonrpc_proxy * proxy,
+    struct wfp_timer_manager * manager,
     int timeout,
-    wf_jsonrpc_send_fn * send,
+    wfp_jsonrpc_send_fn * send,
     void * user_data);
 
 extern void 
-wf_jsonrpc_proxy_cleanup(
-    struct wf_jsonrpc_proxy * proxy);
+wfp_jsonrpc_proxy_cleanup(
+    struct wfp_jsonrpc_proxy * proxy);
 
-extern void wf_jsonrpc_proxy_vinvoke(
-	struct wf_jsonrpc_proxy * proxy,
-	wf_jsonrpc_proxy_finished_fn * finished,
+extern void wfp_jsonrpc_proxy_vinvoke(
+	struct wfp_jsonrpc_proxy * proxy,
+	wfp_jsonrpc_proxy_finished_fn * finished,
 	void * user_data,
 	char const * method_name,
 	char const * param_info,
 	va_list args);
 
-extern void wf_jsonrpc_proxy_vnotify(
-	struct wf_jsonrpc_proxy * proxy,
+extern void wfp_jsonrpc_proxy_vnotify(
+	struct wfp_jsonrpc_proxy * proxy,
 	char const * method_name,
 	char const * param_info,
 	va_list args);

@@ -165,16 +165,16 @@ wfp_static_filesystem_add_dir(
 static size_t
 wfp_static_filesystem_make_parent(
     struct wfp_static_filesystem * filesystem,
-    struct wf_path * path)
+    struct wfp_path * path)
 {
     size_t result = WFP_STATIC_FILSYSTEM_INODE_ROOT;
 
-    size_t count = wf_path_element_count(path);
+    size_t count = wfp_path_element_count(path);
     if (0 < count)
     {
         for(size_t i = 0; i < (count - 1); i++)
         {
-            char const * name = wf_path_get_element(path, i);
+            char const * name = wfp_path_get_element(path, i);
             result = wfp_static_filesystem_add_dir(filesystem, result, name);
         }
     }
@@ -217,7 +217,7 @@ static void wfp_static_filesystem_lookup(
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }
 }
 
@@ -238,7 +238,7 @@ static void wfp_static_filesystem_getattr(
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }
 }
 
@@ -270,7 +270,7 @@ static void wfp_static_filesystem_readdir(
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }
 }
 
@@ -291,19 +291,19 @@ static void wfp_static_filesystem_open(
         }
         else
         {
-            wfp_respond_error(request, WF_BAD_ACCESS_DENIED);
+            wfp_respond_error(request, WFP_BAD_ACCESS_DENIED);
         }
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }
 }
 
 static void wfp_static_filesystem_read(
     struct wfp_request * request,
     ino_t inode,
-    uint32_t WF_UNUSED_PARAM(handle),
+    uint32_t WFP_UNUSED_PARAM(handle),
     size_t offset,
     size_t length,
     void * user_data)
@@ -321,7 +321,7 @@ static void wfp_static_filesystem_read(
     }
     else
     {
-        wfp_respond_error(request, WF_BAD_NOENTRY);
+        wfp_respond_error(request, WFP_BAD_NOENTRY);
     }    
 }
 
@@ -373,14 +373,14 @@ wfp_static_filesystem_add(
     char const * content,
     size_t length)
 {
-    struct wf_path * path_ = wf_path_create(path);
+    struct wfp_path * path_ = wfp_path_create(path);
     if (NULL != path_)
     {
         size_t parent = wfp_static_filesystem_make_parent(filesystem, path_);
         struct wfp_static_filesystem_entry * entry = wfp_static_filesystem_add_entry(filesystem);
         entry->parent = parent;
         entry->is_file = true;
-        entry->name = strdup(wf_path_get_filename(path_));
+        entry->name = strdup(wfp_path_get_filename(path_));
         entry->mode = mode;
         entry->size = length;
         entry->get_info = &wfp_static_filesystem_entry_get_info;
@@ -390,7 +390,7 @@ wfp_static_filesystem_add(
         entry->content = malloc(length);
         memcpy(entry->content, content, length);
 
-        wf_path_dispose(path_);
+        wfp_path_dispose(path_);
     }
 }
 

@@ -38,13 +38,13 @@ void wfp_impl_read(
 
 void wfp_impl_read_default(
     struct wfp_request * request,
-    ino_t WF_UNUSED_PARAM(inode),
-    uint32_t WF_UNUSED_PARAM(handle),
-    size_t WF_UNUSED_PARAM(offset),
-    size_t WF_UNUSED_PARAM(length),
-    void * WF_UNUSED_PARAM(user_data))
+    ino_t WFP_UNUSED_PARAM(inode),
+    uint32_t WFP_UNUSED_PARAM(handle),
+    size_t WFP_UNUSED_PARAM(offset),
+    size_t WFP_UNUSED_PARAM(length),
+    void * WFP_UNUSED_PARAM(user_data))
 {
-    wfp_impl_respond_error(request, WF_BAD_NOENTRY);
+    wfp_impl_respond_error(request, WFP_BAD_NOENTRY);
 }
 
 void wfp_impl_respond_read(
@@ -54,9 +54,9 @@ void wfp_impl_respond_read(
 {
     if (0 < length)
     {
-        size_t const size = wf_base64_encoded_size(length) + 1;
+        size_t const size = wfp_base64_encoded_size(length) + 1;
         char * buffer = malloc(size);
-        wf_base64_encode((uint8_t const *) data, length, buffer, size);
+        wfp_base64_encode((uint8_t const *) data, length, buffer, size);
 
         json_t * result = json_object();
         json_object_set_new(result, "data", json_string(buffer));

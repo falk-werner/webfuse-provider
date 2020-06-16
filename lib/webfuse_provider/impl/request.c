@@ -37,7 +37,7 @@ extern void wfp_impl_respond(
 
 void wfp_impl_respond_error(
     struct wfp_request * request,
-    wf_status status)
+    wfp_status status)
 {
     json_t * response = json_object();
     json_t * error = json_object();

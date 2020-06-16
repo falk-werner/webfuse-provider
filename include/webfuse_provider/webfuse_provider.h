@@ -3,8 +3,8 @@
 /// \brief Convenience header to include all functionality of libfuse_provider.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef WF_PROVIDER_H
-#define WF_PROVIDER_H
+#ifndef WFP_PROVIDER_H
+#define WFP_PROVIDER_H
 
 #include <webfuse_provider/status.h>
 #include <webfuse_provider/protocol_names.h>

@@ -1,5 +1,5 @@
-#ifndef WF_TEST_FILE_UTILS_HPP
-#define WF_TEST_FILE_UTILS_HPP
+#ifndef WFP_TEST_FILE_UTILS_HPP
+#define WFP_TEST_FILE_UTILS_HPP
 
 #include <string>
 

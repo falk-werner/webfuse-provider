@@ -13,7 +13,7 @@ struct wfp_request;
 
 extern WFP_API void wfp_impl_respond_error(
     struct wfp_request * request,
-    wf_status status);
+    wfp_status status);
 
 #ifdef __cplusplus
 }

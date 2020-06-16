@@ -1,5 +1,5 @@
-#ifndef WF_JSONRPC_METHOD_INVOKE_FN_H
-#define WF_JSONRPC_METHOD_INVOKE_FN_H
+#ifndef WFP_JSONRPC_METHOD_INVOKE_FN_H
+#define WFP_JSONRPC_METHOD_INVOKE_FN_H
 
 #include <jansson.h>
 
@@ -8,10 +8,10 @@ extern "C"
 {
 #endif
 
-struct wf_jsonrpc_request;
+struct wfp_jsonrpc_request;
 
-typedef void wf_jsonrpc_method_invoke_fn(
-    struct wf_jsonrpc_request * request,
+typedef void wfp_jsonrpc_method_invoke_fn(
+    struct wfp_jsonrpc_request * request,
     char const * method_name,
     json_t * params,
     void * user_data);

@@ -29,10 +29,10 @@ void wfp_impl_getattr(
 
 void wfp_impl_getattr_default(
     struct wfp_request * request,
-    ino_t WF_UNUSED_PARAM(inode),
-    void * WF_UNUSED_PARAM(user_data))
+    ino_t WFP_UNUSED_PARAM(inode),
+    void * WFP_UNUSED_PARAM(user_data))
 {
-    wfp_impl_respond_error(request, WF_BAD_NOENTRY);
+    wfp_impl_respond_error(request, WFP_BAD_NOENTRY);
 }
 
 void wfp_impl_respond_getattr(

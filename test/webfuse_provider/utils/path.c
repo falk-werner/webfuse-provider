@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WF_PATH_DEFAULT_CAPACITY (8)
+#define WFP_PATH_DEFAULT_CAPACITY (8)
 
-struct wf_path
+struct wfp_path
 {
     char * * elements;
     size_t count;
@@ -12,8 +12,8 @@ struct wf_path
 };
 
 static void 
-wf_path_add(
-    struct wf_path * path,
+wfp_path_add(
+    struct wfp_path * path,
     char const * element,
     size_t element_size)
 {
@@ -40,32 +40,32 @@ wf_path_add(
     }
 }
 
-struct wf_path *
-wf_path_create(
+struct wfp_path *
+wfp_path_create(
     char const * value)
 {
-    struct wf_path * path = malloc(sizeof(struct wf_path));
-    path->elements = malloc(sizeof(char*) * WF_PATH_DEFAULT_CAPACITY);
-    path->capacity = WF_PATH_DEFAULT_CAPACITY;
+    struct wfp_path * path = malloc(sizeof(struct wfp_path));
+    path->elements = malloc(sizeof(char*) * WFP_PATH_DEFAULT_CAPACITY);
+    path->capacity = WFP_PATH_DEFAULT_CAPACITY;
     path->count = 0;
 
     char const * remainder = value;
     char const * pos = strchr(remainder, '/');
     while (NULL != pos)
     {
-        wf_path_add(path, remainder, (pos - remainder));
+        wfp_path_add(path, remainder, (pos - remainder));
         remainder = pos + 1;
         pos = strchr(remainder, '/');
     }
 
-    wf_path_add(path, remainder, strlen(remainder));
+    wfp_path_add(path, remainder, strlen(remainder));
 
     return path;
 }
 
 void
-wf_path_dispose(
-    struct wf_path * path)
+wfp_path_dispose(
+    struct wfp_path * path)
 {
     for(size_t i = 0; i < path->count; i++)
     {
@@ -78,15 +78,15 @@ wf_path_dispose(
 }
 
 size_t
-wf_path_element_count(
-    struct wf_path * path)
+wfp_path_element_count(
+    struct wfp_path * path)
 {
     return path->count;
 }
 
 char const *
-wf_path_get_element(
-    struct wf_path * path,
+wfp_path_get_element(
+    struct wfp_path * path,
     size_t i)
 {  
     char const * result = NULL;
@@ -99,8 +99,8 @@ wf_path_get_element(
 }
 
 char const *
-wf_path_get_filename(
-    struct wf_path * path)
+wfp_path_get_filename(
+    struct wfp_path * path)
 {
     char const * result = NULL;
 

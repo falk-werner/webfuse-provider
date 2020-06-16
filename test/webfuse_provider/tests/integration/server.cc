@@ -9,7 +9,7 @@
 #include "webfuse_adapter.h"
 #include "webfuse/adapter/impl/server.h"
 
-#define WF_PATH_MAX (100)
+#define WFP_PATH_MAX (100)
 
 extern "C"
 {
@@ -22,17 +22,17 @@ static void webfuse_test_server_cleanup_mountpoint(
     free(path);
 }
 
-static struct wf_mountpoint *
+static struct wfp_mountpoint *
 webfuse_test_server_create_mountpoint(
     char const * filesystem,
     void * user_data)
 {
     char const * base_dir = reinterpret_cast<char const*>(user_data);
-    char path[WF_PATH_MAX];
-    snprintf(path, WF_PATH_MAX, "%s/%s", base_dir, filesystem);
+    char path[WFP_PATH_MAX];
+    snprintf(path, WFP_PATH_MAX, "%s/%s", base_dir, filesystem);
     mkdir(path, 0755);
-    struct wf_mountpoint * mountpoint = wf_mountpoint_create(path);
-    wf_mountpoint_set_userdata(
+    struct wfp_mountpoint * mountpoint = wfp_mountpoint_create(path);
+    wfp_mountpoint_set_userdata(
         mountpoint,
         reinterpret_cast<void*>(strdup(path)),
         &webfuse_test_server_cleanup_mountpoint);
@@ -51,7 +51,7 @@ public:
     Private()
     : is_shutdown_requested(false)
     {
-        snprintf(base_dir, WF_PATH_MAX, "%s", "/tmp/webfuse_test_integration_XXXXXX");
+        snprintf(base_dir, WFP_PATH_MAX, "%s", "/tmp/webfuse_test_integration_XXXXXX");
         char const * result = mkdtemp(base_dir);
         if (NULL == result)
         {
@@ -59,19 +59,19 @@ public:
         }
 
 
-        config = wf_server_config_create();
-        wf_server_config_set_port(config, 0);
-        wf_server_config_set_mountpoint_factory(config, 
+        config = wfp_server_config_create();
+        wfp_server_config_set_port(config, 0);
+        wfp_server_config_set_mountpoint_factory(config, 
             &webfuse_test_server_create_mountpoint,
             reinterpret_cast<void*>(base_dir));
-        wf_server_config_set_keypath(config, "server-key.pem");
-        wf_server_config_set_certpath(config, "server-cert.pem");
+        wfp_server_config_set_keypath(config, "server-key.pem");
+        wfp_server_config_set_certpath(config, "server-cert.pem");
 
-        server = wf_server_create(config);
+        server = wfp_server_create(config);
 
-        while (!wf_impl_server_is_operational(server))
+        while (!wfp_impl_server_is_operational(server))
         {
-            wf_server_service(server);
+            wfp_server_service(server);
         }
 
         thread = std::thread(Run, this);
@@ -83,8 +83,8 @@ public:
         RequestShutdown();
         thread.join();
         rmdir(base_dir);
-        wf_server_dispose(server);
-        wf_server_config_dispose(config);
+        wfp_server_dispose(server);
+        wfp_server_config_dispose(config);
     }
 
     bool IsShutdownRequested()
@@ -95,7 +95,7 @@ public:
 
     std::string GetUrl(void) const
     {
-        int const port = wf_server_get_port(server);
+        int const port = wfp_server_get_port(server);
         std::ostringstream stream;
         stream << "wss://localhost:" << port << "/";
         return stream.str();
@@ -106,14 +106,14 @@ private:
     {
         std::lock_guard<std::mutex> lock(shutdown_lock);
         is_shutdown_requested = true;
-        wf_server_interrupt(server);
+        wfp_server_interrupt(server);
     }
 
     static void Run(Server::Private * context)
     {
         while (!context->IsShutdownRequested())
         {
-            wf_server_service(context->server);
+            wfp_server_service(context->server);
         }
     }
 
@@ -124,9 +124,9 @@ private:
 
 
 public:
-    char base_dir[WF_PATH_MAX];
-    wf_server_config * config;
-    wf_server * server;
+    char base_dir[WFP_PATH_MAX];
+    wfp_server_config * config;
+    wfp_server * server;
 };
 
 Server::Server()

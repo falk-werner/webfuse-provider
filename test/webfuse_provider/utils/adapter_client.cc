@@ -25,10 +25,10 @@ class AdapterClient::Private
 {
 public:
     Private(
-        wf_client_callback_fn * callback,
+        wfp_client_callback_fn * callback,
         void * user_data,
         std::string const & url)
-    : client(wf_client_create(callback, user_data))
+    : client(wfp_client_create(callback, user_data))
     , url_(url)
     , command(Command::run)
     , tempdir("webfuse_adpter_client")
@@ -40,7 +40,7 @@ public:
     {
         ApplyCommand(Command::shutdown);
         thread.join();
-        wf_client_dispose(client);
+        wfp_client_dispose(client);
     }
 
     void ApplyCommand(Command actual_command)
@@ -50,7 +50,7 @@ public:
             command = actual_command;
         }
 
-        wf_client_interrupt(client);
+        wfp_client_interrupt(client);
     }
 
     std::string GetDir()
@@ -74,19 +74,19 @@ private:
             switch (actual_command)
             {
                 case Command::run:
-                    wf_client_service(self->client);
+                    wfp_client_service(self->client);
                     break;
                 case Command::connect:
-                    wf_client_connect(self->client, self->url_.c_str());
+                    wfp_client_connect(self->client, self->url_.c_str());
                     break;
                 case Command::disconnect:
-                    wf_client_disconnect(self->client);
+                    wfp_client_disconnect(self->client);
                     break;
                 case Command::authenticate:
-                    wf_client_authenticate(self->client);
+                    wfp_client_authenticate(self->client);
                     break;
                 case Command::add_filesystem:
-                    wf_client_add_filesystem(self->client, self->tempdir.path(), "test");
+                    wfp_client_add_filesystem(self->client, self->tempdir.path(), "test");
                     break;
                 case Command::shutdown:
                     // fall-through
@@ -98,7 +98,7 @@ private:
         }
     }     
 
-    wf_client * client;
+    wfp_client * client;
     std::string url_;
     Command command;
     TempDir tempdir;
@@ -107,7 +107,7 @@ private:
 };
 
 AdapterClient::AdapterClient(
-    wf_client_callback_fn * callback,
+    wfp_client_callback_fn * callback,
     void * user_data,
     std::string const & url)
 : d(new Private(callback, user_data, url))

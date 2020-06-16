@@ -6,13 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct wf_timer *
-wf_timer_create(
-    struct wf_timer_manager * manager,
-    wf_timer_on_timer_fn * on_timer,
+struct wfp_timer *
+wfp_timer_create(
+    struct wfp_timer_manager * manager,
+    wfp_timer_on_timer_fn * on_timer,
     void * user_data)
 {
-    struct wf_timer * timer = malloc(sizeof(struct wf_timer));
+    struct wfp_timer * timer = malloc(sizeof(struct wfp_timer));
     timer->manager = manager;
     timer->timeout = 0;
     timer->on_timer = on_timer;
@@ -24,38 +24,38 @@ wf_timer_create(
 }
 
 void
-wf_timer_dispose(
-    struct wf_timer * timer)
+wfp_timer_dispose(
+    struct wfp_timer * timer)
 {
     free(timer);
 }
 
-void wf_timer_start(
-    struct wf_timer * timer,
+void wfp_timer_start(
+    struct wfp_timer * timer,
     int timeout_ms)
 {
-    timer->timeout = wf_timer_timepoint_in_msec(timeout_ms);
+    timer->timeout = wfp_timer_timepoint_in_msec(timeout_ms);
 
-    wf_timer_manager_addtimer(timer->manager, timer);
+    wfp_timer_manager_addtimer(timer->manager, timer);
 }
 
-void wf_timer_cancel(
-    struct wf_timer * timer)
+void wfp_timer_cancel(
+    struct wfp_timer * timer)
 {
-    wf_timer_manager_removetimer(timer->manager, timer);
+    wfp_timer_manager_removetimer(timer->manager, timer);
 
     timer->timeout = 0;
 }
 
-bool wf_timer_is_timeout(
-    struct wf_timer * timer)
+bool wfp_timer_is_timeout(
+    struct wfp_timer * timer)
 {
-    return wf_timer_timepoint_is_elapsed(timer->timeout);
+    return wfp_timer_timepoint_is_elapsed(timer->timeout);
 }
 
 
-void wf_timer_trigger(
-    struct wf_timer * timer)
+void wfp_timer_trigger(
+    struct wfp_timer * timer)
 {
     if (0 != timer->on_timer)
     {

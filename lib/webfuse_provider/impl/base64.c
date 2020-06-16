@@ -1,6 +1,6 @@
 #include "webfuse_provider/impl/base64.h"
 
-static const uint8_t wf_base64_decode_table[256] = {
+static const uint8_t wfp_base64_decode_table[256] = {
     // 0     1     2     3     4     5     6     7     8      9    A     B     C     D     E     F  
     0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, // 0
     0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, // 1
@@ -22,12 +22,12 @@ static const uint8_t wf_base64_decode_table[256] = {
 
 
 
-size_t wf_base64_encoded_size(size_t length)
+size_t wfp_base64_encoded_size(size_t length)
 {
     return ((length + 2) / 3) * 4;
 }
 
-size_t wf_base64_encode(
+size_t wfp_base64_encode(
     uint8_t const * data,
     size_t length,
     char * buffer,
@@ -36,7 +36,7 @@ size_t wf_base64_encode(
     //                             0         1         2         3         4         5         6
     //                             0123456789012345678901234567890123456789012345678901234567890123
     static char const table[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    size_t const length_needed = wf_base64_encoded_size(length);
+    size_t const length_needed = wfp_base64_encoded_size(length);
     if (buffer_size < length_needed)
     {
         return 0;
@@ -78,7 +78,7 @@ size_t wf_base64_encode(
     return out_pos;
 }
 
-size_t wf_base64_decoded_size(char const * data, size_t length)
+size_t wfp_base64_decoded_size(char const * data, size_t length)
 {
     size_t result = 0;
     if ((length > 0) && ((length % 4) == 0))
@@ -98,14 +98,14 @@ size_t wf_base64_decoded_size(char const * data, size_t length)
     return result;
 }
 
-size_t wf_base64_decode(
+size_t wfp_base64_decode(
     char const * data,
     size_t length,
     uint8_t * buffer,
     size_t buffer_size)
 {
-    uint8_t const * table = wf_base64_decode_table;
-    size_t needed_size = wf_base64_decoded_size(data, length);
+    uint8_t const * table = wfp_base64_decode_table;
+    size_t needed_size = wfp_base64_decoded_size(data, length);
     if ((0 == needed_size) || (buffer_size < needed_size))
     {
         return 0;
@@ -146,9 +146,9 @@ size_t wf_base64_decode(
     return out_pos;
 }
 
-extern bool wf_base64_isvalid(char const * data, size_t length)
+extern bool wfp_base64_isvalid(char const * data, size_t length)
 {
-    uint8_t const * table = wf_base64_decode_table;
+    uint8_t const * table = wfp_base64_decode_table;
 
     if ((length == 0) || ((length % 4) != 0))
     {

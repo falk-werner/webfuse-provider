@@ -1,5 +1,5 @@
-#ifndef WF_TEST_UTILS_WS_SERVER_HPP
-#define WF_TEST_UTILS_WS_SERVER_HPP
+#ifndef WFP_TEST_UTILS_WS_SERVER_HPP
+#define WFP_TEST_UTILS_WS_SERVER_HPP
 
 #include <jansson.h>
 #include <string>

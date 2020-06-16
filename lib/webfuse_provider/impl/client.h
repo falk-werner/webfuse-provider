@@ -1,5 +1,5 @@
-#ifndef WF_PROVIDER_IMPL_CLIENT_H
-#define WF_PROVIDER_IMPL_CLIENT_H
+#ifndef WFP_PROVIDER_IMPL_CLIENT_H
+#define WFP_PROVIDER_IMPL_CLIENT_H
 
 #ifndef __cplusplus
 #include <stdbool.h>

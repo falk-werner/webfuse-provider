@@ -1,5 +1,5 @@
-#ifndef WF_LOOKUP_MATCHER_HPP
-#define WF_LOOKUP_MATCHER_HPP
+#ifndef WFP_LOOKUP_MATCHER_HPP
+#define WFP_LOOKUP_MATCHER_HPP
 
 #include <gmock/gmock.h>
 #include <jansson.h>

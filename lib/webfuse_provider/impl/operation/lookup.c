@@ -59,10 +59,10 @@ void wfp_impl_respond_lookup(
 
 void wfp_impl_lookup_default(
     struct wfp_request * request,
-    ino_t WF_UNUSED_PARAM(parent),
-    char const * WF_UNUSED_PARAM(name),
-    void * WF_UNUSED_PARAM(user_data))
+    ino_t WFP_UNUSED_PARAM(parent),
+    char const * WFP_UNUSED_PARAM(name),
+    void * WFP_UNUSED_PARAM(user_data))
 {
-    wfp_impl_respond_error(request, WF_BAD_NOENTRY);
+    wfp_impl_respond_error(request, WFP_BAD_NOENTRY);
 }
 

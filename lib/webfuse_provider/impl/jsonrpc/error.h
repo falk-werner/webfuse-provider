@@ -1,5 +1,5 @@
-#ifndef WF_JSONRPC_ERROR_H
-#define WF_JSONRPC_ERROR_H
+#ifndef WFP_JSONRPC_ERROR_H
+#define WFP_JSONRPC_ERROR_H
 
 #include <jansson.h>
 #include "webfuse_provider/impl/jsonrpc/proxy_finished_fn.h"
@@ -10,13 +10,13 @@ extern "C"
 #endif
 
 extern json_t *
-wf_jsonrpc_error(
+wfp_jsonrpc_error(
     int code,
     char const * message);
 
 extern void
-wf_jsonrpc_propate_error(
-    wf_jsonrpc_proxy_finished_fn * finised,
+wfp_jsonrpc_propate_error(
+    wfp_jsonrpc_proxy_finished_fn * finised,
     void * user_data,
     int code,
     char const * message);

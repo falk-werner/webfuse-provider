@@ -2,15 +2,15 @@
 #include "webfuse_provider/impl/jsonrpc/error.h"
 #include <stdlib.h>
 
-struct wf_jsonrpc_request
+struct wfp_jsonrpc_request
 {
     int id;
-    wf_jsonrpc_send_fn * send;
+    wfp_jsonrpc_send_fn * send;
     void * user_data;
 };
 
 bool
-wf_jsonrpc_is_request(
+wfp_jsonrpc_is_request(
     json_t * message)
 {
     json_t * id = json_object_get(message, "id");
@@ -22,13 +22,13 @@ wf_jsonrpc_is_request(
 }
 
 
-struct wf_jsonrpc_request *
-wf_jsonrpc_request_create(
+struct wfp_jsonrpc_request *
+wfp_jsonrpc_request_create(
     int id,
-    wf_jsonrpc_send_fn * send,
+    wfp_jsonrpc_send_fn * send,
     void * user_data)
 {
-    struct wf_jsonrpc_request * request = malloc(sizeof(struct wf_jsonrpc_request));
+    struct wfp_jsonrpc_request * request = malloc(sizeof(struct wfp_jsonrpc_request));
     request->id = id;
     request->send = send;
     request->user_data = user_data;
@@ -37,23 +37,23 @@ wf_jsonrpc_request_create(
 }
 
 void
-wf_jsonrpc_request_dispose(
-    struct wf_jsonrpc_request * request)
+wfp_jsonrpc_request_dispose(
+    struct wfp_jsonrpc_request * request)
 {
     free(request);
 }
 
 void *
-wf_jsonrpc_request_get_userdata(
-    struct wf_jsonrpc_request * request)
+wfp_jsonrpc_request_get_userdata(
+    struct wfp_jsonrpc_request * request)
 {
     return request->user_data;
 }
 
 
 void
-wf_jsonrpc_respond(
-    struct wf_jsonrpc_request * request,
+wfp_jsonrpc_respond(
+    struct wfp_jsonrpc_request * request,
     json_t * result)
 {
     json_t * response = json_object();
@@ -62,20 +62,20 @@ wf_jsonrpc_respond(
 
     request->send(response, request->user_data);
     json_decref(response);
-    wf_jsonrpc_request_dispose(request);
+    wfp_jsonrpc_request_dispose(request);
 }
 
-void wf_jsonrpc_respond_error(
-    struct wf_jsonrpc_request * request,
+void wfp_jsonrpc_respond_error(
+    struct wfp_jsonrpc_request * request,
     int code,
     char const * message)
 {
     json_t * response = json_object();
-    json_object_set_new(response, "error", wf_jsonrpc_error(code, message));
+    json_object_set_new(response, "error", wfp_jsonrpc_error(code, message));
     json_object_set_new(response, "id", json_integer(request->id));
 
     request->send(response, request->user_data);
     json_decref(response);
-    wf_jsonrpc_request_dispose(request);
+    wfp_jsonrpc_request_dispose(request);
 }
 

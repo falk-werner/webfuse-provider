@@ -34,7 +34,7 @@ class ClientProtocolFixture
 public:
     explicit ClientProtocolFixture(IProviderClient& client, bool enableAuthentication = false)
     {
-        server = new WsServer(WF_PROTOCOL_NAME_ADAPTER_SERVER);
+        server = new WsServer(WFP_PROTOCOL_NAME_ADAPTER_SERVER);
 
         config = wfp_client_config_create();
         client.AttachTo(config, enableAuthentication);

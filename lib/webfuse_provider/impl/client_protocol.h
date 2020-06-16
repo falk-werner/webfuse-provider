@@ -1,5 +1,5 @@
-#ifndef WF_PROVIDER_IMPL_CLIENT_PROTOCOL_H
-#define WF_PROVIDER_IMPL_CLIENT_PROTOCOL_H
+#ifndef WFP_PROVIDER_IMPL_CLIENT_PROTOCOL_H
+#define WFP_PROVIDER_IMPL_CLIENT_PROTOCOL_H
 
 #include "webfuse_provider/impl/provider.h"
 #include "webfuse_provider/impl/request.h"
@@ -14,8 +14,8 @@ extern "C"
 struct wfp_client_config;
 struct lws_protocols;
 struct lws_context;
-struct wf_jsonrpc_proxy;
-struct wf_timer_manager;
+struct wfp_jsonrpc_proxy;
+struct wfp_timer_manager;
 
 struct wfp_client_protocol
 {
@@ -25,9 +25,9 @@ struct wfp_client_protocol
     struct wfp_provider provider;
     void * user_data;
     struct lws * wsi;
-    struct wf_timer_manager * timer_manager;
-    struct wf_jsonrpc_proxy * proxy;
-    struct wf_slist messages;
+    struct wfp_timer_manager * timer_manager;
+    struct wfp_jsonrpc_proxy * proxy;
+    struct wfp_slist messages;
 };
 
 extern void wfp_impl_client_protocol_init(

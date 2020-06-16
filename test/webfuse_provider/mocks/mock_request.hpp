@@ -1,5 +1,5 @@
-#ifndef WF_MOCK_REQUEST_HPP
-#define WF_MOCK_REQUEST_HPP
+#ifndef WFP_MOCK_REQUEST_HPP
+#define WFP_MOCK_REQUEST_HPP
 
 #include <gmock/gmock.h>
 #include <jansson.h>

@@ -1,7 +1,7 @@
 #include "webfuse_provider/impl/jsonrpc/error.h"
 
 json_t *
-wf_jsonrpc_error(
+wfp_jsonrpc_error(
     int code,
     char const * message)
 {
@@ -13,13 +13,13 @@ wf_jsonrpc_error(
 }
 
 void
-wf_jsonrpc_propate_error(
-    wf_jsonrpc_proxy_finished_fn * finised,
+wfp_jsonrpc_propate_error(
+    wfp_jsonrpc_proxy_finished_fn * finised,
     void * user_data,
     int code,
     char const * message)
 {
-    json_t * error = wf_jsonrpc_error(code, message);
+    json_t * error = wfp_jsonrpc_error(code, message);
     finised(user_data, NULL, error);
 
     json_decref(error);

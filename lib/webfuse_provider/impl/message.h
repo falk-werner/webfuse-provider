@@ -1,5 +1,5 @@
-#ifndef WF_MESSAGE_H
-#define WF_MESSAGE_H
+#ifndef WFP_MESSAGE_H
+#define WFP_MESSAGE_H
 
 #ifndef __cplusplus
 #include <stddef.h>
@@ -11,9 +11,9 @@ using std::size_t;
 #include <jansson.h>
 #include "webfuse_provider/impl/slist.h"
 
-struct wf_message
+struct wfp_message
 {
-    struct wf_slist_item item;
+    struct wfp_slist_item item;
     char * data;
     size_t length;
 };
@@ -23,11 +23,11 @@ extern "C"
 {
 #endif
 
-extern struct wf_message * wf_message_create(
+extern struct wfp_message * wfp_message_create(
     json_t const * value);
 
-extern void wf_message_dispose(
-    struct wf_message * message);
+extern void wfp_message_dispose(
+    struct wfp_message * message);
 
 #ifdef __cplusplus
 }

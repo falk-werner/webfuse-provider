@@ -1,5 +1,5 @@
-#ifndef WF_PROVIDER_IMPL_CLIENT_CONFIG_H
-#define WF_PROVIDER_IMPL_CLIENT_CONFIG_H
+#ifndef WFP_PROVIDER_IMPL_CLIENT_CONFIG_H
+#define WFP_PROVIDER_IMPL_CLIENT_CONFIG_H
 
 #include "webfuse_provider/client_config.h"
 #include "webfuse_provider/impl/provider.h"

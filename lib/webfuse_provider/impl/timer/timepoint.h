@@ -1,5 +1,5 @@
-#ifndef WF_TIMER_TIMEPOINT_H
-#define WF_TIMER_TIMEPOINT_H
+#ifndef WFP_TIMER_TIMEPOINT_H
+#define WFP_TIMER_TIMEPOINT_H
 
 #ifndef __cplusplus
 #include <stdbool.h>
@@ -13,16 +13,16 @@ extern "C"
 {
 #endif
 
-typedef uint64_t wf_timer_timepoint;
-typedef int64_t wf_timer_timediff;
+typedef uint64_t wfp_timer_timepoint;
+typedef int64_t wfp_timer_timediff;
 
-extern wf_timer_timepoint wf_timer_timepoint_now(void);
+extern wfp_timer_timepoint wfp_timer_timepoint_now(void);
 
-extern wf_timer_timepoint wf_timer_timepoint_in_msec(
-    wf_timer_timediff value);
+extern wfp_timer_timepoint wfp_timer_timepoint_in_msec(
+    wfp_timer_timediff value);
 
-extern bool wf_timer_timepoint_is_elapsed(
-    wf_timer_timepoint timepoint);
+extern bool wfp_timer_timepoint_is_elapsed(
+    wfp_timer_timepoint timepoint);
 
 #ifdef __cplusplus
 } 

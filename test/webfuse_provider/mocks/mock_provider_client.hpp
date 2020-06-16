@@ -1,5 +1,5 @@
-#ifndef WF_MOCK_PROVIDER_CLIENT_HPP
-#define WF_MOCK_PROVIDER_CLIENT_HPP
+#ifndef WFP_MOCK_PROVIDER_CLIENT_HPP
+#define WFP_MOCK_PROVIDER_CLIENT_HPP
 
 #include <gmock/gmock.h>
 #include "webfuse_provider/client_config.h"
@@ -11,10 +11,10 @@ namespace webfuse_test
     class ProviderClientException: public std::runtime_error
     {
         public:
-            explicit ProviderClientException(wf_status error_code);
-            wf_status GetErrorCode();
+            explicit ProviderClientException(wfp_status error_code);
+            wfp_status GetErrorCode();
         private:
-            wf_status error_code_;            
+            wfp_status error_code_;            
     };
 
     class IProviderClient

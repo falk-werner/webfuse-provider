@@ -3,8 +3,8 @@
 /// \brief Buffer used for directory listing.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef WF_PROVIDER_DIRBUFFER_H
-#define WF_PROVIDER_DIRBUFFER_H
+#ifndef WFP_PROVIDER_DIRBUFFER_H
+#define WFP_PROVIDER_DIRBUFFER_H
 
 #include <sys/types.h>
 #include <sys/stat.h>

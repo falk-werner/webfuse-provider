@@ -19,7 +19,7 @@
 
 void wfp_respond_error(
     struct wfp_request * request,
-    wf_status status)
+    wfp_status status)
 {
     wfp_impl_respond_error(request, status);
 }

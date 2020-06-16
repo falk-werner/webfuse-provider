@@ -11,16 +11,16 @@ using ::webfuse_test::TempDir;
 extern "C"
 {
 
-wf_mountpoint *
-wf_test_integration_lowlevel_create_mountpoint(
+wfp_mountpoint *
+wfp_test_integration_lowlevel_create_mountpoint(
     char const *, void * user_data)
 {
     auto * tempDir = reinterpret_cast<TempDir*>(user_data);
-    return wf_mountpoint_create(tempDir->path());
+    return wfp_mountpoint_create(tempDir->path());
 }
 
 void
-wf_test_integration_lowlevel_on_connected(
+wfp_test_integration_lowlevel_on_connected(
     void * user_data)
 {
     int * state = reinterpret_cast<int*>(user_data);
@@ -28,7 +28,7 @@ wf_test_integration_lowlevel_on_connected(
 }
 
 void
-wf_test_integration_lowlevel_on_disconnected(
+wfp_test_integration_lowlevel_on_disconnected(
     void * user_data)
 {
     int * state = reinterpret_cast<int*>(user_data);
@@ -36,18 +36,18 @@ wf_test_integration_lowlevel_on_disconnected(
 }
 
 bool
-wf_test_integration_lowlevel_authenticate(
-    struct wf_credentials const * credentials,
+wfp_test_integration_lowlevel_authenticate(
+    struct wfp_credentials const * credentials,
     void * )
 {
-    char const * username = wf_credentials_get(credentials, "username");
-    char const * password = wf_credentials_get(credentials, "password");
+    char const * username = wfp_credentials_get(credentials, "username");
+    char const * password = wfp_credentials_get(credentials, "password");
 
     return ((0 == strcmp(username, "bob")) && (0 == strcmp(password, "secret")));
 }
 
 void
-wf_test_integration_lowlevel_get_credentials(
+wfp_test_integration_lowlevel_get_credentials(
     struct wfp_credentials * credentials,
     void * )
 {
@@ -60,29 +60,29 @@ wf_test_integration_lowlevel_get_credentials(
 
 TEST(integration, lowlevel)
 {
-    TempDir dir("wf_test");
+    TempDir dir("wfp_test");
 
-    wf_server_protocol * server_protocol = wf_server_protocol_create(
-        &wf_test_integration_lowlevel_create_mountpoint, 
+    wfp_server_protocol * server_protocol = wfp_server_protocol_create(
+        &wfp_test_integration_lowlevel_create_mountpoint, 
         reinterpret_cast<void*>(&dir));
     ASSERT_NE(nullptr, server_protocol);
-    wf_server_protocol_add_authenticator(server_protocol, "username",
-        &wf_test_integration_lowlevel_authenticate, nullptr);
+    wfp_server_protocol_add_authenticator(server_protocol, "username",
+        &wfp_test_integration_lowlevel_authenticate, nullptr);
 
     int state = 0;
     wfp_client_config * client_config = wfp_client_config_create();
     ASSERT_NE(nullptr, client_config);
     wfp_client_config_set_userdata(client_config, reinterpret_cast<void*>(&state));
-    wfp_client_config_set_onconnected(client_config, &wf_test_integration_lowlevel_on_connected);
-    wfp_client_config_set_ondisconnected(client_config, &wf_test_integration_lowlevel_on_disconnected);
-    wfp_client_config_enable_authentication(client_config, &wf_test_integration_lowlevel_get_credentials);
+    wfp_client_config_set_onconnected(client_config, &wfp_test_integration_lowlevel_on_connected);
+    wfp_client_config_set_ondisconnected(client_config, &wfp_test_integration_lowlevel_on_disconnected);
+    wfp_client_config_enable_authentication(client_config, &wfp_test_integration_lowlevel_get_credentials);
 
     wfp_client_protocol * client_protocol = wfp_client_protocol_create(client_config);
     ASSERT_NE(nullptr, client_protocol);
 
     lws_protocols protocols[3];
     memset(protocols, 0, 3 * sizeof(lws_protocols));
-    wf_server_protocol_init_lws(server_protocol, &protocols[0]);
+    wfp_server_protocol_init_lws(server_protocol, &protocols[0]);
     wfp_client_protocol_init_lws(client_protocol, &protocols[1]);
 
     lws_context_creation_info info;
@@ -108,5 +108,5 @@ TEST(integration, lowlevel)
 
     wfp_client_protocol_dispose(client_protocol);
     wfp_client_config_dispose(client_config);
-    wf_server_protocol_dispose(server_protocol);
+    wfp_server_protocol_dispose(server_protocol);
 }

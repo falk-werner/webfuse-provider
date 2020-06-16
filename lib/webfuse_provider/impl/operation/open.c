@@ -29,11 +29,11 @@ void wfp_impl_open(
 
 void wfp_impl_open_default(
     struct wfp_request * request,
-    ino_t WF_UNUSED_PARAM(inode),
-    int WF_UNUSED_PARAM(flags),
-    void * WF_UNUSED_PARAM(user_data))
+    ino_t WFP_UNUSED_PARAM(inode),
+    int WFP_UNUSED_PARAM(flags),
+    void * WFP_UNUSED_PARAM(user_data))
 {
-    wfp_impl_respond_error(request, WF_BAD_NOENTRY);
+    wfp_impl_respond_error(request, WFP_BAD_NOENTRY);
 }
 
 void wfp_impl_respond_open(
