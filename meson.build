@@ -14,82 +14,64 @@ jansson_dep = dependency('jansson', version: '>=2.11', fallback: ['jansson', 'ja
 
 pkg_config = import('pkgconfig')
 
-# Webfuse core
-
-inc_dir = include_directories('include')
-private_inc_dir = include_directories('include', 'lib')
-
-webfuse_core = static_library('webfuse_core',
-    'lib/webfuse/core/slist.c',
-	'lib/webfuse/core/message.c',
-	'lib/webfuse/core/message_queue.c',
-	'lib/webfuse/core/status.c',
-	'lib/webfuse/core/base64.c',
-	'lib/webfuse/core/lws_log.c',
-	'lib/webfuse/core/json_util.c',
-	'lib/webfuse/core/url.c',
-    'lib/webfuse/core/timer/manager.c',
-    'lib/webfuse/core/timer/timepoint.c',
-    'lib/webfuse/core/timer/timer.c',
-	'lib/webfuse/core/jsonrpc/proxy.c',
-	'lib/webfuse/core/jsonrpc/proxy_variadic.c',
-	'lib/webfuse/core/jsonrpc/server.c',
-	'lib/webfuse/core/jsonrpc/method.c',
-	'lib/webfuse/core/jsonrpc/request.c',
-	'lib/webfuse/core/jsonrpc/response.c',
-	'lib/webfuse/core/jsonrpc/error.c',
-    c_args: ['-fvisibility=hidden'],
-    include_directories: private_inc_dir,    
-    dependencies: [jansson_dep, libwebsockets_dep])
-
-webfuse_core_dep = declare_dependency(
-    include_directories: inc_dir,
-    link_with: webfuse_core,
-	dependencies: [jansson_dep, libwebsockets_dep])
-
-install_subdir('include/webfuse/core', install_dir: 'include/webfuse')
-
 # Webfuse provider
 
 webfuse_provider_static = static_library('webfuse_provider',
-	'lib/webfuse/provider/api.c',
-	'lib/webfuse/provider/impl/client.c',
-	'lib/webfuse/provider/impl/client_config.c',
-	'lib/webfuse/provider/impl/client_protocol.c',
-	'lib/webfuse/provider/impl/provider.c',
-	'lib/webfuse/provider/impl/request.c',
-	'lib/webfuse/provider/impl/dirbuffer.c',
-	'lib/webfuse/provider/impl/credentials.c',
-	'lib/webfuse/provider/impl/operation/lookup.c',
-	'lib/webfuse/provider/impl/operation/getattr.c',
-	'lib/webfuse/provider/impl/operation/readdir.c',
-	'lib/webfuse/provider/impl/operation/open.c',
-	'lib/webfuse/provider/impl/operation/close.c',
-	'lib/webfuse/provider/impl/operation/read.c',
+    'lib/webfuse_provider/impl/slist.c',
+	'lib/webfuse_provider/impl/message.c',
+	'lib/webfuse_provider/impl/message_queue.c',
+	'lib/webfuse_provider/impl/status.c',
+	'lib/webfuse_provider/impl/base64.c',
+	'lib/webfuse_provider/impl/lws_log.c',
+	'lib/webfuse_provider/impl/json_util.c',
+	'lib/webfuse_provider/impl/url.c',
+    'lib/webfuse_provider/impl/timer/manager.c',
+    'lib/webfuse_provider/impl/timer/timepoint.c',
+    'lib/webfuse_provider/impl/timer/timer.c',
+	'lib/webfuse_provider/impl/jsonrpc/proxy.c',
+	'lib/webfuse_provider/impl/jsonrpc/proxy_variadic.c',
+	'lib/webfuse_provider/impl/jsonrpc/server.c',
+	'lib/webfuse_provider/impl/jsonrpc/method.c',
+	'lib/webfuse_provider/impl/jsonrpc/request.c',
+	'lib/webfuse_provider/impl/jsonrpc/response.c',
+	'lib/webfuse_provider/impl/jsonrpc/error.c',
+	'lib/webfuse_provider/api.c',
+	'lib/webfuse_provider/impl/client.c',
+	'lib/webfuse_provider/impl/client_config.c',
+	'lib/webfuse_provider/impl/client_protocol.c',
+	'lib/webfuse_provider/impl/provider.c',
+	'lib/webfuse_provider/impl/request.c',
+	'lib/webfuse_provider/impl/dirbuffer.c',
+	'lib/webfuse_provider/impl/credentials.c',
+	'lib/webfuse_provider/impl/operation/lookup.c',
+	'lib/webfuse_provider/impl/operation/getattr.c',
+	'lib/webfuse_provider/impl/operation/readdir.c',
+	'lib/webfuse_provider/impl/operation/open.c',
+	'lib/webfuse_provider/impl/operation/close.c',
+	'lib/webfuse_provider/impl/operation/read.c',
     c_args: ['-fvisibility=hidden'],
-    include_directories: private_inc_dir,
-    dependencies: [webfuse_core_dep])
+    include_directories: ['include', 'lib'],
+    dependencies: [libwebsockets_dep, jansson_dep])
 
 webfuse_provider_static_dep = declare_dependency(
-    include_directories: inc_dir,
+    include_directories: ['include'],
     link_with: webfuse_provider_static,
-	dependencies: [webfuse_core_dep])
+	dependencies: [libwebsockets_dep, jansson_dep])
 
 webfuse_provider = shared_library('webfuse_provider',
-    'lib/webfuse/provider/api.c',
+    'lib/webfuse_provider/api.c',
     version: meson.project_version(),
     c_args: ['-fvisibility=hidden', '-DWFP_API=WFP_EXPORT'],
-    include_directories: private_inc_dir,
-    dependencies: [webfuse_provider_static_dep],
+    include_directories: ['include', 'lib'],
+    dependencies: [webfuse_provider_static_dep, libwebsockets_dep, jansson_dep],
 	install: true)
 
 webfuse_provider_dep = declare_dependency(
-	include_directories: inc_dir,
+	include_directories: ['include'],
 	link_with: [webfuse_provider],
 	dependencies: [libwebsockets_dep, jansson_dep])
 
-install_headers('include/webfuse_provider.h', subdir: 'webfuse')
-install_subdir('include/webfuse/provider', install_dir: 'include/webfuse')
+install_subdir('include/webfuse_provider', install_dir: 'include')
 
 pkg_config.generate(
     libraries: [webfuse_provider],
@@ -109,7 +91,7 @@ gtest_dep = dependency('gtest', version: '>=1.10.0', fallback: ['gtest', 'gtest_
 gmock_main_dep = dependency('gmock_main', version: '>=1.10.0', fallback: ['gtest', 'gmock_main_dep'])
 
 fscheck = executable('fs_check',
-	'test/webfuse/tests/integration/fs_check.c')
+	'test/webfuse_provider/tests/integration/fs_check.c')
 
 openssl = find_program('openssl')
 test_server_certs = custom_target('test_server_certs',
@@ -123,46 +105,46 @@ test_certs_dep = declare_dependency(
 	sources: [test_server_certs, test_client_certs])
 
 alltests = executable('alltests',
-	'test/webfuse/tests/core/jsonrpc/mock_timer_callback.cc',
-	'test/webfuse/tests/core/jsonrpc/mock_timer.cc',
-	'test/webfuse/tests/core/jsonrpc/test_is_request.cc',
-	'test/webfuse/tests/core/jsonrpc/test_request.cc',
-	'test/webfuse/tests/core/jsonrpc/test_is_response.cc',
-	'test/webfuse/tests/core/jsonrpc/test_response.cc',
-	'test/webfuse/tests/core/jsonrpc/test_server.cc',
-	'test/webfuse/tests/core/jsonrpc/test_proxy.cc',
-	'test/webfuse/tests/core/jsonrpc/test_response_parser.cc',
-	'test/webfuse/tests/core/timer/test_timepoint.cc',
-	'test/webfuse/tests/core/timer/test_timer.cc',
-	'test/webfuse/utils/tempdir.cc',
-	'test/webfuse/utils/file_utils.cc',
-	'test/webfuse/utils/timeout_watcher.cc',
-	'test/webfuse/utils/path.c',
-	'test/webfuse/utils/static_filesystem.c',
-	'test/webfuse/utils/ws_server.cc',
-	'test/webfuse/utils/ws_server2.cc',
-	'test/webfuse/utils/jansson_test_environment.cc',
-	'test/webfuse/mocks/fake_invokation_context.cc',
-	'test/webfuse/mocks/mock_request.cc',
-	'test/webfuse/mocks/mock_provider_client.cc',
-	'test/webfuse/mocks/mock_provider.cc',
-	'test/webfuse/mocks/mock_jsonrpc_proxy.cc',
-	'test/webfuse//tests/core/test_util.cc',
-	'test/webfuse/tests/core/test_container_of.cc',
-	'test/webfuse/tests/core/test_slist.cc',
-	'test/webfuse/tests/core/test_base64.cc',
-	'test/webfuse/tests/core/test_status.cc',
-	'test/webfuse/tests/core/test_message.cc',
-	'test/webfuse/tests/core/test_message_queue.cc',
-	'test/webfuse/tests/core/test_url.cc',
-	'test/webfuse/tests/provider/test_client_protocol.cc',
-	'test/webfuse/tests/provider/test_dirbuffer.cc',
-	'test/webfuse/tests/provider/operation/test_close.cc',
-	'test/webfuse/tests/provider/operation/test_getattr.cc',
-	'test/webfuse/tests/provider/operation/test_lookup.cc',
-	'test/webfuse/tests/provider/operation/test_open.cc',
-	'test/webfuse/tests/provider/operation/test_read.cc',
-	'test/webfuse/tests/provider/operation/test_readdir.cc',
+	'test/webfuse_provider/tests/core/jsonrpc/mock_timer_callback.cc',
+	'test/webfuse_provider/tests/core/jsonrpc/mock_timer.cc',
+	'test/webfuse_provider/tests/core/jsonrpc/test_is_request.cc',
+	'test/webfuse_provider/tests/core/jsonrpc/test_request.cc',
+	'test/webfuse_provider/tests/core/jsonrpc/test_is_response.cc',
+	'test/webfuse_provider/tests/core/jsonrpc/test_response.cc',
+	'test/webfuse_provider/tests/core/jsonrpc/test_server.cc',
+	'test/webfuse_provider/tests/core/jsonrpc/test_proxy.cc',
+	'test/webfuse_provider/tests/core/jsonrpc/test_response_parser.cc',
+	'test/webfuse_provider/tests/core/timer/test_timepoint.cc',
+	'test/webfuse_provider/tests/core/timer/test_timer.cc',
+	'test/webfuse_provider/utils/tempdir.cc',
+	'test/webfuse_provider/utils/file_utils.cc',
+	'test/webfuse_provider/utils/timeout_watcher.cc',
+	'test/webfuse_provider/utils/path.c',
+	'test/webfuse_provider/utils/static_filesystem.c',
+	'test/webfuse_provider/utils/ws_server.cc',
+	'test/webfuse_provider/utils/ws_server2.cc',
+	'test/webfuse_provider/utils/jansson_test_environment.cc',
+	'test/webfuse_provider/mocks/fake_invokation_context.cc',
+	'test/webfuse_provider/mocks/mock_request.cc',
+	'test/webfuse_provider/mocks/mock_provider_client.cc',
+	'test/webfuse_provider/mocks/mock_provider.cc',
+	'test/webfuse_provider/mocks/mock_jsonrpc_proxy.cc',
+	'test/webfuse_provider//tests/core/test_util.cc',
+	'test/webfuse_provider/tests/core/test_container_of.cc',
+	'test/webfuse_provider/tests/core/test_slist.cc',
+	'test/webfuse_provider/tests/core/test_base64.cc',
+	'test/webfuse_provider/tests/core/test_status.cc',
+	'test/webfuse_provider/tests/core/test_message.cc',
+	'test/webfuse_provider/tests/core/test_message_queue.cc',
+	'test/webfuse_provider/tests/core/test_url.cc',
+	'test/webfuse_provider/tests/provider/test_client_protocol.cc',
+	'test/webfuse_provider/tests/provider/test_dirbuffer.cc',
+	'test/webfuse_provider/tests/provider/operation/test_close.cc',
+	'test/webfuse_provider/tests/provider/operation/test_getattr.cc',
+	'test/webfuse_provider/tests/provider/operation/test_lookup.cc',
+	'test/webfuse_provider/tests/provider/operation/test_open.cc',
+	'test/webfuse_provider/tests/provider/operation/test_read.cc',
+	'test/webfuse_provider/tests/provider/operation/test_readdir.cc',
 	link_args: [
 		'-Wl,--wrap=wf_timer_manager_create',
 		'-Wl,--wrap=wf_timer_manager_dispose',
@@ -175,10 +157,9 @@ alltests = executable('alltests',
 		'-Wl,--wrap=wf_jsonrpc_proxy_vinvoke',
 		'-Wl,--wrap=wf_jsonrpc_proxy_vnotify',
 	],
-	include_directories: [private_inc_dir, 'test'],
+	include_directories: ['include', 'lib', 'test'],
 	dependencies: [
 		webfuse_provider_static_dep,
-		webfuse_core_dep,
 		libwebsockets_dep,
 		jansson_dep,
 		gtest_dep,
@@ -195,13 +176,13 @@ endif
 if not without_examples
 
 executable('webfuse-provider',
-    'examples/src/main.c',
+    'examples/provider/main.c',
     dependencies: [webfuse_provider_dep])
 
 executable('static-filesystem-provider',
-	'examples/src/static_filesystem/static_filesystem.c',
-	'examples/src/static_filesystem/path.c',
-	'examples/src/static_filesystem/main.c',
+	'examples/static_filesystem/static_filesystem.c',
+	'examples/static_filesystem/path.c',
+	'examples/static_filesystem/main.c',
     dependencies: [webfuse_provider_dep])
 
 
