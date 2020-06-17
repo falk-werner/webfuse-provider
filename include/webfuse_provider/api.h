@@ -3,8 +3,8 @@
 /// \brief API define for webfuse provider.
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef WFP_PROVIDER_API_H
-#define WFP_PROVIDER_API_H
+#ifndef WFP_API_H
+#define WFP_API_H
 
 //------------------------------------------------------------------------------
 /// \def WFP_API

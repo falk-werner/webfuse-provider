@@ -1,5 +1,5 @@
-#ifndef WFP_PROVIDER_IMPL_CLIENT_PROTOCOL_H
-#define WFP_PROVIDER_IMPL_CLIENT_PROTOCOL_H
+#ifndef WFP_IMPL_CLIENT_PROTOCOL_H
+#define WFP_IMPL_CLIENT_PROTOCOL_H
 
 #include "webfuse_provider/impl/provider.h"
 #include "webfuse_provider/impl/request.h"

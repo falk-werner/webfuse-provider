@@ -1,5 +1,5 @@
-#ifndef WFP_PROVIDER_IMPL_REQUEST_H
-#define WFP_PROVIDER_IMPL_REQUEST_H
+#ifndef WFP_IMPL_REQUEST_H
+#define WFP_IMPL_REQUEST_H
 
 #include <jansson.h>
 #include "webfuse_provider/impl/provider.h"

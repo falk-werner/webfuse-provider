@@ -1,5 +1,5 @@
-#ifndef WFP_PROVIDER_IMPL_OPERATION_GETATTR_H
-#define WFP_PROVIDER_IMPL_OPERATION_GETATTR_H
+#ifndef WFP_IMPL_OPERATION_GETATTR_H
+#define WFP_IMPL_OPERATION_GETATTR_H
 
 #include "webfuse_provider/impl/provider.h"
 
