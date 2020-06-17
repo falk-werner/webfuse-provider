@@ -54,9 +54,9 @@ void wfp_impl_respond_read(
 {
     if (0 < length)
     {
-        size_t const size = wfp_base64_encoded_size(length) + 1;
+        size_t const size = wfp_impl_base64_encoded_size(length) + 1;
         char * buffer = malloc(size);
-        wfp_base64_encode((uint8_t const *) data, length, buffer, size);
+        wfp_impl_base64_encode((uint8_t const *) data, length, buffer, size);
 
         json_t * result = json_object();
         json_object_set_new(result, "data", json_string(buffer));
