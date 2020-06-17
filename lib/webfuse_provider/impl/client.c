@@ -27,7 +27,7 @@ struct wfp_client
 struct wfp_client * wfp_impl_client_create(
     struct wfp_client_config * config)
 {
-	wfp_lwslog_disable();
+	wfp_impl_lwslog_disable();
    
     struct wfp_client * client = malloc(sizeof(struct wfp_client));
     wfp_impl_client_protocol_init(&client->protocol, &config->provider, config->user_data);

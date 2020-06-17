@@ -150,7 +150,7 @@ WsServer2::Private::Private(
 , is_shutdown_requested(false)
 , wsi_(nullptr)
 {
-    wfp_lwslog_disable();
+    wfp_impl_lwslog_disable();
     IServer * server = this;
     memset(ws_protocols, 0, sizeof(struct lws_protocols) * 2 );
 

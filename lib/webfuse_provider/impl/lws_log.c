@@ -4,14 +4,14 @@
 
 #define WFP_LWSLOG_DISABLE 0
 
-static bool wfp_lwslog_is_diabled = false;
+static bool wfp_impl_lwslog_is_diabled = false;
 
-void wfp_lwslog_disable(void)
+void wfp_impl_lwslog_disable(void)
 {
-    if (!wfp_lwslog_is_diabled)
+    if (!wfp_impl_lwslog_is_diabled)
     {
 	    lws_set_log_level(WFP_LWSLOG_DISABLE, NULL);
-        wfp_lwslog_is_diabled = true;
+        wfp_impl_lwslog_is_diabled = true;
     }
 }
 

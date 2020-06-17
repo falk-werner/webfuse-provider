@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-extern void wfp_lwslog_disable(void);
+extern void wfp_impl_lwslog_disable(void);
 
 #ifdef __cplusplus
 }

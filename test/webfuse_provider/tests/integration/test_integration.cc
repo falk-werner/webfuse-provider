@@ -31,7 +31,7 @@ namespace
             , provider(nullptr)
             {
                 json_object_seed(0);
-                wfp_lwslog_disable();
+                wfp_impl_lwslog_disable();
             }
 
         protected:
