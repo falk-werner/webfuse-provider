@@ -1,4 +1,4 @@
-#include "webfuse_provider/tests/core/jsonrpc/mock_timer.hpp"
+#include "webfuse_provider/jsonrpc/mock_timer.hpp"
 #include "webfuse_provider/utils/wrap.hpp"
 
 extern "C"
