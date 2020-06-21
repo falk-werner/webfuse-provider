@@ -90,9 +90,6 @@ if not without_tests
 gtest_dep = dependency('gtest', version: '>=1.10.0', fallback: ['gtest', 'gtest_dep']) 
 gmock_main_dep = dependency('gmock_main', version: '>=1.10.0', fallback: ['gtest', 'gmock_main_dep'])
 
-fscheck = executable('fs_check',
-	'test/webfuse_provider/tests/integration/fs_check.c')
-
 openssl = find_program('openssl')
 test_server_certs = custom_target('test_server_certs',
 	output: ['server-key.pem', 'server-cert.pem'],
