@@ -45,3 +45,28 @@ TEST(jsonrpc_util, failed_to_get_invalid_value_type)
 
     json_decref(object);
 }
+
+TEST(jsonrpc_util, get_status_good_if_no_error)
+{
+    json_t * error = nullptr;
+    wfp_status status = wfp_impl_jsonrpc_get_status(error);
+    ASSERT_EQ(WFP_GOOD, status);
+}
+
+TEST(jsonrpc_util, get_status)
+{
+    json_t * error = json_object();
+    json_object_set_new(error, "code", json_integer(WFP_BAD_BUSY));
+    wfp_status status = wfp_impl_jsonrpc_get_status(error);
+    ASSERT_EQ(WFP_BAD_BUSY, status);
+    json_decref(error);
+}
+
+TEST(jsonrpc_util, get_status_bad_format)
+{
+    json_t * error = json_array();
+    json_array_append_new(error, json_integer(WFP_BAD_BUSY));
+    wfp_status status = wfp_impl_jsonrpc_get_status(error);
+    ASSERT_EQ(WFP_BAD_FORMAT, status);
+    json_decref(error);
+}
