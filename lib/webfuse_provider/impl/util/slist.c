@@ -1,4 +1,4 @@
-#include "webfuse_provider/impl/slist.h"
+#include "webfuse_provider/impl/util/slist.h"
 #include <stddef.h>
 
 void wfp_slist_init(

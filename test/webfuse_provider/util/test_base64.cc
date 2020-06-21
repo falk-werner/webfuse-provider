@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "webfuse_provider/impl/base64.h"
+#include "webfuse_provider/impl/util/base64.h"
 
 TEST(Base64, EncodedSize)
 {

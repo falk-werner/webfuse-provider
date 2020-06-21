@@ -4,7 +4,7 @@
 
 #include "webfuse_provider/impl/operation/error.h"
 #include "webfuse_provider/impl/request.h"
-#include "webfuse_provider/impl/util.h"
+#include "webfuse_provider/impl/util/util.h"
 
 void wfp_impl_lookup(
     struct wfp_impl_invokation_context * context,

@@ -1,5 +1,5 @@
-#ifndef WFP_URL_H
-#define WFP_URL_H
+#ifndef WFP_UTIL_URL_H
+#define WFP_UTIL_URL_H
 
 #ifndef __cplusplus
 #include <stdbool.h>

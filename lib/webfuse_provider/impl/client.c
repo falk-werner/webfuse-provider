@@ -9,7 +9,7 @@
 #include "webfuse_provider/impl/provider.h"
 #include "webfuse_provider/impl/client_protocol.h"
 #include "webfuse_provider/impl/client_config.h"
-#include "webfuse_provider/impl/lws_log.h"
+#include "webfuse_provider/impl/util/lws_log.h"
 
 #define WFP_CLIENT_PROTOCOL_COUNT 2
 

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "webfuse_provider/impl/url.h"
+#include "webfuse_provider/impl/util/url.h"
 
 TEST(url, ParseWs)
 {

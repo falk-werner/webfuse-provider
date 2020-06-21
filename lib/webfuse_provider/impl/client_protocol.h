@@ -4,7 +4,7 @@
 #include "webfuse_provider/impl/provider.h"
 #include "webfuse_provider/impl/request.h"
 
-#include "webfuse_provider/impl/slist.h"
+#include "webfuse_provider/impl/util/slist.h"
 
 #ifdef __cplusplus
 extern "C"

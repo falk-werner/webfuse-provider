@@ -1,6 +1,6 @@
 #include "webfuse_provider/impl/message_queue.h"
 #include "webfuse_provider/impl/message.h"
-#include "webfuse_provider/impl/container_of.h"
+#include "webfuse_provider/impl/util/container_of.h"
 
 void wfp_message_queue_cleanup(
     struct wfp_slist * queue)

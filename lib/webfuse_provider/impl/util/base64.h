@@ -1,5 +1,5 @@
-#ifndef WFP_BASE64_H
-#define WFP_BASE64_H
+#ifndef WFP_UTIL_BASE64_H
+#define WFP_UTILBASE64_H
 
 #ifndef __cplusplus
 #include <inttypes.h>

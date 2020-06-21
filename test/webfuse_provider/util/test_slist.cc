@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "webfuse_provider/impl/slist.h"
+#include "webfuse_provider/impl/util/slist.h"
 
 TEST(wfp_slist, init)
 {

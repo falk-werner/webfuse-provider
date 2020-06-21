@@ -1,5 +1,5 @@
-#include "webfuse_provider/utils/ws_server.h"
-#include "webfuse_provider/impl/lws_log.h"
+#include "webfuse_provider/test_util/ws_server.h"
+#include "webfuse_provider/impl/util/lws_log.h"
 
 #include <libwebsockets.h>
 #include <thread>

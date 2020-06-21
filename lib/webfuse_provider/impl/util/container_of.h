@@ -1,5 +1,5 @@
-#ifndef WFP_CONTAINER_OF_H
-#define WFP_CONTAINER_OF_H
+#ifndef WFP_UTIL_CONTAINER_OF_H
+#define WFP_UTIL_CONTAINER_OF_H
 
 #ifndef __cplusplus
 #include <stddef.h>

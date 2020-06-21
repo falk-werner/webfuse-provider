@@ -1,5 +1,5 @@
-#ifndef WFP_SLIST_H
-#define WFP_SLIST_H
+#ifndef WFP_UTIL_SLIST_H
+#define WFP_UTIL_SLIST_H
 
 #ifndef __cplusplus
 #include <stdbool.h>

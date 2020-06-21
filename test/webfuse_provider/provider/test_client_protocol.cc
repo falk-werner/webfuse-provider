@@ -3,10 +3,10 @@
 
 #include <webfuse_provider/client_protocol.h>
 #include <webfuse_provider/client_config.h>
-#include "webfuse_provider/utils/ws_server.h"
+#include "webfuse_provider/test_util/ws_server.h"
 #include "webfuse_provider/mocks/mock_provider_client.hpp"
 #include "webfuse_provider/protocol_names.h"
-#include "webfuse_provider/utils/timeout_watcher.hpp"
+#include "webfuse_provider/test_util/timeout_watcher.hpp"
 
 #include <libwebsockets.h>
 

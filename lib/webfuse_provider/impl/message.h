@@ -9,7 +9,7 @@ using std::size_t;
 #endif
 
 #include <jansson.h>
-#include "webfuse_provider/impl/slist.h"
+#include "webfuse_provider/impl/util/slist.h"
 
 struct wfp_message
 {

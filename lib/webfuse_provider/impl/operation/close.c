@@ -1,6 +1,6 @@
 #include "webfuse_provider/impl/operation/close.h"
 #include <limits.h>
-#include "webfuse_provider/impl/util.h"
+#include "webfuse_provider/impl/util/util.h"
 
 void wfp_impl_close(
     struct wfp_impl_invokation_context * context,

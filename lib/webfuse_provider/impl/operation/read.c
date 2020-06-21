@@ -4,8 +4,8 @@
 
 #include "webfuse_provider/impl/operation/error.h"
 #include "webfuse_provider/impl/request.h"
-#include "webfuse_provider/impl/util.h"
-#include "webfuse_provider/impl/base64.h"
+#include "webfuse_provider/impl/util/util.h"
+#include "webfuse_provider/impl/util/base64.h"
 
 void wfp_impl_read(
     struct wfp_impl_invokation_context * context,

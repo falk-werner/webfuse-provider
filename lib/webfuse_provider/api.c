@@ -13,7 +13,7 @@
 #include "webfuse_provider/impl/dirbuffer.h"
 #include "webfuse_provider/impl/credentials.h"
 
-#include "webfuse_provider/impl/util.h"
+#include "webfuse_provider/impl/util/util.h"
 
 // respond
 

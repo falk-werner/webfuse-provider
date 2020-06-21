@@ -1,4 +1,4 @@
-#include "webfuse_provider/impl/lws_log.h"
+#include "webfuse_provider/impl/util/lws_log.h"
 #include <stdbool.h>
 #include <libwebsockets.h>
 

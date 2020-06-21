@@ -1,5 +1,5 @@
 #include "webfuse_provider/jsonrpc/mock_timer.hpp"
-#include "webfuse_provider/utils/wrap.hpp"
+#include "webfuse_provider/test_util/wrap.hpp"
 
 extern "C"
 {

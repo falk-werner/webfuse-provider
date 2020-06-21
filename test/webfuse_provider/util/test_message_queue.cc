@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "webfuse_provider/impl/message_queue.h"
 #include "webfuse_provider/impl/message.h"
-#include "webfuse_provider/impl/slist.h"
+#include "webfuse_provider/impl/util/slist.h"
 
 namespace
 {
