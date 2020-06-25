@@ -14,6 +14,7 @@ class Client
 public:
     Client(wfp_client_config * config, std::string const & url);
     ~Client();
+    void Disconnect();
 private:
     class Private;
     Private * d;

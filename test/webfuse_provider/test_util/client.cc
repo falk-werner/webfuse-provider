@@ -3,6 +3,7 @@
 
 #include <thread>
 #include <mutex>
+#include <queue>
 
 namespace webfuse_test
 {
@@ -20,35 +21,76 @@ public:
 
     ~Private()
     {
-        {
-            std::unique_lock<std::mutex> lock(mutex);
-            is_shutdown_requested = true;
-        }
+        invoke(shutdown);
 
-        wfp_client_interrupt(client);
         thread.join();
-        wfp_client_disconnect(client);
         wfp_client_dispose(client);
     }
 
+    void Disconnect()
+    {
+        invoke(disconnect);
+    }
+
 private:
+    enum command
+    {
+        run,
+        shutdown,
+        disconnect
+    };
+
+    void invoke(command cmd)
+    {
+        {
+            std::unique_lock<std::mutex> lock(mutex);
+            commands.push(cmd);
+        }
+
+        wfp_client_interrupt(client);
+    }
+
     static void Run(Private * self)
     {
         bool is_running = true;
         while (is_running)
         {
-            wfp_client_service(self->client);
+            switch (self->get_command())
             {
-                std::unique_lock<std::mutex> lock(self->mutex);
-                is_running = !self->is_shutdown_requested;
+                case run:
+                    wfp_client_service(self->client);
+                    break;
+                case shutdown:
+                    is_running = false;
+                    break;
+                case disconnect:
+                    wfp_client_disconnect(self->client);
+                    break;
+                default:
+                    break;
             }
         }
+    }
+
+    command get_command()
+    {
+        command result = run;
+
+        std::unique_lock<std::mutex> lock(mutex);
+        if (!commands.empty())
+        {
+            result = commands.front();
+            commands.pop();
+        }
+
+        return result;
     }
 
     wfp_client * client;
     bool is_shutdown_requested;
     std::thread thread;
     std::mutex mutex;
+    std::queue<command> commands;
 };
 
 Client::Client(wfp_client_config * config, std::string const & url)
@@ -60,6 +102,11 @@ Client::Client(wfp_client_config * config, std::string const & url)
 Client::~Client()
 {
     delete d;
+}
+
+void Client::Disconnect()
+{
+    d->Disconnect();
 }
 
 

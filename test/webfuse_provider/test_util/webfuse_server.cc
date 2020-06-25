@@ -74,8 +74,7 @@ class WebfuseServer::Private: public IServer
 {
 public:
     Private(bool use_tls)
-    : is_connected(false)
-    , is_shutdown_requested(false)
+    : is_shutdown_requested(false)
     , client(nullptr)
     {
         wfp_impl_lwslog_disable();
@@ -133,17 +132,6 @@ public:
         return url;
     }
 
-    void AwaitConnection()
-    {        
-        bool is_finished = false;
-        while (!is_finished)
-        {
-            std::this_thread::yield();
-            std::unique_lock<std::mutex> lock(mutex);
-            is_finished = is_connected;
-        }
-    }
-
     json_t * Invoke(std::string const & method, json_t * params)
     {
         throw std::runtime_error("not implemented");
@@ -183,7 +171,6 @@ public:
                     {
                         std::unique_lock<std::mutex> lock(mutex);
                         write_queue.push(response_text);
-                        is_connected = true;
                     }
                     free(response_text);
                     json_decref(response);
@@ -238,7 +225,6 @@ private:
         }
     }
 
-    bool is_connected;
     bool is_shutdown_requested;
     lws * client;
     std::string url;
@@ -265,11 +251,6 @@ WebfuseServer::~WebfuseServer()
 std::string const & WebfuseServer::GetUrl()
 {
     return d->GetUrl();
-}
-
-void WebfuseServer::AwaitConnection()
-{
-    d->AwaitConnection();
 }
 
 json_t * WebfuseServer::Invoke(std::string method, json_t * params)

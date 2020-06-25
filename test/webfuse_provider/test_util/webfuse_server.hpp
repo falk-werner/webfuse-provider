@@ -15,7 +15,6 @@ public:
     WebfuseServer(bool use_tls = false);
     ~WebfuseServer();
     std::string const & GetUrl();
-    void AwaitConnection();
     json_t * Invoke(std::string method, json_t * params);
 private:
     class Private;
