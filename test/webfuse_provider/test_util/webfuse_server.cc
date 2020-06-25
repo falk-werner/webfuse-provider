@@ -5,9 +5,13 @@
 #include <libwebsockets.h>
 #include <stdexcept>
 #include <thread>
+#include <future>
 #include <mutex>
 #include <sstream>
 #include <queue>
+#include <chrono>
+
+#define TIMEOUT (std::chrono::seconds(10))
 
 namespace
 {
@@ -74,7 +78,9 @@ class WebfuseServer::Private: public IServer
 {
 public:
     Private(bool use_tls)
-    : is_shutdown_requested(false)
+    : id(0)
+    , is_shutdown_requested(false)
+    , message(nullptr)
     , client(nullptr)
     {
         wfp_impl_lwslog_disable();
@@ -132,9 +138,44 @@ public:
         return url;
     }
 
+    std::string const & GetFilesystem() const
+    {
+        return filesystem;
+    }
+
     json_t * Invoke(std::string const & method, json_t * params)
     {
-        throw std::runtime_error("not implemented");
+        std::promise<std::string> response;
+        {            
+            std::unique_lock<std::mutex> lock(mutex);
+            message = &response;
+            id++;
+
+            json_t * request = json_object();
+            json_object_set_new(request, "method", json_string(method.c_str()));
+            json_object_set_new(request, "params", params);
+            json_object_set_new(request, "id", json_integer(id));
+
+            char * request_text = json_dumps(request, 0);
+            write_queue.push(request_text);
+            free(request_text);
+            json_decref(request);
+        }
+        lws_callback_on_writable(client);
+
+        json_t * result = nullptr;
+        auto future = response.get_future();
+        auto state = future.wait_for(TIMEOUT);
+        if (std::future_status::ready == state)
+        {
+            std::string response_text = future.get();
+            result = json_loadb(response_text.c_str(), response_text.size(), 0, nullptr);
+
+            std::unique_lock<std::mutex> lock(mutex);
+            message = nullptr;
+        }
+
+        return result;
     }
 
     void OnConnected(lws * wsi) override
@@ -151,6 +192,14 @@ public:
 
     void OnMessageReceived(lws * wsi, char const * data, size_t length) override
     {
+        {
+            std::unique_lock<std::mutex> lock(mutex);
+            if (nullptr != message)
+            {
+                message->set_value(std::string(data, length));
+            }
+        }
+
         json_t * message = json_loadb(data, length, 0, nullptr);
         if (message)
         {
@@ -163,7 +212,7 @@ public:
 
                     json_t * response = json_object();
                     json_t * result = json_object();
-                    json_object_set_new(result, "id", json_string("fs")); 
+                    json_object_set_new(result, "id", json_string(GetFilesystem().c_str())); 
                     json_object_set_new(response, "result", result);
                     json_object_set(response, "id", id);
 
@@ -178,6 +227,7 @@ public:
                     lws_callback_on_writable(wsi);
                 }
             }
+            
             json_decref(message);
         }
     }
@@ -225,7 +275,9 @@ private:
         }
     }
 
+    int id;
     bool is_shutdown_requested;
+    std::promise<std::string> * message;
     lws * client;
     std::string url;
     lws_context * context;
@@ -234,6 +286,8 @@ private:
     std::thread thread;
     std::mutex mutex;
     std::queue<std::string> write_queue;
+
+    std::string filesystem = "fs";
 };
 
 
@@ -253,9 +307,25 @@ std::string const & WebfuseServer::GetUrl()
     return d->GetUrl();
 }
 
-json_t * WebfuseServer::Invoke(std::string method, json_t * params)
+json_t * WebfuseServer::Invoke(std::string const & method, json_t * params)
 {
     return d->Invoke(method, params);
+}
+
+json_t * WebfuseServer::Invoke(std::string const & method, std::string const & params)
+{
+    json_t * params_json = json_loads(params.c_str(), 0, nullptr);
+    return d->Invoke(method, params_json);
+}
+
+json_t * WebfuseServer::Lookup(int parent, std::string const & name)
+{
+    json_t * params = json_array();
+    json_array_append_new(params, json_string(d->GetFilesystem().c_str()));
+    json_array_append_new(params, json_integer(parent));
+    json_array_append_new(params, json_string(name.c_str()));
+
+    return d->Invoke("lookup", params);
 }
 
 

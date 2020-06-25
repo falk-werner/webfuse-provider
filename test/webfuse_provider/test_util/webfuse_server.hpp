@@ -15,7 +15,9 @@ public:
     WebfuseServer(bool use_tls = false);
     ~WebfuseServer();
     std::string const & GetUrl();
-    json_t * Invoke(std::string method, json_t * params);
+    json_t * Invoke(std::string const & method, json_t * params);
+    json_t * Invoke(std::string const & method, std::string const & params);
+    json_t * Lookup(int parent, std::string const & name);
 private:
     class Private;
     Private * d;

@@ -32,6 +32,7 @@ static void webfuse_test_iproviderclient_onlookup(
     try 
     {
         struct stat buffer;
+        memset(&buffer, 0, sizeof(buffer));
         self->Lookup(parent, name, &buffer);
         wfp_respond_lookup(request, &buffer);
     }
