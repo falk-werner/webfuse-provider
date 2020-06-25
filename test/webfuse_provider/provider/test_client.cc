@@ -44,6 +44,51 @@ TEST(Client, Connect)
     wfp_client_config_dispose(config);
 }
 
+TEST(Client, ConnectFailWithInvalidUrl)
+{
+    MockProviderClient provider;
+
+    EXPECT_CALL(provider, OnConnected()).Times(0);
+
+    std::promise<void> disconnected;
+    EXPECT_CALL(provider, OnDisconnected()).Times(1)
+        .WillOnce(Invoke([&]() { disconnected.set_value(); }));
+
+    wfp_client_config * config = wfp_client_config_create();
+    provider.AttachTo(config);
+
+    {
+        Client client(config, "invalid_url");
+
+        ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
+    }
+
+    wfp_client_config_dispose(config);
+}
+
+TEST(Client, ConnectFailNotReachable)
+{
+    MockProviderClient provider;
+
+    EXPECT_CALL(provider, OnConnected()).Times(0);
+
+    std::promise<void> disconnected;
+    EXPECT_CALL(provider, OnDisconnected()).Times(1)
+        .WillOnce(Invoke([&]() { disconnected.set_value(); }));
+
+    wfp_client_config * config = wfp_client_config_create();
+    provider.AttachTo(config);
+
+    {
+        Client client(config, "ws://localhost:4/");
+
+        ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
+    }
+
+    wfp_client_config_dispose(config);
+}
+
+
 TEST(Client, Lookup)
 {
     MockProviderClient provider;
