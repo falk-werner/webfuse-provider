@@ -18,6 +18,7 @@ public:
     json_t * Invoke(std::string const & method, json_t * params);
     json_t * Invoke(std::string const & method, std::string const & params);
     json_t * Lookup(int parent, std::string const & name);
+    json_t * Open(int inode, int flags);
 private:
     class Private;
     Private * d;

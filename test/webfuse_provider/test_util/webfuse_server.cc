@@ -328,5 +328,15 @@ json_t * WebfuseServer::Lookup(int parent, std::string const & name)
     return d->Invoke("lookup", params);
 }
 
+json_t * WebfuseServer::Open(int inode, int flags)
+{
+    json_t * params = json_array();
+    json_array_append_new(params, json_string(d->GetFilesystem().c_str()));
+    json_array_append_new(params, json_integer(inode));
+    json_array_append_new(params, json_integer(flags));
+
+    return d->Invoke("open", params);
+}
+
 
 }
