@@ -44,6 +44,37 @@ TEST(Client, Connect)
     wfp_client_config_dispose(config);
 }
 
+TEST(Client, ConnectWithTls)
+{
+    MockProviderClient provider;
+
+    std::promise<void> connected;
+    EXPECT_CALL(provider, OnConnected()).Times(1)
+        .WillOnce(Invoke([&]() { connected.set_value(); }));
+
+    std::promise<void> disconnected;
+    EXPECT_CALL(provider, OnDisconnected()).Times(1)
+        .WillOnce(Invoke([&]() { disconnected.set_value(); }));
+
+    wfp_client_config * config = wfp_client_config_create();
+    wfp_client_config_set_certpath(config, "client-cert.pem");
+    wfp_client_config_set_keypath(config, "client-key.pem");
+    wfp_client_config_set_ca_filepath(config, "server-cert.pem");
+    provider.AttachTo(config);
+
+    {
+        WebfuseServer server(true);
+        Client client(config, server.GetUrl());
+
+        ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
+
+        client.Disconnect();
+        ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
+    }
+
+    wfp_client_config_dispose(config);
+}
+
 TEST(Client, ConnectFailWithInvalidUrl)
 {
     MockProviderClient provider;
@@ -138,8 +169,7 @@ TEST(Client, Lookup)
     wfp_client_config_dispose(config);
 }
 
-
-TEST(Client, ConnectWithTls)
+TEST(Client, LookupFail)
 {
     MockProviderClient provider;
 
@@ -151,17 +181,28 @@ TEST(Client, ConnectWithTls)
     EXPECT_CALL(provider, OnDisconnected()).Times(1)
         .WillOnce(Invoke([&]() { disconnected.set_value(); }));
 
+    EXPECT_CALL(provider, Lookup(1,StrEq("foo"),_)).Times(1)
+        .WillOnce(Invoke([](ino_t, char const *, struct stat * result) {
+            throw std::runtime_error("something went wrong");
+        }));
+
     wfp_client_config * config = wfp_client_config_create();
-    wfp_client_config_set_certpath(config, "client-cert.pem");
-    wfp_client_config_set_keypath(config, "client-key.pem");
-    wfp_client_config_set_ca_filepath(config, "server-cert.pem");
     provider.AttachTo(config);
 
     {
-        WebfuseServer server(true);
+        WebfuseServer server;
         Client client(config, server.GetUrl());
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
+
+        json_t * response = server.Lookup(1, "foo");
+        ASSERT_TRUE(json_is_object(response));
+        json_t * error = json_object_get(response, "error");
+
+        json_t * code = json_object_get(error, "code");
+        ASSERT_NE(0, json_integer_value(code));
+
+        json_decref(response);
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -169,3 +210,53 @@ TEST(Client, ConnectWithTls)
 
     wfp_client_config_dispose(config);
 }
+
+TEST(Client, Open)
+{
+    MockProviderClient provider;
+
+    std::promise<void> connected;
+    EXPECT_CALL(provider, OnConnected()).Times(1)
+        .WillOnce(Invoke([&]() { connected.set_value(); }));
+
+    std::promise<void> disconnected;
+    EXPECT_CALL(provider, OnDisconnected()).Times(1)
+        .WillOnce(Invoke([&]() { disconnected.set_value(); }));
+
+    EXPECT_CALL(provider, Lookup(1,StrEq("foo"),_)).Times(1)
+        .WillOnce(Invoke([](ino_t, char const *, struct stat * result) {
+            result->st_ino = 42;
+            result->st_mode = S_IFREG | 0644;
+        }));
+
+    wfp_client_config * config = wfp_client_config_create();
+    provider.AttachTo(config);
+
+    {
+        WebfuseServer server;
+        Client client(config, server.GetUrl());
+
+        ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
+
+        json_t * response = server.Lookup(1, "foo");
+        ASSERT_TRUE(json_is_object(response));
+        json_t * result = json_object_get(response, "result");
+
+        json_t * inode = json_object_get(result, "inode");
+        ASSERT_EQ(42, json_integer_value(inode));
+
+        json_t * mode = json_object_get(result, "mode");
+        ASSERT_EQ(0644, json_integer_value(mode));
+
+        json_t * type = json_object_get(result, "type");
+        ASSERT_STREQ("file", json_string_value(type));
+
+        json_decref(response);
+
+        client.Disconnect();
+        ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
+    }
+
+    wfp_client_config_dispose(config);
+}
+

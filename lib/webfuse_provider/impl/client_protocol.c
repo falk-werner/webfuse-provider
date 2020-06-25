@@ -31,11 +31,8 @@ static void wfp_impl_client_protocol_respond(
     struct wfp_client_protocol * protocol = (struct wfp_client_protocol *) user_data;
 
     struct wfp_message * message = wfp_message_create(response);
-    if (NULL != message)
-    {
-        wfp_slist_append(&protocol->messages, &message->item);
-        lws_callback_on_writable(protocol->wsi);
-    }
+    wfp_slist_append(&protocol->messages, &message->item);
+    lws_callback_on_writable(protocol->wsi);
 }
 
 static void wfp_impl_client_protocol_process(
@@ -223,18 +220,13 @@ static bool wfp_impl_client_protocol_send(
     json_t * request,
     void * user_data)
 {
-    bool result = false;
     struct wfp_client_protocol * protocol = user_data;
 
     struct wfp_message * message = wfp_message_create(request);
-    if (NULL != message)
-    {
-        wfp_slist_append(&protocol->messages, &message->item);
-        lws_callback_on_writable(protocol->wsi);
-        result = true;
-    }
+    wfp_slist_append(&protocol->messages, &message->item);
+    lws_callback_on_writable(protocol->wsi);
 
-    return result;
+    return true;
 }
 
 void wfp_impl_client_protocol_init(

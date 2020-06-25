@@ -14,9 +14,3 @@ TEST(wfp_message, create)
     wfp_message_dispose(message);
     json_decref(value);
 }
-
-TEST(wfp_message, fail_to_create)
-{
-    struct wfp_message * message = wfp_message_create(nullptr);
-    ASSERT_EQ(nullptr, message);
-}
