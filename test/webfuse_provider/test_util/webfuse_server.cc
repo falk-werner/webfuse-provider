@@ -73,7 +73,7 @@ namespace webfuse_test
 class WebfuseServer::Private: public IServer
 {
 public:
-    Private()
+    Private(bool use_tls)
     : is_connected(false)
     , is_shutdown_requested(false)
     , client(nullptr)
@@ -99,10 +99,17 @@ public:
 
         context = lws_create_context(&info);
 
+        if (use_tls)
+        {
+            info.options |= LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
+            info.ssl_cert_filepath = "server-cert.pem";
+            info.ssl_private_key_filepath = "server-key.pem";
+        }
+
         struct lws_vhost * vhost = lws_create_vhost(context, &info);
         int port = lws_get_vhost_port(vhost);
-        std::ostringstream stream;
-        stream << "ws://localhost:" << port << "/";
+        std::ostringstream stream;        
+        stream << (use_tls ? "wss://" : "ws://") << "localhost:" << port << "/";
         url = stream.str();
 
         thread = std::thread(&Run, this);
@@ -244,8 +251,8 @@ private:
 };
 
 
-WebfuseServer::WebfuseServer()
-: d(new Private())
+WebfuseServer::WebfuseServer(bool use_tls)
+: d(new Private(use_tls))
 {
 
 }

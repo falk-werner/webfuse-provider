@@ -12,7 +12,7 @@ class WebfuseServer
     WebfuseServer(WebfuseServer const &) = delete;
     WebfuseServer& operator=(WebfuseServer const &) = delete;
 public:
-    WebfuseServer();
+    WebfuseServer(bool use_tls = false);
     ~WebfuseServer();
     std::string const & GetUrl();
     void AwaitConnection();
