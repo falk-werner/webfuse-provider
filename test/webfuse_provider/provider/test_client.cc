@@ -252,3 +252,95 @@ TEST(Client, Open)
     wfp_client_config_dispose(config);
 }
 
+TEST(Client, Read)
+{
+    MockProviderClient provider;
+
+    std::promise<void> connected;
+    EXPECT_CALL(provider, OnConnected()).Times(1)
+        .WillOnce(Invoke([&]() { connected.set_value(); }));
+
+    std::promise<void> disconnected;
+    EXPECT_CALL(provider, OnDisconnected()).Times(1)
+        .WillOnce(Invoke([&]() { disconnected.set_value(); }));
+
+    EXPECT_CALL(provider, Read(42, 5, 0, 1, _, _)).Times(1)
+        .WillOnce(Invoke([](ino_t, uint32_t, size_t, size_t , char * buffer, size_t * bytes_read) {
+            buffer[0] = 42;
+            *bytes_read = 1;
+        }));
+
+    wfp_client_config * config = wfp_client_config_create();
+    provider.AttachTo(config);
+
+    {
+        WebfuseServer server;
+        Client client(config, server.GetUrl());
+
+        ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
+
+        json_t * response = server.Read(42, 5, 0, 1);
+        ASSERT_TRUE(json_is_object(response));
+        json_t * result = json_object_get(response, "result");
+
+        json_t * format = json_object_get(result, "format");
+        ASSERT_STREQ("base64", json_string_value(format));
+
+        json_t * count = json_object_get(result, "count");
+        ASSERT_EQ(1, json_integer_value(count));
+
+        json_t * data = json_object_get(result, "data");
+        ASSERT_STREQ("Kg==", json_string_value(data));
+
+        json_decref(response);
+
+        client.Disconnect();
+        ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
+    }
+
+    wfp_client_config_dispose(config);
+}
+
+TEST(Client, ReadDir)
+{
+    MockProviderClient provider;
+
+    std::promise<void> connected;
+    EXPECT_CALL(provider, OnConnected()).Times(1)
+        .WillOnce(Invoke([&]() { connected.set_value(); }));
+
+    std::promise<void> disconnected;
+    EXPECT_CALL(provider, OnDisconnected()).Times(1)
+        .WillOnce(Invoke([&]() { disconnected.set_value(); }));
+
+    EXPECT_CALL(provider, ReadDir(42, _)).Times(1)
+        .WillOnce(Invoke([](ino_t, wfp_dirbuffer * buffer) {
+            wfp_dirbuffer_add(buffer, ".", 42);
+            wfp_dirbuffer_add(buffer, "..", 1);
+            wfp_dirbuffer_add(buffer, "foo.txt", 43);
+        }));
+
+    wfp_client_config * config = wfp_client_config_create();
+    provider.AttachTo(config);
+
+    {
+        WebfuseServer server;
+        Client client(config, server.GetUrl());
+
+        ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
+
+        json_t * response = server.ReadDir(42);
+        ASSERT_TRUE(json_is_object(response));
+        json_t * result = json_object_get(response, "result");
+
+        ASSERT_TRUE(json_is_array(result));
+        ASSERT_EQ(3, json_array_size(result));
+
+        json_decref(response);
+
+        client.Disconnect();
+        ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
+    }
+
+    wfp_client_config_dispose(config);
+}

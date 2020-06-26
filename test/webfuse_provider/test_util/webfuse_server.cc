@@ -338,5 +338,25 @@ json_t * WebfuseServer::Open(int inode, int flags)
     return d->Invoke("open", params);
 }
 
+json_t * WebfuseServer::Read(int inode, int handle, int offset, int length)
+{
+    json_t * params = json_array();
+    json_array_append_new(params, json_string(d->GetFilesystem().c_str()));
+    json_array_append_new(params, json_integer(inode));
+    json_array_append_new(params, json_integer(handle));
+    json_array_append_new(params, json_integer(offset));
+    json_array_append_new(params, json_integer(length));
+
+    return d->Invoke("read", params);
+}
+
+json_t * WebfuseServer::ReadDir(int inode)
+{
+    json_t * params = json_array();
+    json_array_append_new(params, json_string(d->GetFilesystem().c_str()));
+    json_array_append_new(params, json_integer(inode));
+
+    return d->Invoke("readdir", params);
+}
 
 }
