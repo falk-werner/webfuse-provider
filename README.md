@@ -1,8 +1,9 @@
 [![Build Status](https://travis-ci.org/falk-werner/webfuse-provider.svg?branch=master)](https://travis-ci.org/falk-werner/webfuse-provider)
+[![codecov](https://codecov.io/gh/falk-werner/webfuse-provider/branch/master/graph/badge.svg)](https://codecov.io/gh/falk-werner/webfuse-provider)
 
 # webfuse-provider
 
-Reference implementation of webfuse provider
+webfuse combines libwebsockets and libfuse. It allows ot attach a remote filesystem via websockets.
 
 ## Build and run
 
@@ -13,10 +14,12 @@ To install dependecies, see below.
     ninja
     ./webfuse-provider
 
-## Dependencies
+## Fellow Repositories
 
-- [webfuse](https://github.com/falk-werner/webfuse)
-  - [libwebsockets](https://libwebsockets.org/)
-  - [jansson](https://github.com/akheron/jansson)
+-   **[webfuse-example](https://github.com/falk-werner/webfuse-example)**: Example of webfuse
+-   **[webfuse](https://github.com/falk-werner/webfuse)**: webfuse adapter library
+-   **[webfused](https://github.com/falk-werner/webfused)**: Reference implementation of webfuse daemon
 
-All dependencies are bundled using meson wrap files.
+## Further Documentation
+
+-   [Webfuse Protocol](https://github.com/falk-werner/webfuse/blob/master/doc/protocol.md)

@@ -19,13 +19,17 @@ addons:
             - python3-setuptools
             - python3-wheel
             - ninja-build
+            - lcov
 
 before_install:
     - sudo pip3 install --system meson
 
 before_script:
-    - meson build
+    - meson -Db_coverage=true build
 
 script:
     - cd build
-    - ninja
+    - meson test
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)

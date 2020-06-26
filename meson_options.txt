@@ -1,0 +1,2 @@
+option('without_tests', type: 'boolean', value: false, description: 'disable unit tests')
+option('without_examples', type: 'boolean', value: false, description: 'disable examples')
