@@ -1,6 +1,7 @@
 #include "webfuse_provider/impl/operation/open.h"
 #include "webfuse_provider/impl/operation/error.h"
 #include "webfuse_provider/impl/request.h"
+#include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/impl/util/util.h"
 
 void wfp_impl_open(
@@ -40,8 +41,8 @@ void wfp_impl_respond_open(
     struct wfp_request * request,
     uint32_t handle)
 {
-    json_t * result = json_object();
-    json_object_set_new(result, "handle", json_integer((int) handle));
+    struct wfp_message_writer * writer = wfp_impl_request_get_writer(request);
+    wfp_impl_message_writer_add_int(writer, "handle", (int) handle);
 
-    wfp_impl_respond(request, result);
+    wfp_impl_respond(request);
 }

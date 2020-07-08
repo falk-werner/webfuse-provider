@@ -10,8 +10,11 @@ extern "C"
 {
 #endif
 
+struct wfp_message;
+struct wfp_message_writer;
+
 typedef void wfp_impl_request_respond_fn(
-    json_t * response,
+    struct wfp_message * response,
     void * user_data);
 
 struct wfp_request
@@ -19,7 +22,12 @@ struct wfp_request
     wfp_impl_request_respond_fn * respond;
     void * user_data;
     int id;
+    struct wfp_message_writer * writer;
 };
+
+extern struct wfp_message_writer *
+wfp_impl_request_get_writer(
+    struct wfp_request * request);
 
 extern void wfp_impl_respond_error(
     struct wfp_request * request,
@@ -33,8 +41,7 @@ extern void wfp_impl_request_dispose(
     struct wfp_request * request);
 
 extern void wfp_impl_respond(
-    struct wfp_request * request,
-    json_t * result);
+    struct wfp_request * request);
 
 #ifdef __cplusplus    
 }

@@ -25,12 +25,11 @@
 #define WFP_DEFAULT_TIMEOUT (10 * 1000)
 
 static void wfp_impl_client_protocol_respond(
-    json_t * response,
+    struct wfp_message * message,
     void * user_data)
 {
     struct wfp_client_protocol * protocol = (struct wfp_client_protocol *) user_data;
 
-    struct wfp_message * message = wfp_message_create(response);
     wfp_slist_append(&protocol->messages, &message->item);
     lws_callback_on_writable(protocol->wsi);
 }

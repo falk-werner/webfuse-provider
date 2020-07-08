@@ -4,8 +4,8 @@
 
 #include "webfuse_provider/impl/operation/error.h"
 #include "webfuse_provider/impl/request.h"
+#include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/impl/util/util.h"
-#include "webfuse_provider/impl/util/base64.h"
 
 void wfp_impl_read(
     struct wfp_impl_invokation_context * context,
@@ -52,27 +52,19 @@ void wfp_impl_respond_read(
     char const * data,
     size_t length)
 {
+    struct wfp_message_writer * writer = wfp_impl_request_get_writer(request);
+
     if (0 < length)
     {
-        size_t const size = wfp_impl_base64_encoded_size(length) + 1;
-        char * buffer = malloc(size);
-        wfp_impl_base64_encode((uint8_t const *) data, length, buffer, size);
-
-        json_t * result = json_object();
-        json_object_set_new(result, "data", json_string(buffer));
-        json_object_set_new(result, "format", json_string("base64"));
-        json_object_set_new(result, "count", json_integer((int) length));
-
-        wfp_impl_respond(request, result);
-        free(buffer);
+        wfp_impl_message_writer_add_bytes(writer, "data", data, length);
+        wfp_impl_message_writer_add_string(writer, "format", "base64");
     }
     else
     {
-            json_t * result = json_object();
-            json_object_set_new(result, "data", json_string(""));
-            json_object_set_new(result, "format", json_string("identity"));
-            json_object_set_new(result, "count", json_integer(0));
-
-            wfp_impl_respond(request, result);        
+        wfp_impl_message_writer_add_string(writer, "data", "");
+        wfp_impl_message_writer_add_string(writer, "format", "identity");
     }
+
+    wfp_impl_message_writer_add_int(writer, "count", ((int) length));
+    wfp_impl_respond(request);        
 }

@@ -2,6 +2,7 @@
 #include "webfuse_provider/impl/operation/error.h"
 #include "webfuse_provider/impl/dirbuffer.h"
 #include "webfuse_provider/impl/request.h"
+#include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/impl/util/util.h"
 
 void wfp_impl_readdir(
@@ -36,7 +37,8 @@ void wfp_impl_respond_readdir(
     struct wfp_request * request,
     struct wfp_dirbuffer * dirbuffer)
 {
-    json_t * result = wfp_impl_dirbuffer_take(dirbuffer);
-    wfp_impl_respond(request, result);
+    struct wfp_message_writer * writer = wfp_impl_request_get_writer(request);
+    wfp_impl_message_writer_add_dirbuffer(writer, dirbuffer);
+    wfp_impl_respond(request);
 }
 

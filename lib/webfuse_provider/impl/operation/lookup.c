@@ -4,6 +4,7 @@
 
 #include "webfuse_provider/impl/operation/error.h"
 #include "webfuse_provider/impl/request.h"
+#include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/impl/util/util.h"
 
 void wfp_impl_lookup(
@@ -36,25 +37,25 @@ void wfp_impl_respond_lookup(
     bool const is_file = (0 != (stat->st_mode & S_IFREG));
     bool const is_dir = (0 != (stat->st_mode & S_IFDIR));
 
-    json_t * result = json_object();
-    json_object_set_new(result, "inode", json_integer(stat->st_ino));
-    json_object_set_new(result, "mode", json_integer(stat->st_mode & 0777));    
-    json_object_set_new(result, "atime", json_integer(stat->st_atime));
-    json_object_set_new(result, "mtime", json_integer(stat->st_mtime));
-    json_object_set_new(result, "ctime", json_integer(stat->st_ctime));
+    struct wfp_message_writer * writer = wfp_impl_request_get_writer(request);
+    wfp_impl_message_writer_add_int(writer, "inode", stat->st_ino);
+    wfp_impl_message_writer_add_int(writer, "mode", stat->st_mode & 0777);    
+    wfp_impl_message_writer_add_int(writer, "atime", stat->st_atime);
+    wfp_impl_message_writer_add_int(writer, "mtime", stat->st_mtime);
+    wfp_impl_message_writer_add_int(writer, "ctime", stat->st_ctime);
 
     if (is_file)
     {
-        json_object_set_new(result, "type", json_string("file"));
-        json_object_set_new(result, "size", json_integer(stat->st_size));
+        wfp_impl_message_writer_add_string(writer, "type", "file");
+        wfp_impl_message_writer_add_int(writer, "size", stat->st_size);
     }
 
     if (is_dir)
     {
-        json_object_set_new(result, "type", json_string("dir"));
+        wfp_impl_message_writer_add_string(writer, "type", "dir");
     }
 
-    wfp_impl_respond(request, result);    
+    wfp_impl_respond(request);    
 }
 
 void wfp_impl_lookup_default(
