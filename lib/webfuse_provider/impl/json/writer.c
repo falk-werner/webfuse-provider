@@ -71,7 +71,7 @@ wfp_impl_json_writer_reserve(
         }
 
         writer->raw_data = realloc(writer->raw_data, writer->pre + new_capacity);
-        writer->data = &(writer->data[writer->pre]);
+        writer->data = &(writer->raw_data[writer->pre]);
         writer->capacity = new_capacity;
     }
 }
