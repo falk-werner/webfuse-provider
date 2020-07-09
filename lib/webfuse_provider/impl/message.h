@@ -15,6 +15,7 @@ struct wfp_message
 {
     struct wfp_slist_item item;
     char * data;
+    char * raw_data;
     size_t length;
 };
 

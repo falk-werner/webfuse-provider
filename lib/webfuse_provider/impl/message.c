@@ -11,6 +11,7 @@ extern struct wfp_message * wfp_message_create(json_t const * value)
     struct wfp_message * message = (struct wfp_message *) data;
     message->data = &data[sizeof(struct wfp_message) + LWS_PRE];
     message->length = length;
+    message->raw_data = NULL;
 
     json_dumpb(value, message->data, length, JSON_COMPACT);
 
@@ -20,5 +21,6 @@ extern struct wfp_message * wfp_message_create(json_t const * value)
 void wfp_message_dispose(
     struct wfp_message * message)
 {
+    free(message->raw_data);
     free(message);    
 }

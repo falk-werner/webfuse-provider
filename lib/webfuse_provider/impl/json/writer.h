@@ -4,7 +4,7 @@
 #ifndef __cplusplus
 #include <stddef.h>
 #else
-#include <cstddef.h>
+#include <cstddef>
 #endif
 
 #ifdef __cplusplus
@@ -23,9 +23,14 @@ extern void
 wfp_impl_json_writer_dispose(
     struct wfp_json_writer * writer);
 
+extern void
+wfp_impl_json_writer_reset(
+    struct wfp_json_writer * writer);
+
 extern char *
 wfp_impl_json_writer_take_data(
-    struct wfp_json_writer * writer);
+    struct wfp_json_writer * writer,
+    size_t * size);
 
 extern void
 wfp_impl_json_writer_write_int(
@@ -34,6 +39,11 @@ wfp_impl_json_writer_write_int(
 
 extern void
 wfp_impl_json_writer_write_string(
+    struct wfp_json_writer * writer,
+    char const * value);
+
+extern void
+wfp_impl_json_writer_write_string_nocheck(
     struct wfp_json_writer * writer,
     char const * value);
 

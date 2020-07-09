@@ -170,7 +170,6 @@ public:
         {
             std::string response_text = future.get();
             result = json_loadb(response_text.c_str(), response_text.size(), 0, nullptr);
-
             std::unique_lock<std::mutex> lock(mutex);
             message = nullptr;
         }
