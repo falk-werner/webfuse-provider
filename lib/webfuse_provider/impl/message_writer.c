@@ -18,7 +18,7 @@ struct wfp_message_writer
 struct wfp_message_writer *
 wfp_impl_message_writer_create(int id)
 {
-    struct wfp_message_writer * writer = malloc(sizeof(writer));
+    struct wfp_message_writer * writer = malloc(sizeof(struct wfp_message_writer));
     writer->json_writer = wfp_impl_json_writer_create(1024, LWS_PRE);
     writer->id = id;
     writer->is_finished = false;
