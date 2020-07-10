@@ -61,11 +61,8 @@ static char * wfp_jsonrpc_request_create(
     struct wfp_json_writer * writer = wfp_impl_json_writer_create(128, LWS_PRE);
     wfp_impl_json_writer_object_begin(writer);
 
-    wfp_impl_json_writer_object_key(writer, "method");
-    wfp_impl_json_writer_write_string(writer, method);
-	
-    wfp_impl_json_writer_object_key(writer, "params");
-    wfp_impl_json_writer_array_begin(writer);
+    wfp_impl_json_writer_object_write_string(writer, "method", method);	
+    wfp_impl_json_writer_object_begin_array(writer, "params");
 	for (char const * param_type = param_info; '\0' != *param_type; param_type++)
 	{
 		switch(*param_type)
@@ -98,8 +95,7 @@ static char * wfp_jsonrpc_request_create(
 
     if (0 != id)
     {
-        wfp_impl_json_writer_object_key(writer, "id");
-        wfp_impl_json_writer_write_int(writer, id);
+        wfp_impl_json_writer_object_write_int(writer, "id", id);
     }
 
     wfp_impl_json_writer_object_end(writer);

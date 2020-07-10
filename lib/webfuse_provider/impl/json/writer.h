@@ -67,6 +67,28 @@ wfp_impl_json_writer_object_key(
     char const * key);
 
 extern void
+wfp_impl_json_writer_object_write_int(
+    struct wfp_json_writer * writer,
+    char const * key,
+    int value);
+
+extern void
+wfp_impl_json_writer_object_write_string(
+    struct wfp_json_writer * writer,
+    char const * key,
+    char const * value);
+
+extern void
+wfp_impl_json_writer_object_begin_object(
+    struct wfp_json_writer * writer,
+    char const * key);
+
+extern void
+wfp_impl_json_writer_object_begin_array(
+    struct wfp_json_writer * writer,
+    char const * key);
+
+extern void
 wfp_impl_json_writer_array_begin(
     struct wfp_json_writer * writer);
 

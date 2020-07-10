@@ -361,3 +361,41 @@ wfp_impl_json_writer_array_end(
     wfp_impl_json_writer_pop(writer);
     wfp_impl_json_writer_end_value(writer);
 }
+
+void
+wfp_impl_json_writer_object_write_int(
+    struct wfp_json_writer * writer,
+    char const * key,
+    int value)
+{
+    wfp_impl_json_writer_object_key(writer, key);
+    wfp_impl_json_writer_write_int(writer, value);
+}
+
+void
+wfp_impl_json_writer_object_write_string(
+    struct wfp_json_writer * writer,
+    char const * key,
+    char const * value)
+{
+    wfp_impl_json_writer_object_key(writer, key);
+    wfp_impl_json_writer_write_string(writer, value);
+}
+
+void
+wfp_impl_json_writer_object_begin_object(
+    struct wfp_json_writer * writer,
+    char const * key)
+{
+    wfp_impl_json_writer_object_key(writer, key);
+    wfp_impl_json_writer_object_begin(writer);
+}
+
+void
+wfp_impl_json_writer_object_begin_array(
+    struct wfp_json_writer * writer,
+    char const * key)
+{
+    wfp_impl_json_writer_object_key(writer, key);
+    wfp_impl_json_writer_array_begin(writer);
+}

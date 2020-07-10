@@ -47,8 +47,7 @@ wfp_impl_credentials_write(
     json_t * contents = credentials->contents;
     json_object_foreach(contents, key, value)
     {
-        wfp_impl_json_writer_object_key(writer, key);
-        wfp_impl_json_writer_write_string(writer, json_string_value(value));
+        wfp_impl_json_writer_object_write_string(writer, key, json_string_value(value));
     }
 
     wfp_impl_json_writer_object_end(writer);

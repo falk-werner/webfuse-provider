@@ -145,8 +145,7 @@ TEST(json_writer, write_one_element_object)
 {
     wfp_json_writer * writer = wfp_impl_json_writer_create(128,0);
     wfp_impl_json_writer_object_begin(writer);
-    wfp_impl_json_writer_object_key(writer, "answer");
-    wfp_impl_json_writer_write_int(writer, 42);
+    wfp_impl_json_writer_object_write_int(writer, "answer", 42);
     wfp_impl_json_writer_object_end(writer);
 
     char * data = wfp_impl_json_writer_take_data(writer, nullptr);
@@ -162,14 +161,9 @@ TEST(json_writer, write_mixed_object)
     wfp_json_writer * writer = wfp_impl_json_writer_create(128,0);
     wfp_impl_json_writer_object_begin(writer);
     
-    wfp_impl_json_writer_object_key(writer, "a");
-    wfp_impl_json_writer_write_int(writer, 42);
-    
-    wfp_impl_json_writer_object_key(writer, "b");
-    wfp_impl_json_writer_write_string(writer, "0");
-    
-    wfp_impl_json_writer_object_key(writer, "c");
-    wfp_impl_json_writer_array_begin(writer);
+    wfp_impl_json_writer_object_write_int(writer, "a", 42);
+    wfp_impl_json_writer_object_write_string(writer, "b", "0");    
+    wfp_impl_json_writer_object_begin_array(writer, "c");
     wfp_impl_json_writer_array_end(writer);
     
     wfp_impl_json_writer_object_end(writer);
@@ -187,12 +181,9 @@ TEST(json_writer, write_nested_object)
     wfp_json_writer * writer = wfp_impl_json_writer_create(128,0);
     wfp_impl_json_writer_object_begin(writer);
     
-    wfp_impl_json_writer_object_key(writer, "a");
-    wfp_impl_json_writer_object_begin(writer);
-    wfp_impl_json_writer_object_key(writer, "b");
-    wfp_impl_json_writer_object_begin(writer);    
-    wfp_impl_json_writer_object_key(writer, "c");
-    wfp_impl_json_writer_object_begin(writer);
+    wfp_impl_json_writer_object_begin_object(writer, "a");
+    wfp_impl_json_writer_object_begin_object(writer, "b");
+    wfp_impl_json_writer_object_begin_object(writer, "c");
     wfp_impl_json_writer_object_end(writer);
     wfp_impl_json_writer_object_end(writer);
     wfp_impl_json_writer_object_end(writer);
