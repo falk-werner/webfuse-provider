@@ -99,22 +99,19 @@ wfp_impl_message_writer_add_dirbuffer(
     wfp_impl_json_writer_object_key(writer->json_writer, "result");
     wfp_impl_json_writer_array_begin(writer->json_writer);
 
-    json_t * entries = wfp_impl_dirbuffer_take(dirbuffer);
-    for (size_t i = 0; i < json_array_size(entries); i++)
+    size_t const count = wfp_impl_dirbuffer_size(dirbuffer);
+    for (size_t i = 0; i < count; i++)
     {
-        json_t * entry = json_array_get(entries, i);
-        char const * name = json_string_value(json_object_get(entry, "name"));
-        int inode = json_integer_value(json_object_get(entry, "inode"));
+        struct wfp_dirbuffer_entry const * entry = wfp_impl_dirbuffer_entry_at(dirbuffer, i);
 
         wfp_impl_json_writer_object_begin(writer->json_writer);
         wfp_impl_json_writer_object_key(writer->json_writer, "name");
-        wfp_impl_json_writer_write_string(writer->json_writer, name);
+        wfp_impl_json_writer_write_string(writer->json_writer, entry->name);
         wfp_impl_json_writer_object_key(writer->json_writer, "inode");
-        wfp_impl_json_writer_write_int(writer->json_writer, inode);
+        wfp_impl_json_writer_write_int(writer->json_writer, entry->inode);
         wfp_impl_json_writer_object_end(writer->json_writer);
 
     }
-    json_decref(entries);
 
     wfp_impl_json_writer_array_end(writer->json_writer);
 
