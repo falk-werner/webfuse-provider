@@ -5,6 +5,8 @@
 
 #include "webfuse_provider/jsonrpc/mock_timer.hpp"
 
+#include <libwebsockets.h>
+
 #include <thread>
 #include <chrono>
 
@@ -48,6 +50,9 @@ namespace
         SendContext * context = reinterpret_cast<SendContext*>(user_data);
         context->is_called = true;
         context->response = request;
+
+        char * raw_data = request - LWS_PRE;
+        free(raw_data);
     }
 
     struct FinishedContext

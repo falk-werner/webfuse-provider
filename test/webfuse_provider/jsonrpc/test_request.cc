@@ -1,25 +1,5 @@
-#include <gtest/gtest.h>
 #include "webfuse_provider/impl/jsonrpc/request.h"
-#include "webfuse_provider/status.h"
-
-namespace
-{
-
-struct Context
-{
-    json_t * response;
-};
-
-void jsonrpc_send(
-	json_t * request,
-    void * user_data)
-{
-   Context * context = reinterpret_cast<Context*>(user_data);
-   context->response = request;
-   json_incref(request);
-}
-
-}
+#include <gtest/gtest.h>
 
 TEST(wfp_jsonrpc_request, is_request_object_params)
 {
