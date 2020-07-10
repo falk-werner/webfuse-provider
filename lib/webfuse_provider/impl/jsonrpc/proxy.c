@@ -4,6 +4,9 @@
 #include "webfuse_provider/status.h"
 
 #include "webfuse_provider/impl/timer/timer.h"
+#include "webfuse_provider/impl/json/writer.h"
+
+#include <libwebsockets.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -48,16 +51,21 @@ static void wfp_jsonrpc_proxy_on_timeout(
     }
 }
 
-static json_t * wfp_jsonrpc_request_create(
+static char * wfp_jsonrpc_request_create(
+    size_t * length,
 	char const * method,
 	int id,
 	char const * param_info,
 	va_list args)
 {
-	json_t * request = json_object();
-	json_object_set_new(request, "method", json_string(method));
-	json_t * params = json_array();
+    struct wfp_json_writer * writer = wfp_impl_json_writer_create(128, LWS_PRE);
+    wfp_impl_json_writer_object_begin(writer);
+
+    wfp_impl_json_writer_object_key(writer, "method");
+    wfp_impl_json_writer_write_string(writer, method);
 	
+    wfp_impl_json_writer_object_key(writer, "params");
+    wfp_impl_json_writer_array_begin(writer);
 	for (char const * param_type = param_info; '\0' != *param_type; param_type++)
 	{
 		switch(*param_type)
@@ -65,19 +73,20 @@ static json_t * wfp_jsonrpc_request_create(
 			case 's':
 			{
 				char const * const value = va_arg(args, char const *);
-				json_array_append_new(params, json_string(value));
+                wfp_impl_json_writer_write_string(writer, value);
 			}
 			break;
 			case 'i':
 			{
 				int const value = va_arg(args, int);
-				json_array_append_new(params, json_integer(value));
+                wfp_impl_json_writer_write_int(writer, value);
 			}
 			break;
             case 'j':
             {
-                json_t * const value = va_arg(args, json_t *);
-                json_array_append_new(params, value);
+                wfp_jsonrpc_custom_write_fn * write = va_arg(args, wfp_jsonrpc_custom_write_fn *);
+                void * data = va_arg(args, void *);
+                write(writer,data);
             }
             break;
 			default:
@@ -85,15 +94,20 @@ static json_t * wfp_jsonrpc_request_create(
             break;
 		}
 	}
-	
+    wfp_impl_json_writer_array_end(writer);
 
-	json_object_set_new(request, "params", params);
-	if (0 != id)
-	{
-		json_object_set_new(request, "id", json_integer(id));
-	}
-	
-	return request;
+    if (0 != id)
+    {
+        wfp_impl_json_writer_object_key(writer, "id");
+        wfp_impl_json_writer_write_int(writer, id);
+    }
+
+    wfp_impl_json_writer_object_end(writer);
+
+    char * message = wfp_impl_json_writer_take_data(writer, length);
+    wfp_impl_json_writer_dispose(writer);
+
+    return message;
 }
 
 void wfp_jsonrpc_proxy_init(
@@ -147,9 +161,10 @@ void wfp_jsonrpc_proxy_vinvoke(
         proxy->request.id = 42;
         wfp_timer_start(proxy->request.timer, proxy->timeout);
         
-        json_t * request = wfp_jsonrpc_request_create(method_name, proxy->request.id, param_info, args);
-        proxy->send(request, proxy->user_data);
-        json_decref(request);
+        size_t length;
+        char * message = wfp_jsonrpc_request_create(&length, method_name, proxy->request.id, param_info, args);
+        
+        proxy->send(message, length, proxy->user_data);
     }
     else
     {
@@ -163,13 +178,10 @@ extern void wfp_jsonrpc_proxy_vnotify(
 	char const * param_info,
 	va_list args)
 {
-    json_t * request = wfp_jsonrpc_request_create(method_name, 0, param_info, args);
+    size_t length;
+    char * request = wfp_jsonrpc_request_create(&length, method_name, 0, param_info, args);
 
-    if (NULL != request)
-    {
-        proxy->send(request, proxy->user_data);
-        json_decref(request);
-    }
+    proxy->send(request, length, proxy->user_data);
 }
 
 

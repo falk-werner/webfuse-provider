@@ -21,6 +21,12 @@ extern "C" {
 
 struct wfp_jsonrpc_proxy;
 struct wfp_timer_manager;
+struct wfp_json_writer;
+
+typedef void
+wfp_jsonrpc_custom_write_fn(
+	struct wfp_json_writer * writer,
+	void * data);
 
 extern struct wfp_jsonrpc_proxy *
 wfp_jsonrpc_proxy_create(

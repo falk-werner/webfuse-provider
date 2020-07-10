@@ -125,8 +125,6 @@ static void wfp_impl_client_protocol_authenticate(
     protocol->provider.get_credentials(&credentials, protocol->user_data);
 
     char const * cred_type = wfp_impl_credentials_get_type(&credentials);
-    json_t * creds = wfp_impl_credentials_get(&credentials);
-    json_incref(creds);
 
     wfp_jsonrpc_proxy_invoke(
         protocol->proxy, 
@@ -134,7 +132,7 @@ static void wfp_impl_client_protocol_authenticate(
         protocol, 
         "authenticate", 
         "sj",
-        cred_type, creds);
+        cred_type, &wfp_impl_credentials_write, &credentials);
 
     wfp_impl_credentials_cleanup(&credentials);
 }
@@ -216,25 +214,15 @@ static int wfp_impl_client_protocol_callback(
 }
 
 static void wfp_impl_client_protocol_send(
-    json_t * request,
+    char * data,
+    size_t length,
     void * user_data)
 {
     struct wfp_client_protocol * protocol = user_data;
 
-    size_t length = json_dumpb(request, NULL, 0, JSON_COMPACT);
-    if (0 < length)
-    {
-        char * raw_data = malloc(LWS_PRE + length);
-        char * data = raw_data + LWS_PRE;
-        json_dumpb(request, data, length, JSON_COMPACT);
-
-        struct wfp_message * message = wfp_message_create(data, length);
-        wfp_slist_append(&protocol->messages, &message->item);
-        lws_callback_on_writable(protocol->wsi);
-    }
-
-
-    // return true;
+    struct wfp_message * message = wfp_message_create(data, length);
+    wfp_slist_append(&protocol->messages, &message->item);
+    lws_callback_on_writable(protocol->wsi);
 }
 
 void wfp_impl_client_protocol_init(

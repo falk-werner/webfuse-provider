@@ -3,9 +3,10 @@
 
 #ifndef __cplusplus
 #include <stdbool.h>
+#include <stddef.h>
+#else
+#include <cstddef>
 #endif
-
-#include <jansson.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -13,7 +14,8 @@ extern "C"
 #endif
 
 typedef void wfp_jsonrpc_send_fn(
-	json_t * request,
+	char * message,
+    size_t length,
     void * user_data);
 
 #ifdef __cplusplus

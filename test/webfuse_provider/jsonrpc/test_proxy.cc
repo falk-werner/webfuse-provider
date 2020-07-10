@@ -27,32 +27,27 @@ namespace
 
     struct SendContext
     {
-        json_t * response;
+        std::string response;
         bool is_called;
 
         explicit SendContext()
-        : response(nullptr)
-        , is_called(false)
+        : is_called(false)
         {
         }
 
         ~SendContext() 
         {
-            if (nullptr != response)
-            {
-                json_decref(response);
-            }
         }
     };
 
     void jsonrpc_send(
-        json_t * request,
+        char * request,
+        size_t length,
         void * user_data)
     {
         SendContext * context = reinterpret_cast<SendContext*>(user_data);
         context->is_called = true;
         context->response = request;
-        json_incref(request);
     }
 
     struct FinishedContext
@@ -122,22 +117,7 @@ TEST(wfp_jsonrpc_proxy, invoke)
     wfp_jsonrpc_proxy_invoke(proxy, &jsonrpc_finished, finished_data, "foo", "si", "bar", 42);
 
     ASSERT_TRUE(send_context.is_called);
-    ASSERT_TRUE(json_is_object(send_context.response));
-
-    json_t * method = json_object_get(send_context.response, "method");
-    ASSERT_TRUE(json_is_string(method));
-    ASSERT_STREQ("foo", json_string_value(method));
-
-    json_t * params = json_object_get(send_context.response, "params");
-    ASSERT_TRUE(json_is_array(params));
-    ASSERT_EQ(2, json_array_size(params));
-    ASSERT_TRUE(json_is_string(json_array_get(params, 0)));
-    ASSERT_STREQ("bar", json_string_value(json_array_get(params, 0)));
-    ASSERT_TRUE(json_is_integer(json_array_get(params, 1)));
-    ASSERT_EQ(42, json_integer_value(json_array_get(params, 1)));
-
-    json_t * id = json_object_get(send_context.response, "id");
-    ASSERT_TRUE(json_is_integer(id));
+    ASSERT_STREQ("{\"method\":\"foo\",\"params\":[\"bar\",42],\"id\":42}", send_context.response.c_str());
 
     ASSERT_FALSE(finished_context.is_called);
 
@@ -165,7 +145,6 @@ TEST(wfp_jsonrpc_proxy, invoke_fails_if_another_request_is_pending)
     wfp_jsonrpc_proxy_invoke(proxy, &jsonrpc_finished, finished_data2, "foo", "");
 
     ASSERT_TRUE(send_context.is_called);
-    ASSERT_TRUE(json_is_object(send_context.response));
 
     ASSERT_FALSE(finished_context.is_called);
 
@@ -209,14 +188,10 @@ TEST(wfp_jsonrpc_proxy, on_result)
     wfp_jsonrpc_proxy_invoke(proxy, &jsonrpc_finished, finished_data, "foo", "si", "bar", 42);
 
     ASSERT_TRUE(send_context.is_called);
-    ASSERT_TRUE(json_is_object(send_context.response));
-
-    json_t * id = json_object_get(send_context.response, "id");
-    ASSERT_TRUE(json_is_number(id));
 
     json_t * response = json_object();
     json_object_set_new(response, "result", json_string("okay"));
-    json_object_set(response, "id", id);
+    json_object_set_new(response, "id", json_integer(42));
 
     wfp_jsonrpc_proxy_onresult(proxy, response);
     json_decref(response);
@@ -243,14 +218,10 @@ TEST(wfp_jsonrpc_proxy, on_result_reject_response_with_unknown_id)
     wfp_jsonrpc_proxy_invoke(proxy, &jsonrpc_finished, finished_data, "foo", "si", "bar", 42);
 
     ASSERT_TRUE(send_context.is_called);
-    ASSERT_TRUE(json_is_object(send_context.response));
-
-    json_t * id = json_object_get(send_context.response, "id");
-    ASSERT_TRUE(json_is_number(id));
 
     json_t * response = json_object();
     json_object_set_new(response, "result", json_string("okay"));
-    json_object_set_new(response, "id", json_integer(1 + json_integer_value(id)));
+    json_object_set_new(response, "id", json_integer(1234));
 
     wfp_jsonrpc_proxy_onresult(proxy, response);
     json_decref(response);
@@ -274,7 +245,6 @@ TEST(wfp_jsonrpc_proxy, timeout)
     wfp_jsonrpc_proxy_invoke(proxy, &jsonrpc_finished, finished_data, "foo", "si", "bar", 42);
 
     ASSERT_TRUE(send_context.is_called);
-    ASSERT_TRUE(json_is_object(send_context.response));
 
     std::this_thread::sleep_for(10ms);
     wfp_timer_manager_check(timer_manager);
@@ -299,7 +269,6 @@ TEST(wfp_jsonrpc_proxy, cleanup_pending_request)
     wfp_jsonrpc_proxy_invoke(proxy, &jsonrpc_finished, finished_data, "foo", "si", "bar", 42);
 
     ASSERT_TRUE(send_context.is_called);
-    ASSERT_TRUE(json_is_object(send_context.response));
 
     ASSERT_FALSE(finished_context.is_called);
 
@@ -323,22 +292,7 @@ TEST(wfp_jsonrpc_proxy, notify)
     wfp_jsonrpc_proxy_notify(proxy, "foo", "si", "bar", 42);
 
     ASSERT_TRUE(send_context.is_called);
-    ASSERT_TRUE(json_is_object(send_context.response));
-
-    json_t * method = json_object_get(send_context.response, "method");
-    ASSERT_TRUE(json_is_string(method));
-    ASSERT_STREQ("foo", json_string_value(method));
-
-    json_t * params = json_object_get(send_context.response, "params");
-    ASSERT_TRUE(json_is_array(params));
-    ASSERT_EQ(2, json_array_size(params));
-    ASSERT_TRUE(json_is_string(json_array_get(params, 0)));
-    ASSERT_STREQ("bar", json_string_value(json_array_get(params, 0)));
-    ASSERT_TRUE(json_is_integer(json_array_get(params, 1)));
-    ASSERT_EQ(42, json_integer_value(json_array_get(params, 1)));
-
-    json_t * id = json_object_get(send_context.response, "id");
-    ASSERT_EQ(nullptr, id);
+    ASSERT_STREQ("{\"method\":\"foo\",\"params\":[\"bar\",42]}", send_context.response.c_str());
 
     wfp_jsonrpc_proxy_dispose(proxy);
     wfp_timer_manager_dispose(timer_manager);
