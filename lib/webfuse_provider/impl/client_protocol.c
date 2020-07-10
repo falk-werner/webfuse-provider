@@ -215,7 +215,7 @@ static int wfp_impl_client_protocol_callback(
     return result;
 }
 
-static bool wfp_impl_client_protocol_send(
+static void wfp_impl_client_protocol_send(
     json_t * request,
     void * user_data)
 {
@@ -234,7 +234,7 @@ static bool wfp_impl_client_protocol_send(
     }
 
 
-    return true;
+    // return true;
 }
 
 void wfp_impl_client_protocol_init(

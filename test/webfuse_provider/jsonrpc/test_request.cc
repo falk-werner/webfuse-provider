@@ -10,15 +10,13 @@ struct Context
     json_t * response;
 };
 
-bool jsonrpc_send(
+void jsonrpc_send(
 	json_t * request,
     void * user_data)
 {
    Context * context = reinterpret_cast<Context*>(user_data);
    context->response = request;
    json_incref(request);
-
-   return true;
 }
 
 }

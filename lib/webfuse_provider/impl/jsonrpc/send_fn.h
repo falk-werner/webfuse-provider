@@ -12,7 +12,7 @@ extern "C"
 {
 #endif
 
-typedef bool wfp_jsonrpc_send_fn(
+typedef void wfp_jsonrpc_send_fn(
 	json_t * request,
     void * user_data);
 

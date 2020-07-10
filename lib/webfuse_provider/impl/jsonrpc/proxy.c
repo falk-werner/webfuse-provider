@@ -82,9 +82,7 @@ static json_t * wfp_jsonrpc_request_create(
             break;
 			default:
 			fprintf(stderr, "fatal: unknown param_type '%c'\n", *param_type);
-            json_decref(params);
-            json_decref(request);
-            return NULL;
+            break;
 		}
 	}
 	
@@ -150,23 +148,8 @@ void wfp_jsonrpc_proxy_vinvoke(
         wfp_timer_start(proxy->request.timer, proxy->timeout);
         
         json_t * request = wfp_jsonrpc_request_create(method_name, proxy->request.id, param_info, args);
-
-        bool const is_send = ((NULL != request) && (proxy->send(request, proxy->user_data)));
-        if (!is_send)
-        {
-            proxy->request.is_pending = false;
-            proxy->request.finished = NULL;
-            proxy->request.user_data = NULL;
-            proxy->request.id = 0;
-            wfp_timer_cancel(proxy->request.timer);
-
-            wfp_jsonrpc_propate_error(finished, user_data, WFP_BAD, "Bad: requenst is not sent");
-        }
-
-        if (NULL != request)
-        {
-            json_decref(request);
-        }
+        proxy->send(request, proxy->user_data);
+        json_decref(request);
     }
     else
     {

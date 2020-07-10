@@ -28,12 +28,10 @@ namespace
     struct SendContext
     {
         json_t * response;
-        bool result;
         bool is_called;
 
-        explicit SendContext(bool result_ = true)
+        explicit SendContext()
         : response(nullptr)
-        , result(result_)
         , is_called(false)
         {
         }
@@ -47,7 +45,7 @@ namespace
         }
     };
 
-    bool jsonrpc_send(
+    void jsonrpc_send(
         json_t * request,
         void * user_data)
     {
@@ -55,8 +53,6 @@ namespace
         context->is_called = true;
         context->response = request;
         json_incref(request);
-
-        return context->result;
     }
 
     struct FinishedContext
@@ -152,28 +148,6 @@ TEST(wfp_jsonrpc_proxy, invoke)
     ASSERT_FALSE(nullptr == finished_context.error);
 }
 
-TEST(wfp_jsonrpc_proxy, invoke_calls_finish_if_send_fails)
-{
-    struct wfp_timer_manager * timer_manager = wfp_timer_manager_create();
-
-    SendContext send_context(false);
-    void * send_data = reinterpret_cast<void*>(&send_context);
-    struct wfp_jsonrpc_proxy * proxy = wfp_jsonrpc_proxy_create(timer_manager, WFP_DEFAULT_TIMEOUT, &jsonrpc_send, send_data);
-
-    FinishedContext finished_context;
-    void * finished_data = reinterpret_cast<void*>(&finished_context);
-    wfp_jsonrpc_proxy_invoke(proxy, &jsonrpc_finished, finished_data, "foo", "si", "bar", 42);
-
-    ASSERT_TRUE(send_context.is_called);
-    ASSERT_TRUE(json_is_object(send_context.response));
-
-    ASSERT_TRUE(finished_context.is_called);
-    ASSERT_FALSE(nullptr == finished_context.error);
-
-    wfp_jsonrpc_proxy_dispose(proxy);
-    wfp_timer_manager_dispose(timer_manager);
-}
-
 TEST(wfp_jsonrpc_proxy, invoke_fails_if_another_request_is_pending)
 {
     struct wfp_timer_manager * timer_manager = wfp_timer_manager_create();
@@ -202,7 +176,7 @@ TEST(wfp_jsonrpc_proxy, invoke_fails_if_another_request_is_pending)
     wfp_timer_manager_dispose(timer_manager);
 }
 
-TEST(wfp_jsonrpc_proxy, invoke_fails_if_request_is_invalid)
+TEST(wfp_jsonrpc_proxy, invoke_invalid_request)
 {
     struct wfp_timer_manager * timer_manager = wfp_timer_manager_create();
 
@@ -214,10 +188,9 @@ TEST(wfp_jsonrpc_proxy, invoke_fails_if_request_is_invalid)
     void * finished_data = reinterpret_cast<void*>(&finished_context);
     wfp_jsonrpc_proxy_invoke(proxy, &jsonrpc_finished, finished_data, "foo", "?", "error");
 
-    ASSERT_FALSE(send_context.is_called);
+    ASSERT_TRUE(send_context.is_called);
 
-    ASSERT_TRUE(finished_context.is_called);
-    ASSERT_EQ(WFP_BAD, jsonrpc_get_status(finished_context.error));
+    ASSERT_FALSE(finished_context.is_called);
 
     wfp_jsonrpc_proxy_dispose(proxy);
     wfp_timer_manager_dispose(timer_manager);
@@ -371,7 +344,7 @@ TEST(wfp_jsonrpc_proxy, notify)
     wfp_timer_manager_dispose(timer_manager);
 }
 
-TEST(wfp_jsonrpc_proxy, notify_dont_send_invalid_request)
+TEST(wfp_jsonrpc_proxy, notify_send_invalid_request)
 {
     struct wfp_timer_manager * timer_manager = wfp_timer_manager_create();
 
@@ -381,7 +354,7 @@ TEST(wfp_jsonrpc_proxy, notify_dont_send_invalid_request)
 
     wfp_jsonrpc_proxy_notify(proxy, "foo", "?");
 
-    ASSERT_FALSE(send_context.is_called);
+    ASSERT_TRUE(send_context.is_called);
 
     wfp_jsonrpc_proxy_dispose(proxy);
     wfp_timer_manager_dispose(timer_manager);
