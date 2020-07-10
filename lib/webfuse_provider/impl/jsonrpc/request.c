@@ -22,20 +22,6 @@ wfp_jsonrpc_is_request(
 }
 
 
-struct wfp_jsonrpc_request *
-wfp_jsonrpc_request_create(
-    int id,
-    wfp_jsonrpc_send_fn * send,
-    void * user_data)
-{
-    struct wfp_jsonrpc_request * request = malloc(sizeof(struct wfp_jsonrpc_request));
-    request->id = id;
-    request->send = send;
-    request->user_data = user_data;
-
-    return request;
-}
-
 void
 wfp_jsonrpc_request_dispose(
     struct wfp_jsonrpc_request * request)

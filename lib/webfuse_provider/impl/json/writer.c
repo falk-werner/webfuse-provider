@@ -172,7 +172,6 @@ wfp_impl_json_writer_take_data(
     wfp_impl_json_writer_reserve(writer, 1);    
     writer->data[writer->offset] = '\0';
 
-    char * result = writer->raw_data;
     writer->raw_data = NULL;
 
     if (NULL != size)
@@ -180,7 +179,7 @@ wfp_impl_json_writer_take_data(
         *size = writer->offset;
     }
 
-    return result;
+    return writer->data;
 }
 
 void

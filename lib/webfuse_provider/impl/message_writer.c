@@ -51,11 +51,10 @@ wfp_impl_message_writer_take_message(
         writer->is_finished = true;
     }
 
-    struct wfp_message * message = malloc(sizeof(struct wfp_message));
-    message->raw_data = wfp_impl_json_writer_take_data(writer->json_writer, &message->length);
-    message->data = &(message->raw_data[LWS_PRE]);
+    size_t length;
+    char * data = wfp_impl_json_writer_take_data(writer->json_writer, &length);
 
-    return message;
+    return wfp_message_create(data, length);
 }
 
 void

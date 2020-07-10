@@ -24,12 +24,6 @@ struct wfp_jsonrpc_request;
 extern bool wfp_jsonrpc_is_request(
     json_t * message);
 
-extern struct wfp_jsonrpc_request *
-wfp_jsonrpc_request_create(
-    int id,
-    wfp_jsonrpc_send_fn * send,
-    void * user_data);
-
 extern void wfp_jsonrpc_request_dispose(
     struct wfp_jsonrpc_request * request);
 

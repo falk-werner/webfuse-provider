@@ -23,20 +23,6 @@ bool jsonrpc_send(
 
 }
 
-TEST(wfp_jsonrpc_request, create_dispose)
-{
-    Context context{nullptr};
-    void * user_data = reinterpret_cast<void*>(&context);
-
-    struct  wfp_jsonrpc_request * request = 
-            wfp_jsonrpc_request_create(42, &jsonrpc_send, user_data);
-
-    ASSERT_NE(nullptr, request);
-    ASSERT_EQ(user_data, wfp_jsonrpc_request_get_userdata(request));
-
-    wfp_jsonrpc_request_dispose(request);
-}
-
 TEST(wfp_jsonrpc_request, is_request_object_params)
 {
     json_t * request = json_object();

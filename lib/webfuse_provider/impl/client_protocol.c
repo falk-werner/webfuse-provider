@@ -221,9 +221,18 @@ static bool wfp_impl_client_protocol_send(
 {
     struct wfp_client_protocol * protocol = user_data;
 
-    struct wfp_message * message = wfp_message_create(request);
-    wfp_slist_append(&protocol->messages, &message->item);
-    lws_callback_on_writable(protocol->wsi);
+    size_t length = json_dumpb(request, NULL, 0, JSON_COMPACT);
+    if (0 < length)
+    {
+        char * raw_data = malloc(LWS_PRE + length);
+        char * data = raw_data + LWS_PRE;
+        json_dumpb(request, data, length, JSON_COMPACT);
+
+        struct wfp_message * message = wfp_message_create(data, length);
+        wfp_slist_append(&protocol->messages, &message->item);
+        lws_callback_on_writable(protocol->wsi);
+    }
+
 
     return true;
 }
