@@ -3,7 +3,12 @@
 
 #include "webfuse_provider/credentials.h"
 #include "webfuse_provider/impl/jsonrpc/proxy_intern.h"
-#include <jansson.h>
+
+#ifndef __cplusplus
+#include <stddef.h>
+#else
+#include <cstddef>
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -12,10 +17,18 @@ extern "C"
 
 struct wfp_json_writer;
 
+struct wfp_credentials_entry
+{
+    char * key;
+    char * value;
+};
+
 struct wfp_credentials
 {
     char * type;
-    json_t * contents;
+    struct wfp_credentials_entry * entries;
+    size_t size;
+    size_t capacity;
 };
 
 extern void  wfp_impl_credentials_init(
