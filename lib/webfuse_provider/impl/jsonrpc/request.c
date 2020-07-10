@@ -49,33 +49,3 @@ wfp_jsonrpc_request_get_userdata(
 {
     return request->user_data;
 }
-
-
-void
-wfp_jsonrpc_respond(
-    struct wfp_jsonrpc_request * request,
-    json_t * result)
-{
-    json_t * response = json_object();
-    json_object_set_new(response, "result", result);
-    json_object_set_new(response, "id", json_integer(request->id));
-
-    request->send(response, request->user_data);
-    json_decref(response);
-    wfp_jsonrpc_request_dispose(request);
-}
-
-void wfp_jsonrpc_respond_error(
-    struct wfp_jsonrpc_request * request,
-    int code,
-    char const * message)
-{
-    json_t * response = json_object();
-    json_object_set_new(response, "error", wfp_jsonrpc_error(code, message));
-    json_object_set_new(response, "id", json_integer(request->id));
-
-    request->send(response, request->user_data);
-    json_decref(response);
-    wfp_jsonrpc_request_dispose(request);
-}
-

@@ -36,16 +36,6 @@ extern void wfp_jsonrpc_request_dispose(
 extern void * wfp_jsonrpc_request_get_userdata(
     struct wfp_jsonrpc_request * request);
 
-extern void wfp_jsonrpc_respond(
-    struct wfp_jsonrpc_request * request,
-    json_t * result);
-
-extern void wfp_jsonrpc_respond_error(
-    struct wfp_jsonrpc_request * request,
-    int code,
-    char const * message);
-
-
 #ifdef __cplusplus
 }
 #endif
