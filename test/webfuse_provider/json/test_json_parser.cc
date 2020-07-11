@@ -130,4 +130,10 @@ TEST(json_parser, parse_fail_invalid_json)
         ASSERT_EQ(nullptr, doc);
     }
 
+    {
+        char text[] = "[\"method\",[], {}, \"params\":,42]";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
 }
