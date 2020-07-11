@@ -1,6 +1,6 @@
 #include "webfuse_provider/impl/util/json_util.h"
 
-int wfp_impl_json_get_int(json_t const * object, char const * key, int default_value)
+int wfp_impl_json_get_integer(json_t const * object, char const * key, int default_value)
 {
 	int result = default_value;
 
@@ -20,7 +20,7 @@ wfp_impl_jsonrpc_get_status(
 	wfp_status status = WFP_GOOD;
 	if (NULL != error)
 	{
-		status = wfp_impl_json_get_int(error, "code", WFP_BAD_FORMAT);
+		status = wfp_impl_json_get_integer(error, "code", WFP_BAD_FORMAT);
 	}
 
 	return status;

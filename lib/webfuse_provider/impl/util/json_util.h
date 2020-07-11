@@ -10,7 +10,7 @@ extern "C"
 #endif
 
 extern int
-wfp_impl_json_get_int(
+wfp_impl_json_get_integer(
     json_t const * object,
     char const * key,
     int default_value);
