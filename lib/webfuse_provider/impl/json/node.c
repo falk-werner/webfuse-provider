@@ -8,35 +8,35 @@ bool
 wfp_impl_json_is_bool(
     struct wfp_json const * json)
 {
-    return (WFP_JSON_BOOL == json->type);
+    return ((NULL != json) &&(WFP_JSON_BOOL == json->type));
 }
 
 bool
 wfp_impl_json_is_int(
     struct wfp_json const * json)
 {
-    return (WFP_JSON_INT == json->type);
+    return ((NULL != json) && (WFP_JSON_INT == json->type));
 }
 
 bool
 wfp_impl_json_is_string(
     struct wfp_json const * json)
 {
-    return (WFP_JSON_STRING == json->type);
+    return ((NULL != json) && (WFP_JSON_STRING == json->type));
 }
 
 bool
 wfp_impl_json_is_array(
     struct wfp_json const * json)
 {
-    return (WFP_JSON_ARRAY == json->type);
+    return ((NULL != json) && (WFP_JSON_ARRAY == json->type));
 }
 
 bool
 wfp_impl_json_is_object(
     struct wfp_json const * json)
 {
-    return (WFP_JSON_OBJECT == json->type);
+    return ((NULL != json) && (WFP_JSON_OBJECT == json->type));
 }
 
 bool

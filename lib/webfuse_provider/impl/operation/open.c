@@ -3,23 +3,24 @@
 #include "webfuse_provider/impl/request.h"
 #include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/impl/util/util.h"
+#include "webfuse_provider/impl/json/node.h"
 
 void wfp_impl_open(
     struct wfp_impl_invokation_context * context,
-    json_t * params,
+    struct wfp_json const * params,
     int id)
 {
-    size_t const count = json_array_size(params);
+    size_t const count = wfp_impl_json_array_size(params);
     if (3 == count)
     {
-        json_t * inode_holder = json_array_get(params, 1);
-        json_t * flags_holder = json_array_get(params, 2);
+        struct wfp_json const * inode_holder = wfp_impl_json_array_get(params, 1);
+        struct wfp_json const * flags_holder = wfp_impl_json_array_get(params, 2);
 
-        if (json_is_integer(inode_holder) &&
-            json_is_integer(flags_holder))
+        if (wfp_impl_json_is_int(inode_holder) &&
+            wfp_impl_json_is_int(flags_holder))
         {
-            ino_t inode = (ino_t) json_integer_value(inode_holder);
-            int flags = (ino_t) json_integer_value(flags_holder);
+            ino_t inode = (ino_t) wfp_impl_json_get_int(inode_holder);
+            int flags = (ino_t) wfp_impl_json_get_int(flags_holder);
 
             struct wfp_request * request = wfp_impl_request_create(context->request, id);
 

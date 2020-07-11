@@ -16,6 +16,10 @@ struct wfp_json;
 struct wfp_json_doc;
 
 extern struct wfp_json_doc *
+wfp_impl_json_parse(
+    char * data);
+
+extern struct wfp_json_doc *
 wfp_impl_json_parse_buffer(
     char * data,
     size_t length);

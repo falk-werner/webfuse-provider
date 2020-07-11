@@ -1,15 +1,26 @@
 #include "webfuse_provider/impl/jsonrpc/error.h"
 
-json_t *
-wfp_jsonrpc_error(
+#include <stdlib.h>
+#include <string.h>
+
+struct wfp_jsonrpc_error *
+wfp_jsonrpc_error_create(
     int code,
     char const * message)
 {
-    json_t * error = json_object();
-    json_object_set_new(error, "code", json_integer(code));
-    json_object_set_new(error, "message", json_string(message));
+    struct wfp_jsonrpc_error * error = malloc(sizeof(struct wfp_jsonrpc_error));
+    error->code = code;
+    error->message = strdup(message);
 
     return error;
+}
+
+void
+wfp_jsonrpc_error_dispose(
+    struct wfp_jsonrpc_error * error)
+{
+    free(error->message);
+    free(error);
 }
 
 void
@@ -19,9 +30,10 @@ wfp_jsonrpc_propate_error(
     int code,
     char const * message)
 {
-    json_t * error = wfp_jsonrpc_error(code, message);
-    finised(user_data, NULL, error);
+    struct wfp_jsonrpc_error error;
+    error.code = code;
+    error.message = (char*) message;
 
-    json_decref(error);
+    finised(user_data, NULL, &error);
 }
 

@@ -14,7 +14,7 @@ extern void wfp_impl_respond_readdir(
 
 extern void wfp_impl_readdir(
     struct wfp_impl_invokation_context * context,
-    json_t * params,
+    struct wfp_json const * params,
     int id);
 
 extern void wfp_impl_readdir_default(

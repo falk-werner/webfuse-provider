@@ -10,7 +10,7 @@ extern "C"
 
 extern void wfp_impl_close(
     struct wfp_impl_invokation_context * context,
-    json_t * params,
+    struct wfp_json const * params,
     int id);
 
 extern void wfp_impl_close_default(

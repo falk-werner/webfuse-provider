@@ -6,23 +6,24 @@
 #include "webfuse_provider/impl/request.h"
 #include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/impl/util/util.h"
+#include "webfuse_provider/impl/json/node.h"
 
 void wfp_impl_lookup(
     struct wfp_impl_invokation_context * context,
-    json_t * params,
+    struct wfp_json const * params,
     int id)
 {
-    size_t const count = json_array_size(params);
+    size_t const count = wfp_impl_json_array_size(params);
     if (3 == count)
     {
-        json_t * inode_holder = json_array_get(params, 1);
-        json_t * name_holder = json_array_get(params, 2);
+        struct wfp_json const * inode_holder = wfp_impl_json_array_get(params, 1);
+        struct wfp_json const * name_holder = wfp_impl_json_array_get(params, 2);
 
-        if (json_is_integer(inode_holder) &&
-            json_is_string(name_holder))
+        if (wfp_impl_json_is_int(inode_holder) &&
+            wfp_impl_json_is_string(name_holder))
         {
-            ino_t inode = json_integer_value(inode_holder);
-            char const * name = json_string_value(name_holder);
+            ino_t inode = wfp_impl_json_get_int(inode_holder);
+            char const * name = wfp_impl_json_get_string(name_holder);
 
             struct wfp_request * request = wfp_impl_request_create(context->request, id);
             context->provider->lookup(request, inode, name, context->user_data);

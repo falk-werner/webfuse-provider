@@ -11,7 +11,6 @@
 using std::size_t;
 #endif
 
-#include <jansson.h>
 #include "webfuse_provider/impl/jsonrpc/send_fn.h"
 #include "webfuse_provider/impl/jsonrpc/proxy_finished_fn.h"
 
@@ -22,6 +21,7 @@ extern "C" {
 struct wfp_jsonrpc_proxy;
 struct wfp_timer_manager;
 struct wfp_json_writer;
+struct wfp_json;
 
 typedef void
 wfp_jsonrpc_custom_write_fn(
@@ -70,7 +70,7 @@ extern void wfp_jsonrpc_proxy_notify(
 
 extern void wfp_jsonrpc_proxy_onresult(
     struct wfp_jsonrpc_proxy * proxy,
-    json_t * message);
+    struct wfp_json const * message);
 
 #ifdef __cplusplus
 }

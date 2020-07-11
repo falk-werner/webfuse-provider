@@ -183,7 +183,7 @@ extern void wfp_jsonrpc_proxy_vnotify(
 
 void wfp_jsonrpc_proxy_onresult(
     struct wfp_jsonrpc_proxy * proxy,
-    json_t * message)
+    struct wfp_json const * message)
 {
 	struct wfp_jsonrpc_response response;
 	wfp_jsonrpc_response_init(&response, message);

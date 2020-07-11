@@ -3,6 +3,7 @@
 #include "webfuse_provider/impl/json/reader.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #define WFP_IMPL_JSON_DEFAULT_CAPACITY 4
 
@@ -46,6 +47,14 @@ static bool
 wfp_impl_json_parse_object(
     struct wfp_json_reader * reader,
     struct wfp_json * json);
+
+
+extern struct wfp_json_doc *
+wfp_impl_json_parse(
+    char * data)
+{
+    return wfp_impl_json_parse_buffer(data, strlen(data));
+}
 
 struct wfp_json_doc *
 wfp_impl_json_parse_buffer(

@@ -1,8 +1,5 @@
 #include "webfuse_provider/impl/provider.h"
 
-#include <stdbool.h>
-#include <string.h>
-
 #include "webfuse_provider/impl/request.h"
 #include "webfuse_provider/impl/operation/lookup.h"
 #include "webfuse_provider/impl/operation/getattr.h"
@@ -10,10 +7,16 @@
 #include "webfuse_provider/impl/operation/open.h"
 #include "webfuse_provider/impl/operation/close.h"
 #include "webfuse_provider/impl/operation/read.h"
+#include "webfuse_provider/impl/json/node.h"
+
+#include <stdbool.h>
+#include <string.h>
+
+struct wfp_json;
 
 typedef void wfp_impl_invoke_fn(
     struct wfp_impl_invokation_context * context,
-    json_t * params,
+    struct wfp_json const * params,
     int id);
 
 
@@ -27,7 +30,7 @@ struct wfp_impl_method
 static void wfp_impl_provider_invoke_method(
     struct wfp_impl_invokation_context * context, 
     char const * method_name,
-    json_t * params,
+    struct wfp_json const * params,
     int id)
 {
     static struct wfp_impl_method const methods[] =
@@ -86,16 +89,16 @@ void wfp_impl_provider_init_from_prototype(
 
 void wfp_impl_provider_invoke(
     struct wfp_impl_invokation_context * context,
-    json_t * request)
+    struct wfp_json const * request)
 {
-    json_t * method_holder = json_object_get(request, "method");
-    json_t * params = json_object_get(request, "params");
-    json_t * id_holder = json_object_get(request, "id");
+    struct wfp_json const * method_holder = wfp_impl_json_object_get(request, "method");
+    struct wfp_json const * params = wfp_impl_json_object_get(request, "params");
+    struct wfp_json const * id_holder = wfp_impl_json_object_get(request, "id");
 
-    if ((json_is_string(method_holder)) && (json_is_array(params)))
+    if ((wfp_impl_json_is_string(method_holder)) && (wfp_impl_json_is_array(params)))
     {
-        char const * method = json_string_value(method_holder);
-        int id = json_is_integer(id_holder) ? json_integer_value(id_holder) : 0;
+        char const * method = wfp_impl_json_get_string(method_holder);
+        int id = wfp_impl_json_is_int(id_holder) ? wfp_impl_json_get_int(id_holder) : 0;
 
         wfp_impl_provider_invoke_method(context, method, params, id);
     }

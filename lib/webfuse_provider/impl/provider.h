@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #endif
 
-#include <jansson.h>
 #include "webfuse_provider/client_config.h"
 
 
@@ -13,6 +12,8 @@
 extern "C"
 {
 #endif
+
+struct wfp_json;
 
 struct wfp_provider
 {
@@ -44,7 +45,7 @@ extern void wfp_impl_provider_init_from_prototype(
 
 extern void wfp_impl_provider_invoke(
     struct wfp_impl_invokation_context * context,
-    json_t * request);
+    struct wfp_json const * request);
 
 extern bool wfp_impl_provider_is_authentication_enabled(
     struct wfp_provider * provider);

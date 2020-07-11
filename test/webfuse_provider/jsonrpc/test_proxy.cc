@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include "webfuse_provider/impl/jsonrpc/proxy.h"
+#include "webfuse_provider/impl/jsonrpc/error.h"
+#include "webfuse_provider/impl/json/parser.h"
 #include "webfuse_provider/status.h"
 #include "webfuse_provider/impl/timer/manager.h"
 
@@ -21,12 +23,6 @@ using testing::SaveArg;
 
 namespace
 {
-    int jsonrpc_get_status(json_t * error)
-    {
-        json_t * code = json_object_get(error, "code");
-        return (json_is_integer(code)) ? json_integer_value(code) : WFP_BAD_FORMAT;
-    }
-
     struct SendContext
     {
         std::string response;
@@ -58,8 +54,8 @@ namespace
     struct FinishedContext
     {
         bool is_called;
-        json_t * result;
-        json_t * error;
+        wfp_json const * result;
+        wfp_jsonrpc_error * error;
 
         FinishedContext()
         : is_called(false)
@@ -71,27 +67,25 @@ namespace
 
         ~FinishedContext()
         {
-            if (nullptr != result)
-            {
-                json_decref(result);
-            }
-
             if (nullptr != error)
             {
-                json_decref(error);
+                wfp_jsonrpc_error_dispose(error);
             }
         }
     };
 
     void jsonrpc_finished(
         void * user_data,
-        json_t const * result,
-        json_t const * error)
+        wfp_json const * result,
+        wfp_jsonrpc_error const * error)
     {
         FinishedContext * context = reinterpret_cast<FinishedContext*>(user_data);
         context->is_called = true;
-        context->result = json_deep_copy(result);
-        context->error = json_deep_copy(error);
+        context->result = result;
+        if (nullptr != error)
+        {
+            context->error = wfp_jsonrpc_error_create(error->code, error->message);
+        }
     }
 }
 
@@ -154,7 +148,7 @@ TEST(wfp_jsonrpc_proxy, invoke_fails_if_another_request_is_pending)
     ASSERT_FALSE(finished_context.is_called);
 
     ASSERT_TRUE(finished_context2.is_called);
-    ASSERT_EQ(WFP_BAD_BUSY, jsonrpc_get_status(finished_context2.error));
+    ASSERT_EQ(WFP_BAD_BUSY, finished_context2.error->code);
 
     wfp_jsonrpc_proxy_dispose(proxy);
     wfp_timer_manager_dispose(timer_manager);
@@ -194,17 +188,15 @@ TEST(wfp_jsonrpc_proxy, on_result)
 
     ASSERT_TRUE(send_context.is_called);
 
-    json_t * response = json_object();
-    json_object_set_new(response, "result", json_string("okay"));
-    json_object_set_new(response, "id", json_integer(42));
+    char response_text[] = "{\"result\": \"okay\", \"id\": 42}";
+    wfp_json_doc * doc = wfp_impl_json_parse(response_text);
 
-    wfp_jsonrpc_proxy_onresult(proxy, response);
-    json_decref(response);
+    wfp_jsonrpc_proxy_onresult(proxy, wfp_impl_json_root(doc));
+    wfp_impl_json_dispose(doc);
 
     ASSERT_TRUE(finished_context.is_called);
     ASSERT_EQ(nullptr, finished_context.error);
-    ASSERT_TRUE(json_is_string(finished_context.result));
-    ASSERT_STREQ("okay", json_string_value(finished_context.result));
+    ASSERT_NE(nullptr, finished_context.result);
 
     wfp_jsonrpc_proxy_dispose(proxy);
     wfp_timer_manager_dispose(timer_manager);
@@ -224,12 +216,11 @@ TEST(wfp_jsonrpc_proxy, on_result_reject_response_with_unknown_id)
 
     ASSERT_TRUE(send_context.is_called);
 
-    json_t * response = json_object();
-    json_object_set_new(response, "result", json_string("okay"));
-    json_object_set_new(response, "id", json_integer(1234));
+    char response_text[] = "{\"result\": \"okay\", \"id\": 1234}";
+    wfp_json_doc * doc = wfp_impl_json_parse(response_text);
 
-    wfp_jsonrpc_proxy_onresult(proxy, response);
-    json_decref(response);
+    wfp_jsonrpc_proxy_onresult(proxy, wfp_impl_json_root(doc));
+    wfp_impl_json_dispose(doc);
 
     ASSERT_FALSE(finished_context.is_called);
 
@@ -255,7 +246,7 @@ TEST(wfp_jsonrpc_proxy, timeout)
     wfp_timer_manager_check(timer_manager);
 
     ASSERT_TRUE(finished_context.is_called);
-    ASSERT_EQ(WFP_BAD_TIMEOUT, jsonrpc_get_status(finished_context.error));
+    ASSERT_EQ(WFP_BAD_TIMEOUT, finished_context.error->code);
 
     wfp_jsonrpc_proxy_dispose(proxy);
     wfp_timer_manager_dispose(timer_manager);
@@ -349,12 +340,11 @@ TEST(wfp_jsonrpc_proxy, on_result_swallow_if_no_request_pending)
     void * send_data = reinterpret_cast<void*>(&send_context);
     struct wfp_jsonrpc_proxy * proxy = wfp_jsonrpc_proxy_create(timer_manager, WFP_DEFAULT_TIMEOUT, &jsonrpc_send, send_data);
 
-    json_t * response = json_object();
-    json_object_set_new(response, "result", json_string("okay"));
-    json_object_set_new(response, "id", json_integer(42));
+    char response_text[] = "{\"result\": \"okay\", \"id\": 42}";
+    wfp_json_doc * doc = wfp_impl_json_parse(response_text);
 
-    wfp_jsonrpc_proxy_onresult(proxy, response);
-    json_decref(response);
+    wfp_jsonrpc_proxy_onresult(proxy, wfp_impl_json_root(doc));
+    wfp_impl_json_dispose(doc);
 
     wfp_jsonrpc_proxy_dispose(proxy);
     wfp_timer_manager_dispose(timer_manager);

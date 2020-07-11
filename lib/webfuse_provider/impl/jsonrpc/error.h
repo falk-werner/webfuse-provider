@@ -1,7 +1,6 @@
 #ifndef WFP_JSONRPC_ERROR_H
 #define WFP_JSONRPC_ERROR_H
 
-#include <jansson.h>
 #include "webfuse_provider/impl/jsonrpc/proxy_finished_fn.h"
 
 #ifdef __cplusplus
@@ -9,10 +8,20 @@ extern "C"
 {
 #endif
 
-extern json_t *
-wfp_jsonrpc_error(
+struct wfp_jsonrpc_error
+{
+    int code;
+    char * message;
+};
+
+extern struct wfp_jsonrpc_error *
+wfp_jsonrpc_error_create(
     int code,
     char const * message);
+
+extern void
+wfp_jsonrpc_error_dispose(
+    struct wfp_jsonrpc_error * error);
 
 extern void
 wfp_jsonrpc_propate_error(
