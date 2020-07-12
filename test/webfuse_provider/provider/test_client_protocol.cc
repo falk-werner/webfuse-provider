@@ -7,12 +7,14 @@
 #include "webfuse_provider/mocks/mock_provider_client.hpp"
 #include "webfuse_provider/protocol_names.h"
 #include "webfuse_provider/test_util/timeout_watcher.hpp"
+#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/impl/json/node.h"
 
 #include <libwebsockets.h>
 
 #include <cstring>
+#include <sstream>
 #include <thread>
-#include <atomic>
 
 using webfuse_test::WsServer;
 using webfuse_test::MockProviderClient;
@@ -77,16 +79,16 @@ public:
         wfp_client_protocol_disconnect(protocol);
     }
 
-    void SendToClient(json_t * request)
+    void SendToClient(std::string const & request)
     {
         server->SendMessage(request);
     }
 
-    json_t * ReceiveMessageFromClient()
+    std::string ReceiveMessageFromClient()
     {
         TimeoutWatcher watcher(DEFAULT_TIMEOUT);
-        json_t * result = server->ReceiveMessage();
-        while (nullptr == result)
+        std::string result = server->ReceiveMessage();
+        while (result.empty())
         {
             watcher.check();
             lws_service(context, 0);
@@ -100,73 +102,71 @@ public:
         std::string const & expected_username,
         std::string const & expected_password)
     {
-        json_t * request = ReceiveMessageFromClient();
-        ASSERT_TRUE(json_is_object(request));
+        std::string request_text = ReceiveMessageFromClient();
+        wfp_json_doc * doc = wfp_impl_json_parse(const_cast<char *>(request_text.data()));
+        wfp_json const * request = wfp_impl_json_root(doc);
+        ASSERT_TRUE(wfp_impl_json_is_object(request));
 
-        json_t * method = json_object_get(request, "method");
-        ASSERT_TRUE(json_is_string(method));
-        ASSERT_STREQ("authenticate", json_string_value(method));
+        wfp_json const * method = wfp_impl_json_object_get(request, "method");
+        ASSERT_TRUE(wfp_impl_json_is_string(method));
+        ASSERT_STREQ("authenticate", wfp_impl_json_get_string(method));
 
-        json_t * id = json_object_get(request, "id");
-        ASSERT_TRUE(json_is_integer(id));
+        wfp_json const * id = wfp_impl_json_object_get(request, "id");
+        ASSERT_TRUE(wfp_impl_json_is_int(id));
 
-        json_t * params = json_object_get(request, "params");
-        ASSERT_TRUE(json_is_array(params));
-        ASSERT_EQ(2, json_array_size(params));
+        wfp_json const * params = wfp_impl_json_object_get(request, "params");
+        ASSERT_TRUE(wfp_impl_json_is_array(params));
+        ASSERT_EQ(2, wfp_impl_json_array_size(params));
 
-        json_t * type = json_array_get(params, 0);
-        ASSERT_TRUE(json_is_string(type));
-        ASSERT_STREQ("username", json_string_value(type));
+        wfp_json const * type = wfp_impl_json_array_get(params, 0);
+        ASSERT_TRUE(wfp_impl_json_is_string(type));
+        ASSERT_STREQ("username", wfp_impl_json_get_string(type));
 
-        json_t * credentials = json_array_get(params, 1);
-        ASSERT_TRUE(json_is_object(credentials));
+        wfp_json const * credentials = wfp_impl_json_array_get(params, 1);
+        ASSERT_TRUE(wfp_impl_json_is_object(credentials));
 
-        json_t * username = json_object_get(credentials, "username");
-        ASSERT_TRUE(json_is_string(username));
-        ASSERT_STREQ(expected_username.c_str(), json_string_value(username));
+        wfp_json const * username = wfp_impl_json_object_get(credentials, "username");
+        ASSERT_TRUE(wfp_impl_json_is_string(username));
+        ASSERT_STREQ(expected_username.c_str(), wfp_impl_json_get_string(username));
         
-        json_t * password = json_object_get(credentials, "password");
-        ASSERT_TRUE(json_is_string(password));
-        ASSERT_STREQ(expected_password.c_str(), json_string_value(password));
+        wfp_json const * password = wfp_impl_json_object_get(credentials, "password");
+        ASSERT_TRUE(wfp_impl_json_is_string(password));
+        ASSERT_STREQ(expected_password.c_str(), wfp_impl_json_get_string(password));
 
-        json_t * response = json_object();
-        json_object_set_new(response, "result", json_object());
-        json_object_set(response, "id", id);
-        SendToClient(response);
+        std::ostringstream response;
+        response << "{\"result\": {}, \"id\": " << wfp_impl_json_get_int(id) << "}";
+        SendToClient(response.str());
 
-        json_decref(request);
+        wfp_impl_json_dispose(doc);
     }
 
     void AwaitAddFilesystem(std::string& filesystemName)
     {
-        json_t * addFilesystemRequest = ReceiveMessageFromClient();
-        ASSERT_NE(nullptr, addFilesystemRequest);
-        ASSERT_TRUE(json_is_object(addFilesystemRequest));
+        std::string request_text = ReceiveMessageFromClient();
+        wfp_json_doc * doc = wfp_impl_json_parse(const_cast<char *>(request_text.data()));
+        wfp_json const * request = wfp_impl_json_root(doc);
+        ASSERT_TRUE(wfp_impl_json_is_object(request));
 
-        json_t * method = json_object_get(addFilesystemRequest, "method");
-        ASSERT_TRUE(json_is_string(method));
-        ASSERT_STREQ("add_filesystem", json_string_value(method));
+        wfp_json const * method = wfp_impl_json_object_get(request, "method");
+        ASSERT_TRUE(wfp_impl_json_is_string(method));
+        ASSERT_STREQ("add_filesystem", wfp_impl_json_get_string(method));
 
-        json_t * params = json_object_get(addFilesystemRequest, "params");
-        ASSERT_TRUE(json_is_array(params));
-        ASSERT_EQ(1, json_array_size(params));
+        wfp_json const * params = wfp_impl_json_object_get(request, "params");
+        ASSERT_TRUE(wfp_impl_json_is_array(params));
+        ASSERT_EQ(1, wfp_impl_json_array_size(params));
 
-        json_t * filesystem = json_array_get(params, 0);
-        ASSERT_TRUE(json_is_string(filesystem));
-        filesystemName = json_string_value(filesystem);
+        wfp_json const * filesystem = wfp_impl_json_array_get(params, 0);
+        ASSERT_TRUE(wfp_impl_json_is_string(filesystem));
 
-        json_t * id = json_object_get(addFilesystemRequest, "id");
-        ASSERT_TRUE(json_is_integer(id));
+        wfp_json const * id = wfp_impl_json_object_get(request, "id");
+        ASSERT_TRUE(wfp_impl_json_is_int(id));
 
-        json_t * response = json_object();
-        json_t * result = json_object();
-        json_object_set(result, "id", filesystem);
-        json_object_set_new(response, "result", result);
-        json_object_set(response, "id", id);
+        std::ostringstream response;
+        response << "{\"result\": {\"id\": \"" << wfp_impl_json_get_string(filesystem) << "\"}, \"id\": " << wfp_impl_json_get_int(id) << "}";
 
-        SendToClient(response);
+        SendToClient(response.str());
 
-        json_decref(addFilesystemRequest);
+        wfp_impl_json_dispose(doc);
     }
 
 private:
@@ -250,19 +250,12 @@ TEST(client_protocol, getattr)
     fixture.AwaitAddFilesystem(filesystem);
     if (HasFatalFailure()) { return; }
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string(filesystem.c_str()));
-    json_array_append_new(params, json_integer(1));
-    json_t * request = json_object();
-    json_object_set_new(request, "method", json_string("getattr"));
-    json_object_set_new(request, "params", params);
-    json_object_set_new(request, "id", json_integer(42));
+    std::ostringstream request;
+    request << "{\"method\": \"getattr\", \"params\": [\"" << filesystem << "\", 1], \"id\": 42}";
 
-    fixture.SendToClient(request);
-    json_t * response = fixture.ReceiveMessageFromClient();
-    ASSERT_TRUE(json_is_object(response));
-
-    json_decref(response);
+    fixture.SendToClient(request.str());
+    std::string response = fixture.ReceiveMessageFromClient();
+    ASSERT_FALSE(response.empty());
 
     fixture.Disconnect();
 }

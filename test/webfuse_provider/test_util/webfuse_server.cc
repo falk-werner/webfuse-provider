@@ -1,6 +1,8 @@
 #include "webfuse_provider/test_util/webfuse_server.hpp"
 #include "webfuse_provider/impl/util/lws_log.h"
 #include "webfuse_provider/protocol_names.h"
+#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/impl/json/node.h"
 
 #include <libwebsockets.h>
 #include <stdexcept>
@@ -10,6 +12,7 @@
 #include <sstream>
 #include <queue>
 #include <chrono>
+#include <sstream>
 
 #define TIMEOUT (std::chrono::seconds(10))
 
@@ -22,7 +25,7 @@ public:
     virtual ~IServer() = default;
     virtual void OnConnected(lws * wsi) = 0;
     virtual void OnConnectionClosed(lws * wsi) = 0;
-    virtual void OnMessageReceived(lws * wsi, char const * data, size_t length) = 0;
+    virtual void OnMessageReceived(lws * wsi, char * data, size_t length) = 0;
     virtual void OnWritable(lws * wsi) = 0;
 };
 
@@ -54,7 +57,7 @@ static int wfp_test_utils_webfuse_server_callback(
                 break;
             case LWS_CALLBACK_RECEIVE:
                 {
-                    auto * data = reinterpret_cast<char const*>(in);
+                    auto * data = reinterpret_cast<char*>(in);
                     server->OnMessageReceived(wsi, data, len);
                 }
                 break;
@@ -143,7 +146,7 @@ public:
         return filesystem;
     }
 
-    json_t * Invoke(std::string const & method, json_t * params)
+    std::string Invoke(std::string const & method, std::string const & params)
     {
         std::promise<std::string> response;
         {            
@@ -151,27 +154,23 @@ public:
             message = &response;
             id++;
 
-            json_t * request = json_object();
-            json_object_set_new(request, "method", json_string(method.c_str()));
-            json_object_set_new(request, "params", params);
-            json_object_set_new(request, "id", json_integer(id));
+            std::ostringstream request;
+            request << "{"
+                << "\"method\": \"" << method << "\","
+                << "\"params\": " << params << ","
+                << "\"id\": " << id
+                << "}";
 
-            char * request_text = json_dumps(request, 0);
-            write_queue.push(request_text);
-            free(request_text);
-            json_decref(request);
+            write_queue.push(request.str());
         }
         lws_callback_on_writable(client);
 
-        json_t * result = nullptr;
+        std::string result;
         auto future = response.get_future();
         auto state = future.wait_for(TIMEOUT);
         if (std::future_status::ready == state)
         {
-            std::string response_text = future.get();
-            result = json_loadb(response_text.c_str(), response_text.size(), 0, nullptr);
-            std::unique_lock<std::mutex> lock(mutex);
-            message = nullptr;
+            result = future.get();
         }
 
         return result;
@@ -189,7 +188,7 @@ public:
         client = nullptr;
     }
 
-    void OnMessageReceived(lws * wsi, char const * data, size_t length) override
+    void OnMessageReceived(lws * wsi, char * data, size_t length) override
     {
         {
             std::unique_lock<std::mutex> lock(mutex);
@@ -199,35 +198,30 @@ public:
             }
         }
 
-        json_t * message = json_loadb(data, length, 0, nullptr);
-        if (message)
+        wfp_json_doc * doc = wfp_impl_json_parse_buffer(data, length);
+        if (doc)
         {
-            json_t * method = json_object_get(message, "method");
-            if (json_is_string(method))
+            wfp_json const * message = wfp_impl_json_root(doc);
+            wfp_json const * method = wfp_impl_json_object_get(message, "method");
+            if (wfp_impl_json_is_string(method))
             {
-                if (0 == strcmp("add_filesystem", json_string_value(method)))
+                if (0 == strcmp("add_filesystem", wfp_impl_json_get_string(method)))
                 {
-                    json_t * id = json_object_get(message, "id");
+                    wfp_json const * id = wfp_impl_json_object_get(message, "id");
 
-                    json_t * response = json_object();
-                    json_t * result = json_object();
-                    json_object_set_new(result, "id", json_string(GetFilesystem().c_str())); 
-                    json_object_set_new(response, "result", result);
-                    json_object_set(response, "id", id);
-
-                    char * response_text = json_dumps(response, 0);
+                    std::ostringstream response;
+                    response << "{\"result\": {\"id\": \"" << GetFilesystem() << "\"}, "
+                        << "\"id\": " << wfp_impl_json_get_int(id) << "}";
                     {
                         std::unique_lock<std::mutex> lock(mutex);
-                        write_queue.push(response_text);
+                        write_queue.push(response.str());
                     }
-                    free(response_text);
-                    json_decref(response);
 
                     lws_callback_on_writable(wsi);
                 }
             }
             
-            json_decref(message);
+            wfp_impl_json_dispose(doc);
         }
     }
 
@@ -306,56 +300,41 @@ std::string const & WebfuseServer::GetUrl()
     return d->GetUrl();
 }
 
-json_t * WebfuseServer::Invoke(std::string const & method, json_t * params)
+std::string WebfuseServer::Invoke(std::string const & method, std::string const & params)
 {
     return d->Invoke(method, params);
 }
 
-json_t * WebfuseServer::Invoke(std::string const & method, std::string const & params)
+std::string WebfuseServer::Lookup(int parent, std::string const & name)
 {
-    json_t * params_json = json_loads(params.c_str(), 0, nullptr);
-    return d->Invoke(method, params_json);
+    std::ostringstream params;
+    params << "[\"" << d->GetFilesystem() << "\", " << parent << ", \"" << name << "\"]";
+
+    return d->Invoke("lookup", params.str());
 }
 
-json_t * WebfuseServer::Lookup(int parent, std::string const & name)
+std::string WebfuseServer::Open(int inode, int flags)
 {
-    json_t * params = json_array();
-    json_array_append_new(params, json_string(d->GetFilesystem().c_str()));
-    json_array_append_new(params, json_integer(parent));
-    json_array_append_new(params, json_string(name.c_str()));
+    std::ostringstream params;
+    params << "[\"" << d->GetFilesystem() << "\", " << inode << ", " << flags << "]";
 
-    return d->Invoke("lookup", params);
+    return d->Invoke("open", params.str());
 }
 
-json_t * WebfuseServer::Open(int inode, int flags)
+std::string WebfuseServer::Read(int inode, int handle, int offset, int length)
 {
-    json_t * params = json_array();
-    json_array_append_new(params, json_string(d->GetFilesystem().c_str()));
-    json_array_append_new(params, json_integer(inode));
-    json_array_append_new(params, json_integer(flags));
+    std::ostringstream params;
+    params << "[\"" << d->GetFilesystem() << "\", " << inode << ", " << handle << ", " << offset << ", " << length << "]";
 
-    return d->Invoke("open", params);
+    return d->Invoke("read", params.str());
 }
 
-json_t * WebfuseServer::Read(int inode, int handle, int offset, int length)
+std::string WebfuseServer::ReadDir(int inode)
 {
-    json_t * params = json_array();
-    json_array_append_new(params, json_string(d->GetFilesystem().c_str()));
-    json_array_append_new(params, json_integer(inode));
-    json_array_append_new(params, json_integer(handle));
-    json_array_append_new(params, json_integer(offset));
-    json_array_append_new(params, json_integer(length));
+    std::ostringstream params;
+    params << "[\"" << d->GetFilesystem() << "\", " << inode << "]";
 
-    return d->Invoke("read", params);
-}
-
-json_t * WebfuseServer::ReadDir(int inode)
-{
-    json_t * params = json_array();
-    json_array_append_new(params, json_string(d->GetFilesystem().c_str()));
-    json_array_append_new(params, json_integer(inode));
-
-    return d->Invoke("readdir", params);
+    return d->Invoke("readdir", params.str());
 }
 
 }
