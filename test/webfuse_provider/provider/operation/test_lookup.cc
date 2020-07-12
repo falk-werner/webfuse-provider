@@ -2,6 +2,7 @@
 #include "webfuse_provider/mocks/mock_request.hpp"
 #include "webfuse_provider/mocks/mock_provider.hpp"
 #include "webfuse_provider/mocks/fake_invokation_context.hpp"
+#include "webfuse_provider/test_util/json_doc.hpp"
 
 #include <gtest/gtest.h>
 #include <cstdlib>
@@ -10,6 +11,7 @@ using ::webfuse_test::MockProvider;
 using ::webfuse_test::MockRequest;
 using ::webfuse_test::StatMatcher;
 using ::webfuse_test::create_context;
+using ::webfuse_test::JsonDoc;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::StrEq;
@@ -19,28 +21,22 @@ namespace
 
 void free_request(wfp_request * request, ino_t, char const *)
 {
-    free(request);
+    wfp_impl_request_dispose(request);
 }
 
 }
 
 TEST(wfp_impl_lookup, invoke_provider)
 {
-    ino_t inode = 42;
     MockProvider provider;
-    EXPECT_CALL(provider,lookup(_, inode,StrEq("some.file"))).Times(1)
+    EXPECT_CALL(provider,lookup(_, 42,StrEq("some.file"))).Times(1)
         .WillOnce(Invoke(free_request));
 
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_integer(inode));
-    json_array_append_new(params, json_string("some.file"));
-
-    wfp_impl_lookup(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesystem\", 42, \"some.file\"]");
+    wfp_impl_lookup(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_lookup, fail_invalid_param_count)
@@ -51,12 +47,8 @@ TEST(wfp_impl_lookup, fail_invalid_param_count)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_integer(23));
-
-    wfp_impl_lookup(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesystem\", 23]");
+    wfp_impl_lookup(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_lookup, fail_invalid_inode_type)
@@ -67,13 +59,8 @@ TEST(wfp_impl_lookup, fail_invalid_inode_type)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_string("23"));
-    json_array_append_new(params, json_string("some.file"));
-
-    wfp_impl_lookup(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesystem\", \"23\", \"some.file\"]");
+    wfp_impl_lookup(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_lookup, fail_invalid_name_type)
@@ -84,13 +71,8 @@ TEST(wfp_impl_lookup, fail_invalid_name_type)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_integer(23));
-    json_array_append_new(params, json_integer(1));
-
-    wfp_impl_lookup(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesystem\", 23, 1]");
+    wfp_impl_lookup(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_lookup, default_responds_error)
