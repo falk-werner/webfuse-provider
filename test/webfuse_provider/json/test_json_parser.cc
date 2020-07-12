@@ -18,7 +18,7 @@ TEST(json_parser, parse_true)
     ASSERT_NE(nullptr, doc);
     wfp_json const * root = wfp_impl_json_doc_root(doc);
     ASSERT_TRUE(wfp_impl_json_is_bool(root));
-    ASSERT_TRUE(wfp_impl_json_get_bool(root));
+    ASSERT_TRUE(wfp_impl_json_bool_get(root));
 
     wfp_impl_json_doc_dispose(doc);
 }
@@ -30,7 +30,7 @@ TEST(json_parser, parse_false)
     ASSERT_NE(nullptr, doc);
     wfp_json const * root = wfp_impl_json_doc_root(doc);
     ASSERT_TRUE(wfp_impl_json_is_bool(root));
-    ASSERT_FALSE(wfp_impl_json_get_bool(root));
+    ASSERT_FALSE(wfp_impl_json_bool_get(root));
 
     wfp_impl_json_doc_dispose(doc);
 }
@@ -42,7 +42,7 @@ TEST(json_parser, parse_int)
     ASSERT_NE(nullptr, doc);
     wfp_json const * root = wfp_impl_json_doc_root(doc);
     ASSERT_TRUE(wfp_impl_json_is_int(root));
-    ASSERT_EQ(42, wfp_impl_json_get_int(root));
+    ASSERT_EQ(42, wfp_impl_json_int_get(root));
 
     wfp_impl_json_doc_dispose(doc);
 }
@@ -54,7 +54,7 @@ TEST(json_parser, parse_negative_int)
     ASSERT_NE(nullptr, doc);
     wfp_json const * root = wfp_impl_json_doc_root(doc);
     ASSERT_TRUE(wfp_impl_json_is_int(root));
-    ASSERT_EQ(-1234, wfp_impl_json_get_int(root));
+    ASSERT_EQ(-1234, wfp_impl_json_int_get(root));
 
     wfp_impl_json_doc_dispose(doc);
 }
@@ -66,7 +66,7 @@ TEST(json_parser, parse_string)
     ASSERT_NE(nullptr, doc);
     wfp_json const * root = wfp_impl_json_doc_root(doc);
     ASSERT_TRUE(wfp_impl_json_is_string(root));
-    ASSERT_STREQ("brummni", wfp_impl_json_get_string(root));
+    ASSERT_STREQ("brummni", wfp_impl_json_string_get(root));
 
     wfp_impl_json_doc_dispose(doc);
 }

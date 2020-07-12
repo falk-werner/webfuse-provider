@@ -109,7 +109,7 @@ public:
 
         wfp_json const * method = wfp_impl_json_object_get(request, "method");
         ASSERT_TRUE(wfp_impl_json_is_string(method));
-        ASSERT_STREQ("authenticate", wfp_impl_json_get_string(method));
+        ASSERT_STREQ("authenticate", wfp_impl_json_string_get(method));
 
         wfp_json const * id = wfp_impl_json_object_get(request, "id");
         ASSERT_TRUE(wfp_impl_json_is_int(id));
@@ -120,21 +120,21 @@ public:
 
         wfp_json const * type = wfp_impl_json_array_get(params, 0);
         ASSERT_TRUE(wfp_impl_json_is_string(type));
-        ASSERT_STREQ("username", wfp_impl_json_get_string(type));
+        ASSERT_STREQ("username", wfp_impl_json_string_get(type));
 
         wfp_json const * credentials = wfp_impl_json_array_get(params, 1);
         ASSERT_TRUE(wfp_impl_json_is_object(credentials));
 
         wfp_json const * username = wfp_impl_json_object_get(credentials, "username");
         ASSERT_TRUE(wfp_impl_json_is_string(username));
-        ASSERT_STREQ(expected_username.c_str(), wfp_impl_json_get_string(username));
+        ASSERT_STREQ(expected_username.c_str(), wfp_impl_json_string_get(username));
         
         wfp_json const * password = wfp_impl_json_object_get(credentials, "password");
         ASSERT_TRUE(wfp_impl_json_is_string(password));
-        ASSERT_STREQ(expected_password.c_str(), wfp_impl_json_get_string(password));
+        ASSERT_STREQ(expected_password.c_str(), wfp_impl_json_string_get(password));
 
         std::ostringstream response;
-        response << "{\"result\": {}, \"id\": " << wfp_impl_json_get_int(id) << "}";
+        response << "{\"result\": {}, \"id\": " << wfp_impl_json_int_get(id) << "}";
         SendToClient(response.str());
     }
 
@@ -146,7 +146,7 @@ public:
 
         wfp_json const * method = wfp_impl_json_object_get(request, "method");
         ASSERT_TRUE(wfp_impl_json_is_string(method));
-        ASSERT_STREQ("add_filesystem", wfp_impl_json_get_string(method));
+        ASSERT_STREQ("add_filesystem", wfp_impl_json_string_get(method));
 
         wfp_json const * params = wfp_impl_json_object_get(request, "params");
         ASSERT_TRUE(wfp_impl_json_is_array(params));
@@ -159,7 +159,7 @@ public:
         ASSERT_TRUE(wfp_impl_json_is_int(id));
 
         std::ostringstream response;
-        response << "{\"result\": {\"id\": \"" << wfp_impl_json_get_string(filesystem) << "\"}, \"id\": " << wfp_impl_json_get_int(id) << "}";
+        response << "{\"result\": {\"id\": \"" << wfp_impl_json_string_get(filesystem) << "\"}, \"id\": " << wfp_impl_json_int_get(id) << "}";
 
         SendToClient(response.str());
     }

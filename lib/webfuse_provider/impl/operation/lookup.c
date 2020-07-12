@@ -22,8 +22,8 @@ void wfp_impl_lookup(
         if (wfp_impl_json_is_int(inode_holder) &&
             wfp_impl_json_is_string(name_holder))
         {
-            ino_t inode = wfp_impl_json_get_int(inode_holder);
-            char const * name = wfp_impl_json_get_string(name_holder);
+            ino_t inode = wfp_impl_json_int_get(inode_holder);
+            char const * name = wfp_impl_json_string_get(name_holder);
 
             struct wfp_request * request = wfp_impl_request_create(context->request, id);
             context->provider->lookup(request, inode, name, context->user_data);

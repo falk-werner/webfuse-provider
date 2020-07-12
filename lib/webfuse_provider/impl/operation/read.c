@@ -26,10 +26,10 @@ void wfp_impl_read(
             wfp_impl_json_is_int(offset_holder) &&
             wfp_impl_json_is_int(length_holder))
         {
-            ino_t inode = (ino_t) wfp_impl_json_get_int(inode_holder);
-            int handle = wfp_impl_json_get_int(handle_holder);
-            size_t offset = wfp_impl_json_get_int(offset_holder);
-            size_t length = wfp_impl_json_get_int(length_holder);
+            ino_t inode = (ino_t) wfp_impl_json_int_get(inode_holder);
+            int handle = wfp_impl_json_int_get(handle_holder);
+            size_t offset = wfp_impl_json_int_get(offset_holder);
+            size_t length = wfp_impl_json_int_get(length_holder);
             struct wfp_request * request = wfp_impl_request_create(context->request, id);
 
             context->provider->read(request, inode, handle, offset, length, context->user_data);

@@ -36,15 +36,15 @@ wfp_impl_json_is_object(
     struct wfp_json const * json);
 
 extern bool
-wfp_impl_json_get_bool(
+wfp_impl_json_bool_get(
     struct wfp_json const * json);
 
 extern int
-wfp_impl_json_get_int(
+wfp_impl_json_int_get(
     struct wfp_json const * json);
 
 extern const char *
-wfp_impl_json_get_string(
+wfp_impl_json_string_get(
     struct wfp_json const * json);
 
 extern struct wfp_json const *

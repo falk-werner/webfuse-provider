@@ -24,7 +24,7 @@ static void webfuse_test_MockRequest_respond(
         wfp_json const * id_holder = wfp_impl_json_object_get(response, "id");
         if (wfp_impl_json_is_int(id_holder)) 
         {
-            id = wfp_impl_json_get_int(id_holder);
+            id = wfp_impl_json_int_get(id_holder);
         }
 
         if (nullptr != result)
@@ -40,7 +40,7 @@ static void webfuse_test_MockRequest_respond(
                 wfp_json const * error_code_holder = wfp_impl_json_object_get(response, "error");
                 if (wfp_impl_json_is_int(error_code_holder))
                 {
-                    error_code = wfp_impl_json_get_int(error_code_holder);
+                    error_code = wfp_impl_json_int_get(error_code_holder);
                 }
             }
 

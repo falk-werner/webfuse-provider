@@ -40,21 +40,21 @@ wfp_impl_json_is_object(
 }
 
 bool
-wfp_impl_json_get_bool(
+wfp_impl_json_bool_get(
     struct wfp_json const * json)
 {
     return (WFP_JSON_BOOL == json->type) ? json->value.b : false;
 }
 
 int
-wfp_impl_json_get_int(
+wfp_impl_json_int_get(
     struct wfp_json const * json)
 {
     return (WFP_JSON_INT == json->type) ? json->value.i : 0;
 }
 
 const char *
-wfp_impl_json_get_string(
+wfp_impl_json_string_get(
     struct wfp_json const * json)
 {
     return (WFP_JSON_STRING == json->type) ? json->value.s : "";

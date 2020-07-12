@@ -21,7 +21,7 @@ void wfp_impl_getattr(
 
         if (wfp_impl_json_is_int(inode_holder))
         {
-            ino_t inode = (ino_t) wfp_impl_json_get_int(inode_holder);
+            ino_t inode = (ino_t) wfp_impl_json_int_get(inode_holder);
             struct wfp_request * request = wfp_impl_request_create(context->request, id);
 
             context->provider->getattr(request, inode, context->user_data);

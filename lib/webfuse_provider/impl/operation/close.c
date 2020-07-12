@@ -19,9 +19,9 @@ void wfp_impl_close(
             wfp_impl_json_is_int(handle_holder) &&
             wfp_impl_json_is_int(flags_holder))
         {
-            ino_t inode = (ino_t) wfp_impl_json_get_int(inode_holder);
-            uint32_t handle = (uint32_t) (wfp_impl_json_get_int(handle_holder) & UINT32_MAX);
-            int flags = wfp_impl_json_get_int(flags_holder);
+            ino_t inode = (ino_t) wfp_impl_json_int_get(inode_holder);
+            uint32_t handle = (uint32_t) (wfp_impl_json_int_get(handle_holder) & UINT32_MAX);
+            int flags = wfp_impl_json_int_get(flags_holder);
 
             context->provider->close(inode, handle, flags, context->user_data);
         }

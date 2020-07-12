@@ -19,8 +19,8 @@ void wfp_impl_open(
         if (wfp_impl_json_is_int(inode_holder) &&
             wfp_impl_json_is_int(flags_holder))
         {
-            ino_t inode = (ino_t) wfp_impl_json_get_int(inode_holder);
-            int flags = (ino_t) wfp_impl_json_get_int(flags_holder);
+            ino_t inode = (ino_t) wfp_impl_json_int_get(inode_holder);
+            int flags = (ino_t) wfp_impl_json_int_get(flags_holder);
 
             struct wfp_request * request = wfp_impl_request_create(context->request, id);
 

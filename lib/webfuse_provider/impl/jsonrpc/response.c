@@ -34,18 +34,18 @@ wfp_jsonrpc_response_init(
 		return;
 	}
 	
-	result->id = wfp_impl_json_get_int(id_holder);
+	result->id = wfp_impl_json_int_get(id_holder);
 	result->result = wfp_impl_json_object_get(response, "result");
 	if (NULL == result->result)
 	{
 		struct wfp_json const * error = wfp_impl_json_object_get(response, "error");
 		if ((wfp_impl_json_is_object(error)) && (wfp_impl_json_is_int(wfp_impl_json_object_get(error, "code"))))
 		{
-			int code = wfp_impl_json_get_int(wfp_impl_json_object_get(error, "code"));
+			int code = wfp_impl_json_int_get(wfp_impl_json_object_get(error, "code"));
 			char const * message = "";
 			if (wfp_impl_json_is_string(wfp_impl_json_object_get(error, "message")))
 			{
-				message = wfp_impl_json_get_string(wfp_impl_json_object_get(error, "message"));
+				message = wfp_impl_json_string_get(wfp_impl_json_object_get(error, "message"));
 			}
 			result->error = wfp_jsonrpc_error_create(code, message);
 		}

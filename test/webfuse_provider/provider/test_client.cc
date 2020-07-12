@@ -155,13 +155,13 @@ TEST(Client, Lookup)
         wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
         wfp_json const * inode = wfp_impl_json_object_get(result, "inode");
-        ASSERT_EQ(42, wfp_impl_json_get_int(inode));
+        ASSERT_EQ(42, wfp_impl_json_int_get(inode));
 
         wfp_json const * mode = wfp_impl_json_object_get(result, "mode");
-        ASSERT_EQ(0644, wfp_impl_json_get_int(mode));
+        ASSERT_EQ(0644, wfp_impl_json_int_get(mode));
 
         wfp_json const * type = wfp_impl_json_object_get(result, "type");
-        ASSERT_STREQ("file", wfp_impl_json_get_string(type));
+        ASSERT_STREQ("file", wfp_impl_json_string_get(type));
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -203,7 +203,7 @@ TEST(Client, LookupFail)
         wfp_json const * error = wfp_impl_json_object_get(response, "error");
 
         wfp_json const * code = wfp_impl_json_object_get(error, "code");
-        ASSERT_NE(0, wfp_impl_json_get_int(code));
+        ASSERT_NE(0, wfp_impl_json_int_get(code));
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -245,7 +245,7 @@ TEST(Client, Open)
         wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
         wfp_json const * handle = wfp_impl_json_object_get(result, "handle");
-        ASSERT_EQ(4711, wfp_impl_json_get_int(handle));
+        ASSERT_EQ(4711, wfp_impl_json_int_get(handle));
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -288,13 +288,13 @@ TEST(Client, Read)
         wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
         wfp_json const * format = wfp_impl_json_object_get(result, "format");
-        ASSERT_STREQ("base64", wfp_impl_json_get_string(format));
+        ASSERT_STREQ("base64", wfp_impl_json_string_get(format));
 
         wfp_json const * count = wfp_impl_json_object_get(result, "count");
-        ASSERT_EQ(1, wfp_impl_json_get_int(count));
+        ASSERT_EQ(1, wfp_impl_json_int_get(count));
 
         wfp_json const * data = wfp_impl_json_object_get(result, "data");
-        ASSERT_STREQ("Kg==", wfp_impl_json_get_string(data));
+        ASSERT_STREQ("Kg==", wfp_impl_json_string_get(data));
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));

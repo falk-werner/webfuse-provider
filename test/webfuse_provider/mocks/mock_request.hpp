@@ -21,21 +21,21 @@ public:
 MATCHER_P3(StatMatcher, inode, mode, file_type, "") 
 {
     wfp_json const * inode_holder = wfp_impl_json_object_get(arg, "inode");
-    if ((!wfp_impl_json_is_int(inode_holder)) || (inode != wfp_impl_json_get_int(inode_holder)))
+    if ((!wfp_impl_json_is_int(inode_holder)) || (inode != wfp_impl_json_int_get(inode_holder)))
     {
         *result_listener << "missing inode";
         return false;
     }
 
     wfp_json const * mode_holder = wfp_impl_json_object_get(arg, "mode");
-    if ((!wfp_impl_json_is_int(mode_holder)) || (mode != wfp_impl_json_get_int(mode_holder)))
+    if ((!wfp_impl_json_is_int(mode_holder)) || (mode != wfp_impl_json_int_get(mode_holder)))
     {
         *result_listener << "missing mode";
         return false;
     }
 
     wfp_json const * type_holder = wfp_impl_json_object_get(arg, "type");
-    if ((!wfp_impl_json_is_string(type_holder)) || (0 != strcmp(file_type, wfp_impl_json_get_string(type_holder))))
+    if ((!wfp_impl_json_is_string(type_holder)) || (0 != strcmp(file_type, wfp_impl_json_string_get(type_holder))))
     {
         *result_listener << "missing type";
         return false;
@@ -47,7 +47,7 @@ MATCHER_P3(StatMatcher, inode, mode, file_type, "")
 MATCHER_P(OpenMatcher, handle, "") 
 {
     wfp_json const * handle_holder = wfp_impl_json_object_get(arg, "handle");
-    if ((!wfp_impl_json_is_int(handle_holder)) || (handle != wfp_impl_json_get_int(handle_holder)))
+    if ((!wfp_impl_json_is_int(handle_holder)) || (handle != wfp_impl_json_int_get(handle_holder)))
     {
         *result_listener << "missing handle";
         return false;
@@ -59,23 +59,23 @@ MATCHER_P(OpenMatcher, handle, "")
 MATCHER_P3(ReadResultMatcher, data, format, count, "") 
 {
     wfp_json const * format_holder = wfp_impl_json_object_get(arg, "format");
-    if ((!wfp_impl_json_is_string(format_holder)) || (0 != strcmp(format, wfp_impl_json_get_string(format_holder))))
+    if ((!wfp_impl_json_is_string(format_holder)) || (0 != strcmp(format, wfp_impl_json_string_get(format_holder))))
     {
-        *result_listener << "invalid or missing format: " << wfp_impl_json_get_string(format_holder);
+        *result_listener << "invalid or missing format: " << wfp_impl_json_string_get(format_holder);
         return false;
     }
 
     wfp_json const * count_holder = wfp_impl_json_object_get(arg, "count");
-    if ((!wfp_impl_json_is_int(count_holder)) || (count != wfp_impl_json_get_int(count_holder)))
+    if ((!wfp_impl_json_is_int(count_holder)) || (count != wfp_impl_json_int_get(count_holder)))
     {
-        *result_listener << "invalid or missing count: " << wfp_impl_json_get_int(count_holder);
+        *result_listener << "invalid or missing count: " << wfp_impl_json_int_get(count_holder);
         return false;
     }
 
     wfp_json const * data_holder = wfp_impl_json_object_get(arg, "data");
-    if ((!wfp_impl_json_is_string(data_holder)) || (0 != strcmp(data, wfp_impl_json_get_string(data_holder))))
+    if ((!wfp_impl_json_is_string(data_holder)) || (0 != strcmp(data, wfp_impl_json_string_get(data_holder))))
     {
-        *result_listener << "invalid or missing data: " << wfp_impl_json_get_string(data_holder);
+        *result_listener << "invalid or missing data: " << wfp_impl_json_string_get(data_holder);
         return false;
     }
 
@@ -121,7 +121,7 @@ MATCHER_P(ReaddirMatcher, contained_elements , "")
             wfp_json const * value = wfp_impl_json_array_get(arg, j);
             wfp_json const * name = wfp_impl_json_object_get(value, "name");
 
-            found  = (0 == strcmp(element, wfp_impl_json_get_string(name)));
+            found  = (0 == strcmp(element, wfp_impl_json_string_get(name)));
             if (found)
             {
                 break;

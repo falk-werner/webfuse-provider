@@ -97,8 +97,8 @@ void wfp_impl_provider_invoke(
 
     if ((wfp_impl_json_is_string(method_holder)) && (wfp_impl_json_is_array(params)))
     {
-        char const * method = wfp_impl_json_get_string(method_holder);
-        int id = wfp_impl_json_is_int(id_holder) ? wfp_impl_json_get_int(id_holder) : 0;
+        char const * method = wfp_impl_json_string_get(method_holder);
+        int id = wfp_impl_json_is_int(id_holder) ? wfp_impl_json_int_get(id_holder) : 0;
 
         wfp_impl_provider_invoke_method(context, method, params, id);
     }

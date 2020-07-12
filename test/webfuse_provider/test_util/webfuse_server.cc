@@ -205,13 +205,13 @@ public:
             wfp_json const * method = wfp_impl_json_object_get(message, "method");
             if (wfp_impl_json_is_string(method))
             {
-                if (0 == strcmp("add_filesystem", wfp_impl_json_get_string(method)))
+                if (0 == strcmp("add_filesystem", wfp_impl_json_string_get(method)))
                 {
                     wfp_json const * id = wfp_impl_json_object_get(message, "id");
 
                     std::ostringstream response;
                     response << "{\"result\": {\"id\": \"" << GetFilesystem() << "\"}, "
-                        << "\"id\": " << wfp_impl_json_get_int(id) << "}";
+                        << "\"id\": " << wfp_impl_json_int_get(id) << "}";
                     {
                         std::unique_lock<std::mutex> lock(mutex);
                         write_queue.push(response.str());

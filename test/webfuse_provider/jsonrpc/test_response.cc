@@ -16,7 +16,7 @@ TEST(wfp_json_response, init_result)
 
     ASSERT_EQ(nullptr, response.error);
     ASSERT_TRUE(wfp_impl_json_is_int(response.result));
-    ASSERT_EQ(47, wfp_impl_json_get_int(response.result));
+    ASSERT_EQ(47, wfp_impl_json_int_get(response.result));
     ASSERT_EQ(11, response.id);
 
     wfp_jsonrpc_response_cleanup(&response);
