@@ -17,6 +17,11 @@ wfp_impl_json_parse_value(
     struct wfp_json * json);
 
 static bool
+wfp_impl_json_parse_null(
+    struct wfp_json_reader * reader,
+    struct wfp_json * json);
+
+static bool
 wfp_impl_json_parse_true(
     struct wfp_json_reader * reader,
     struct wfp_json * json);
@@ -92,6 +97,8 @@ wfp_impl_json_parse_value(
 
     switch (c)
     {
+        case 'n':
+            return wfp_impl_json_parse_null(reader, json);
         case 't':
             return wfp_impl_json_parse_true(reader, json);
         case 'f':
@@ -114,6 +121,20 @@ wfp_impl_json_parse_value(
                 return false;
             }            
     }
+}
+
+static bool
+wfp_impl_json_parse_null(
+    struct wfp_json_reader * reader,
+    struct wfp_json * json)
+{
+    bool const result = wfp_impl_json_reader_read_const(reader, "ull", 3);
+    if (result)
+    {
+        json->type = WFP_JSON_NULL;
+    }
+
+    return result;
 }
 
 static bool

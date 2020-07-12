@@ -11,6 +11,17 @@ namespace
     }
 }
 
+TEST(json_parser, parse_null)
+{
+    char text[] = "null";
+    wfp_json_doc * doc = parse_json(text);
+    ASSERT_NE(nullptr, doc);
+    wfp_json const * root = wfp_impl_json_doc_root(doc);
+    ASSERT_TRUE(wfp_impl_json_is_null(root));
+
+    wfp_impl_json_doc_dispose(doc);
+}
+
 TEST(json_parser, parse_true)
 {
     char text[] = "true";
@@ -107,7 +118,19 @@ TEST(json_parser, parse_object)
 TEST(json_parser, parse_fail_invalid_json)
 {
     {
-        char text[] = "True";
+        char text[] = "invalid";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
+        char text[] = "nul";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
+        char text[] = "tru";
         wfp_json_doc * doc = parse_json(text);
         ASSERT_EQ(nullptr, doc);
     }
@@ -125,6 +148,24 @@ TEST(json_parser, parse_fail_invalid_json)
     }
 
     {
+        char text[] = "[1 2 3]";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
+        char text[] = "[1,2,3";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
+        char text[] = "[1,2,]";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
         char text[] = "{\"method\":\"add\",\"params\":[1,2],\"id\":42";
         wfp_json_doc * doc = parse_json(text);
         ASSERT_EQ(nullptr, doc);
@@ -132,6 +173,36 @@ TEST(json_parser, parse_fail_invalid_json)
 
     {
         char text[] = "[\"method\",[], {}, \"params\":,42]";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
+        char text[] = "{\"key\" \"value\"}";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
+        char text[] = "{\"key\": }";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
+        char text[] = "{\"key\": \"value\"";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
+        char text[] = "{\"key\" \"value\"]";
+        wfp_json_doc * doc = parse_json(text);
+        ASSERT_EQ(nullptr, doc);
+    }
+
+    {
+        char text[] = "{\"key\": \"value\", }";
         wfp_json_doc * doc = parse_json(text);
         ASSERT_EQ(nullptr, doc);
     }
