@@ -10,8 +10,6 @@ if not libwebsockets_dep.found()
 	libwebsockets_dep = libwebsockets.dependency('websockets_shared')
 endif
 
-jansson_dep = dependency('jansson', version: '>=2.11', fallback: ['jansson', 'jansson_dep'])
-
 pkg_config = import('pkgconfig')
 
 # Webfuse provider
@@ -53,31 +51,31 @@ webfuse_provider_static = static_library('webfuse_provider',
 	'lib/webfuse_provider/impl/operation/read.c',
     c_args: ['-fvisibility=hidden'],
     include_directories: ['include', 'lib'],
-    dependencies: [libwebsockets_dep, jansson_dep])
+    dependencies: [libwebsockets_dep])
 
 webfuse_provider_static_dep = declare_dependency(
     include_directories: ['include'],
     link_with: webfuse_provider_static,
-	dependencies: [libwebsockets_dep, jansson_dep])
+	dependencies: [libwebsockets_dep])
 
 webfuse_provider = shared_library('webfuse_provider',
     'lib/webfuse_provider/api.c',
     version: meson.project_version(),
     c_args: ['-fvisibility=hidden', '-DWFP_API=WFP_EXPORT'],
     include_directories: ['include', 'lib'],
-    dependencies: [webfuse_provider_static_dep, libwebsockets_dep, jansson_dep],
+    dependencies: [webfuse_provider_static_dep, libwebsockets_dep],
 	install: true)
 
 webfuse_provider_dep = declare_dependency(
 	include_directories: ['include'],
 	link_with: [webfuse_provider],
-	dependencies: [libwebsockets_dep, jansson_dep])
+	dependencies: [libwebsockets_dep])
 
 install_subdir('include/webfuse_provider', install_dir: 'include')
 
 pkg_config.generate(
     libraries: [webfuse_provider],
-	requires: ['libwebsockets', 'jansson'],
+	requires: ['libwebsockets'],
     subdirs: '.',
     version: meson.project_version(),
     name: 'libwebfuse_provider',
@@ -108,7 +106,6 @@ alltests = executable('alltests',
 	'test/webfuse_provider/test_util/ws_server.cc',
 	'test/webfuse_provider/test_util/webfuse_server.cc',
 	'test/webfuse_provider/test_util/client.cc',
-	'test/webfuse_provider/test_util/jansson_test_environment.cc',
 	'test/webfuse_provider/test_util/json_doc.cc',
 	'test/webfuse_provider/mocks/fake_invokation_context.cc',
 	'test/webfuse_provider/mocks/mock_request.cc',
@@ -159,7 +156,6 @@ alltests = executable('alltests',
 	dependencies: [
 		webfuse_provider_static_dep,
 		libwebsockets_dep,
-		jansson_dep,
 		gtest_dep,
 		gmock_main_dep,
 		test_certs_dep
