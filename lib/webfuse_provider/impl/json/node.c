@@ -4,39 +4,52 @@
 #include <stdlib.h>
 #include <string.h>
 
+static struct wfp_json const wfp_json_null = 
+{
+    .type = WFP_JSON_NULL,
+    .value = { .b = false }
+};
+
+bool
+wfp_impl_json_is_null(
+    struct wfp_json const * json)
+{
+    return (WFP_JSON_NULL == json->type);
+}
+
 bool
 wfp_impl_json_is_bool(
     struct wfp_json const * json)
 {
-    return ((NULL != json) &&(WFP_JSON_BOOL == json->type));
+    return (WFP_JSON_BOOL == json->type);
 }
 
 bool
 wfp_impl_json_is_int(
     struct wfp_json const * json)
 {
-    return ((NULL != json) && (WFP_JSON_INT == json->type));
+    return (WFP_JSON_INT == json->type);
 }
 
 bool
 wfp_impl_json_is_string(
     struct wfp_json const * json)
 {
-    return ((NULL != json) && (WFP_JSON_STRING == json->type));
+    return (WFP_JSON_STRING == json->type);
 }
 
 bool
 wfp_impl_json_is_array(
     struct wfp_json const * json)
 {
-    return ((NULL != json) && (WFP_JSON_ARRAY == json->type));
+    return (WFP_JSON_ARRAY == json->type);
 }
 
 bool
 wfp_impl_json_is_object(
     struct wfp_json const * json)
 {
-    return ((NULL != json) && (WFP_JSON_OBJECT == json->type));
+    return (WFP_JSON_OBJECT == json->type);
 }
 
 bool
@@ -102,7 +115,7 @@ wfp_impl_json_object_get(
         }
     }
 
-    return NULL;
+    return &wfp_json_null;
 }
 
 char const *
@@ -130,7 +143,7 @@ wfp_impl_json_object_value(
         return &(json->value.o.items[pos].json);
     }
 
-    return NULL;
+    return &wfp_json_null;
 }
 
 void

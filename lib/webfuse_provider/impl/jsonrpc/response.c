@@ -36,23 +36,24 @@ wfp_jsonrpc_response_init(
 	
 	result->id = wfp_impl_json_int_get(id_holder);
 	result->result = wfp_impl_json_object_get(response, "result");
-	if (NULL == result->result)
+	if (wfp_impl_json_is_null(result->result))
 	{
+		result->result = NULL;
+		int code = WFP_BAD_FORMAT;
+		char const * message = "invalid format: invalid error object";
+
 		struct wfp_json const * error = wfp_impl_json_object_get(response, "error");
 		if ((wfp_impl_json_is_object(error)) && (wfp_impl_json_is_int(wfp_impl_json_object_get(error, "code"))))
 		{
-			int code = wfp_impl_json_int_get(wfp_impl_json_object_get(error, "code"));
-			char const * message = "";
+			code = wfp_impl_json_int_get(wfp_impl_json_object_get(error, "code"));
+			message = "";
 			if (wfp_impl_json_is_string(wfp_impl_json_object_get(error, "message")))
 			{
 				message = wfp_impl_json_string_get(wfp_impl_json_object_get(error, "message"));
 			}
-			result->error = wfp_jsonrpc_error_create(code, message);
 		}
-		else
-		{
-			result->error = wfp_jsonrpc_error_create(WFP_BAD_FORMAT, "invalid format: invalid error object");
-		}
+
+		result->error = wfp_jsonrpc_error_create(code, message);
 	}
 }
 

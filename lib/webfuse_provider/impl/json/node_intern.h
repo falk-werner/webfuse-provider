@@ -20,6 +20,7 @@ extern "C"
 
 enum wfp_json_type
 {
+    WFP_JSON_NULL,
     WFP_JSON_BOOL,
     WFP_JSON_INT,
     WFP_JSON_STRING,

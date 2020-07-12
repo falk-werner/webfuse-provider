@@ -16,6 +16,10 @@ extern "C"
 struct wfp_json;
 
 extern bool
+wfp_impl_json_is_null(
+    struct wfp_json const * json);
+
+extern bool
 wfp_impl_json_is_bool(
     struct wfp_json const * json);
 

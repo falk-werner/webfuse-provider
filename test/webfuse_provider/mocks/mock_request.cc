@@ -27,7 +27,7 @@ static void webfuse_test_MockRequest_respond(
             id = wfp_impl_json_int_get(id_holder);
         }
 
-        if (nullptr != result)
+        if (!wfp_impl_json_is_null(result))
         {
             error_code = WFP_GOOD;
             request->respond(result, id);
