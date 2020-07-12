@@ -20,7 +20,7 @@
 #include "webfuse_provider/impl/jsonrpc/response.h"
 #include "webfuse_provider/impl/jsonrpc/request.h"
 #include "webfuse_provider/impl/jsonrpc/proxy.h"
-#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/impl/json/doc.h"
 
 #define WFP_DEFAULT_TIMEOUT (10 * 1000)
 
@@ -39,10 +39,10 @@ static void wfp_impl_client_protocol_process(
      char * data,
      size_t length)
 {
-    struct wfp_json_doc * doc = wfp_impl_json_parse_buffer(data, length);
+    struct wfp_json_doc * doc = wfp_impl_json_doc_loadb(data, length);
     if (NULL != doc)
     {
-        struct wfp_json const * message = wfp_impl_json_root(doc);
+        struct wfp_json const * message = wfp_impl_json_doc_root(doc);
         if (wfp_jsonrpc_is_response(message))
         {
             wfp_jsonrpc_proxy_onresult(protocol->proxy, message);
@@ -60,7 +60,7 @@ static void wfp_impl_client_protocol_process(
             wfp_impl_provider_invoke(&context, message);
         }
 
-        wfp_impl_json_dispose(doc);
+        wfp_impl_json_doc_dispose(doc);
     }
 }
 

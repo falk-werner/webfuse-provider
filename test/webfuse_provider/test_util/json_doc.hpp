@@ -1,7 +1,7 @@
 #ifndef WFP_TEST_UTIL_JSON_DOC_HPP
 #define WFP_TEST_UTIL_JSON_DOC_HPP
 
-#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/impl/json/doc.h"
 #include "webfuse_provider/impl/json/node.h"
 
 #include <string>

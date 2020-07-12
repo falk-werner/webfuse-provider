@@ -1,7 +1,7 @@
 #include "webfuse_provider/test_util/webfuse_server.hpp"
 #include "webfuse_provider/impl/util/lws_log.h"
 #include "webfuse_provider/protocol_names.h"
-#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/impl/json/doc.h"
 #include "webfuse_provider/impl/json/node.h"
 
 #include <libwebsockets.h>
@@ -198,10 +198,10 @@ public:
             }
         }
 
-        wfp_json_doc * doc = wfp_impl_json_parse_buffer(data, length);
+        wfp_json_doc * doc = wfp_impl_json_doc_loadb(data, length);
         if (doc)
         {
-            wfp_json const * message = wfp_impl_json_root(doc);
+            wfp_json const * message = wfp_impl_json_doc_root(doc);
             wfp_json const * method = wfp_impl_json_object_get(message, "method");
             if (wfp_impl_json_is_string(method))
             {
@@ -221,7 +221,7 @@ public:
                 }
             }
             
-            wfp_impl_json_dispose(doc);
+            wfp_impl_json_doc_dispose(doc);
         }
     }
 

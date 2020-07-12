@@ -1,9 +1,8 @@
-#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/impl/json/doc.h"
 #include "webfuse_provider/impl/json/node_intern.h"
 #include "webfuse_provider/impl/json/reader.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 #define WFP_IMPL_JSON_DEFAULT_CAPACITY 4
 
@@ -49,15 +48,9 @@ wfp_impl_json_parse_object(
     struct wfp_json * json);
 
 
-extern struct wfp_json_doc *
-wfp_impl_json_parse(
-    char * data)
-{
-    return wfp_impl_json_parse_buffer(data, strlen(data));
-}
 
 struct wfp_json_doc *
-wfp_impl_json_parse_buffer(
+wfp_impl_json_doc_loadb(
     char * data,
     size_t length)
 {
@@ -75,7 +68,7 @@ wfp_impl_json_parse_buffer(
 }
 
 void
-wfp_impl_json_dispose(
+wfp_impl_json_doc_dispose(
     struct wfp_json_doc * doc)
 {
     wfp_impl_json_cleanup(&doc->root);
@@ -83,7 +76,7 @@ wfp_impl_json_dispose(
 }
 
 struct wfp_json const *
-wfp_impl_json_root(
+wfp_impl_json_doc_root(
     struct wfp_json_doc * doc)
 {
     return &(doc->root);

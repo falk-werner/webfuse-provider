@@ -1,5 +1,5 @@
-#ifndef WFP_IMPL_JSON_PARSER_H
-#define WFP_IMPL_JSON_PARSER_H
+#ifndef WFP_IMPL_JSON_DOC_H
+#define WFP_IMPL_JSON_DOC_H
 
 #ifndef __cplusplus
 #include <stddef.h>
@@ -16,20 +16,16 @@ struct wfp_json;
 struct wfp_json_doc;
 
 extern struct wfp_json_doc *
-wfp_impl_json_parse(
-    char * data);
-
-extern struct wfp_json_doc *
-wfp_impl_json_parse_buffer(
+wfp_impl_json_doc_loadb(
     char * data,
     size_t length);
 
 extern void
-wfp_impl_json_dispose(
+wfp_impl_json_doc_dispose(
     struct wfp_json_doc * doc);
 
 extern struct wfp_json const *
-wfp_impl_json_root(
+wfp_impl_json_doc_root(
     struct wfp_json_doc * doc);
 
 #ifdef __cplusplus

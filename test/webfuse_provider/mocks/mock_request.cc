@@ -1,5 +1,5 @@
 #include "webfuse_provider/mocks/mock_request.hpp"
-#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/impl/json/doc.h"
 #include "webfuse_provider/impl/message.h"
 #include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/status.h"
@@ -16,10 +16,10 @@ static void webfuse_test_MockRequest_respond(
     int error_code = WFP_BAD;
     int id = -1;
 
-    wfp_json_doc * doc = wfp_impl_json_parse_buffer(response->data, response->length);
+    wfp_json_doc * doc = wfp_impl_json_doc_loadb(response->data, response->length);
     if (NULL != doc)
     {
-        wfp_json const * response = wfp_impl_json_root(doc);
+        wfp_json const * response = wfp_impl_json_doc_root(doc);
         wfp_json const * result = wfp_impl_json_object_get(response, "result");
         wfp_json const * id_holder = wfp_impl_json_object_get(response, "id");
         if (wfp_impl_json_is_int(id_holder)) 
@@ -46,7 +46,7 @@ static void webfuse_test_MockRequest_respond(
 
         }
 
-        wfp_impl_json_dispose(doc);
+        wfp_impl_json_doc_dispose(doc);
     }
 
 
