@@ -7,7 +7,7 @@
 #include "webfuse_provider/mocks/mock_provider_client.hpp"
 #include "webfuse_provider/protocol_names.h"
 #include "webfuse_provider/test_util/timeout_watcher.hpp"
-#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/test_util/json_doc.hpp"
 #include "webfuse_provider/impl/json/node.h"
 
 #include <libwebsockets.h>
@@ -20,6 +20,7 @@ using webfuse_test::WsServer;
 using webfuse_test::MockProviderClient;
 using webfuse_test::IProviderClient;
 using webfuse_test::TimeoutWatcher;
+using webfuse_test::JsonDoc;
 using testing::_;
 using testing::AtMost;
 using testing::Invoke;
@@ -102,9 +103,8 @@ public:
         std::string const & expected_username,
         std::string const & expected_password)
     {
-        std::string request_text = ReceiveMessageFromClient();
-        wfp_json_doc * doc = wfp_impl_json_parse(const_cast<char *>(request_text.data()));
-        wfp_json const * request = wfp_impl_json_root(doc);
+        JsonDoc doc(ReceiveMessageFromClient());
+        wfp_json const * request = doc.root();
         ASSERT_TRUE(wfp_impl_json_is_object(request));
 
         wfp_json const * method = wfp_impl_json_object_get(request, "method");
@@ -136,15 +136,12 @@ public:
         std::ostringstream response;
         response << "{\"result\": {}, \"id\": " << wfp_impl_json_get_int(id) << "}";
         SendToClient(response.str());
-
-        wfp_impl_json_dispose(doc);
     }
 
     void AwaitAddFilesystem(std::string& filesystemName)
     {
-        std::string request_text = ReceiveMessageFromClient();
-        wfp_json_doc * doc = wfp_impl_json_parse(const_cast<char *>(request_text.data()));
-        wfp_json const * request = wfp_impl_json_root(doc);
+        JsonDoc doc(ReceiveMessageFromClient());
+        wfp_json const * request = doc.root();
         ASSERT_TRUE(wfp_impl_json_is_object(request));
 
         wfp_json const * method = wfp_impl_json_object_get(request, "method");
@@ -165,8 +162,6 @@ public:
         response << "{\"result\": {\"id\": \"" << wfp_impl_json_get_string(filesystem) << "\"}, \"id\": " << wfp_impl_json_get_int(id) << "}";
 
         SendToClient(response.str());
-
-        wfp_impl_json_dispose(doc);
     }
 
 private:

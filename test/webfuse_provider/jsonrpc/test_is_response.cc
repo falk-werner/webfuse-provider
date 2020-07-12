@@ -1,35 +1,28 @@
 #include <gtest/gtest.h>
 #include "webfuse_provider/impl/jsonrpc/response.h"
-#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/test_util/json_doc.hpp"
+
+using webfuse_test::JsonDoc;
 
 TEST(wfp_jsonrpc_is_response, valid_result)
 {
-    char text[] = "{\"result\": {}, \"id\": 42}";
-    wfp_json_doc * doc = wfp_impl_json_parse(text);
+    JsonDoc doc("{\"result\": {}, \"id\": 42}");
 
-    ASSERT_TRUE(wfp_jsonrpc_is_response(wfp_impl_json_root(doc)));
-
-    wfp_impl_json_dispose(doc);
+    ASSERT_TRUE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, valid_result_string)
 {
-    char text[] = "{\"result\": \"also valid\", \"id\": 42}";
-    wfp_json_doc * doc = wfp_impl_json_parse(text);
+    JsonDoc doc("{\"result\": \"also valid\", \"id\": 42}");
 
-    ASSERT_TRUE(wfp_jsonrpc_is_response(wfp_impl_json_root(doc)));
-
-    wfp_impl_json_dispose(doc);
+    ASSERT_TRUE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, valid_error)
 {
-    char text[] = "{\"error\": { }, \"id\": 42}";
-    wfp_json_doc * doc = wfp_impl_json_parse(text);
+    JsonDoc doc("{\"error\": { }, \"id\": 42}");
 
-    ASSERT_TRUE(wfp_jsonrpc_is_response(wfp_impl_json_root(doc)));
-
-    wfp_impl_json_dispose(doc);
+    ASSERT_TRUE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, invalid_null)
@@ -39,51 +32,36 @@ TEST(wfp_jsonrpc_is_response, invalid_null)
 
 TEST(wfp_jsonrpc_is_response, invalid_message)
 {
-    char text[] = "[{ }, 42]";
-    wfp_json_doc * doc = wfp_impl_json_parse(text);
+    JsonDoc doc("[{ }, 42]");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(wfp_impl_json_root(doc)));
-
-    wfp_impl_json_dispose(doc);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, invalid_missing_id)
 {
-    char text[] = "{\"result\": { } }";
-    wfp_json_doc * doc = wfp_impl_json_parse(text);
+    JsonDoc doc("{\"result\": { } }");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(wfp_impl_json_root(doc)));
-
-    wfp_impl_json_dispose(doc);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, invalid_id_wrong_type)
 {
-    char text[] = "{\"result\": { }, \"id\": \"42\"}";
-    wfp_json_doc * doc = wfp_impl_json_parse(text);
+    JsonDoc doc("{\"result\": { }, \"id\": \"42\"}");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(wfp_impl_json_root(doc)));
-
-    wfp_impl_json_dispose(doc);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 
 TEST(wfp_jsonrpc_is_response, invalid_missing_result_and_error)
 {
-    char text[] = "{\"id\": \"42\"}";
-    wfp_json_doc * doc = wfp_impl_json_parse(text);
+    JsonDoc doc("{\"id\": \"42\"}");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(wfp_impl_json_root(doc)));
-
-    wfp_impl_json_dispose(doc);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, invalid_error_wrong_type)
 {
-    char text[] = "{\"error\": [], \"id\": \"42\"}";
-    wfp_json_doc * doc = wfp_impl_json_parse(text);
+    JsonDoc doc("{\"error\": [], \"id\": \"42\"}");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(wfp_impl_json_root(doc)));
-
-    wfp_impl_json_dispose(doc);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }

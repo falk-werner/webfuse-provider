@@ -2,7 +2,7 @@
 #include "webfuse_provider/test_util/webfuse_server.hpp"
 #include "webfuse_provider/mocks/mock_provider_client.hpp"
 #include "webfuse_provider/test_util/client.hpp"
-#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/test_util/json_doc.hpp"
 #include "webfuse_provider/impl/json/node.h"
 
 #include <gtest/gtest.h>
@@ -12,6 +12,7 @@
 using webfuse_test::WebfuseServer;
 using webfuse_test::MockProviderClient;
 using webfuse_test::Client;
+using webfuse_test::JsonDoc;
 using testing::Invoke;
 using testing::_;
 using testing::StrEq;
@@ -148,9 +149,8 @@ TEST(Client, Lookup)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        std::string response_text = server.Lookup(1, "foo");
-        wfp_json_doc * doc = wfp_impl_json_parse(const_cast<char*>(response_text.data()));
-        wfp_json const * response = wfp_impl_json_root(doc);
+        JsonDoc doc(server.Lookup(1, "foo"));
+        wfp_json const * response = doc.root();
         ASSERT_TRUE(wfp_impl_json_is_object(response));
         wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
@@ -162,8 +162,6 @@ TEST(Client, Lookup)
 
         wfp_json const * type = wfp_impl_json_object_get(result, "type");
         ASSERT_STREQ("file", wfp_impl_json_get_string(type));
-
-        wfp_impl_json_dispose(doc);
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -198,17 +196,14 @@ TEST(Client, LookupFail)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        std::string response_text = server.Lookup(1, "foo");
-        wfp_json_doc * doc = wfp_impl_json_parse(const_cast<char*>(response_text.data()));
-        wfp_json const * response = wfp_impl_json_root(doc);
+        JsonDoc doc(server.Lookup(1, "foo"));
+        wfp_json const * response = doc.root();
 
         ASSERT_TRUE(wfp_impl_json_is_object(response));
         wfp_json const * error = wfp_impl_json_object_get(response, "error");
 
         wfp_json const * code = wfp_impl_json_object_get(error, "code");
         ASSERT_NE(0, wfp_impl_json_get_int(code));
-
-        wfp_impl_json_dispose(doc);
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -243,17 +238,14 @@ TEST(Client, Open)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        std::string response_text = server.Open(1, 0);
-        wfp_json_doc * doc = wfp_impl_json_parse(const_cast<char*>(response_text.data()));
-        wfp_json const * response = wfp_impl_json_root(doc);
+        JsonDoc doc(server.Open(1, 0));
+        wfp_json const * response = doc.root();
 
         ASSERT_TRUE(wfp_impl_json_is_object(response));
         wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
         wfp_json const * handle = wfp_impl_json_object_get(result, "handle");
         ASSERT_EQ(4711, wfp_impl_json_get_int(handle));
-
-        wfp_impl_json_dispose(doc);
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -289,9 +281,8 @@ TEST(Client, Read)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        std::string response_text = server.Read(42, 5, 0, 1);
-        wfp_json_doc * doc = wfp_impl_json_parse(const_cast<char*>(response_text.data()));
-        wfp_json const * response = wfp_impl_json_root(doc);
+        JsonDoc doc(server.Read(42, 5, 0, 1));
+        wfp_json const * response = doc.root();
 
         ASSERT_TRUE(wfp_impl_json_is_object(response));
         wfp_json const * result = wfp_impl_json_object_get(response, "result");
@@ -304,8 +295,6 @@ TEST(Client, Read)
 
         wfp_json const * data = wfp_impl_json_object_get(result, "data");
         ASSERT_STREQ("Kg==", wfp_impl_json_get_string(data));
-
-        wfp_impl_json_dispose(doc);
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -342,17 +331,14 @@ TEST(Client, ReadDir)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        std::string response_text = server.ReadDir(42);
-        wfp_json_doc * doc = wfp_impl_json_parse(const_cast<char*>(response_text.data()));
-        wfp_json const * response = wfp_impl_json_root(doc);
+        JsonDoc doc(server.ReadDir(42));
+        wfp_json const * response = doc.root();
 
         ASSERT_TRUE(wfp_impl_json_is_object(response));
         wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
         ASSERT_TRUE(wfp_impl_json_is_array(result));
         ASSERT_EQ(3, wfp_impl_json_array_size(result));
-
-        wfp_impl_json_dispose(doc);
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));

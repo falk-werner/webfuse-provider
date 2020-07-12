@@ -1,61 +1,55 @@
 #include "webfuse_provider/impl/jsonrpc/response_intern.h"
 #include "webfuse_provider/impl/jsonrpc/error.h"
-#include "webfuse_provider/impl/json/parser.h"
+#include "webfuse_provider/test_util/json_doc.hpp"
 
 #include <gtest/gtest.h>
 
+using webfuse_test::JsonDoc;
 
 TEST(response_parser, fail_no_object)
 {
-	char text[] = "[]";
-	wfp_json_doc * doc = wfp_impl_json_parse(text);
+	JsonDoc doc("[]");
 	struct wfp_jsonrpc_response response;
-	wfp_jsonrpc_response_init(&response, wfp_impl_json_root(doc));
+	wfp_jsonrpc_response_init(&response, doc.root());
 
 	ASSERT_NE(nullptr, response.error);
 	ASSERT_EQ(-1, response.id);
 	ASSERT_EQ(nullptr, response.result);
 
 	wfp_jsonrpc_response_cleanup(&response);
-	wfp_impl_json_dispose(doc);
 }
 
 TEST(response_error, fail_empty_object)
 {
-	char text[] = "{}";
-	wfp_json_doc * doc = wfp_impl_json_parse(text);
+	JsonDoc doc("{}");
 	struct wfp_jsonrpc_response response;
-	wfp_jsonrpc_response_init(&response, wfp_impl_json_root(doc));
+	wfp_jsonrpc_response_init(&response, doc.root());
 
 	ASSERT_NE(nullptr, response.error);
 	ASSERT_EQ(-1, response.id);
 	ASSERT_EQ(nullptr, response.result);
 
 	wfp_jsonrpc_response_cleanup(&response);
-	wfp_impl_json_dispose(doc);
 }
 
 TEST(response_error, fail_no_data)
 {
-	char text[] = "{\"id\":42}";
-	wfp_json_doc * doc = wfp_impl_json_parse(text);
+	JsonDoc doc("{\"id\":42}");
 	struct wfp_jsonrpc_response response;
-	wfp_jsonrpc_response_init(&response, wfp_impl_json_root(doc));
+	wfp_jsonrpc_response_init(&response, doc.root());
 
 	ASSERT_NE(nullptr, response.error);
 	ASSERT_EQ(42, response.id);
 	ASSERT_EQ(nullptr, response.result);
 
 	wfp_jsonrpc_response_cleanup(&response);
-	wfp_impl_json_dispose(doc);
 }
 
 TEST(response_error, fail_with_custom_error_code)
 {
-	char text[] = "{\"error\":{\"code\": 42}, \"id\": 42}";
-	wfp_json_doc * doc = wfp_impl_json_parse(text);
+	JsonDoc doc("{\"error\":{\"code\": 42}, \"id\": 42}");
 	struct wfp_jsonrpc_response response;
-	wfp_jsonrpc_response_init(&response, wfp_impl_json_root(doc));
+	wfp_jsonrpc_response_init(&response, doc.root());
 
 	ASSERT_NE(nullptr, response.error);
 	ASSERT_EQ(42, response.error->code);
@@ -63,20 +57,17 @@ TEST(response_error, fail_with_custom_error_code)
 	ASSERT_EQ(nullptr, response.result);
 
 	wfp_jsonrpc_response_cleanup(&response);
-	wfp_impl_json_dispose(doc);
 }
 
 TEST(response_parser, fail_invalid_response)
 {
-	char text[] = "{\"result\": true, \"id\": 42}";
-	wfp_json_doc * doc = wfp_impl_json_parse(text);
+	JsonDoc doc("{\"result\": true, \"id\": 42}");
 	struct wfp_jsonrpc_response response;
-	wfp_jsonrpc_response_init(&response, wfp_impl_json_root(doc));
+	wfp_jsonrpc_response_init(&response, doc.root());
 
 	ASSERT_EQ(nullptr, response.error);
 	ASSERT_EQ(42, response.id);
 	ASSERT_NE(nullptr, response.result);
 
 	wfp_jsonrpc_response_cleanup(&response);
-	wfp_impl_json_dispose(doc);
 }

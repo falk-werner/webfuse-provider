@@ -1,12 +1,13 @@
 #include "webfuse_provider/impl/operation/close.h"
-#include "webfuse_provider/impl/json/parser.h"
 #include "webfuse_provider/mocks/mock_provider.hpp"
 #include "webfuse_provider/mocks/fake_invokation_context.hpp"
+#include "webfuse_provider/test_util/json_doc.hpp"
 
 #include <gtest/gtest.h>
 
 using ::webfuse_test::MockProvider;
 using ::webfuse_test::create_context;
+using ::webfuse_test::JsonDoc;
 using ::testing::_;
 
 TEST(wfp_close, close)
@@ -16,11 +17,9 @@ TEST(wfp_close, close)
 
     wfp_impl_invokation_context context = create_context(provider);
 
-    char params[] = "[\"test.filesystem\", 42, 101, 23]";
-    wfp_json_doc * doc = wfp_impl_json_parse(params);
+    JsonDoc doc("[\"test.filesystem\", 42, 101, 23]");
 
-    wfp_impl_close(&context, wfp_impl_json_root(doc), 42);
-    wfp_impl_json_dispose(doc);
+    wfp_impl_close(&context, doc.root(), 42);
 }
 
 TEST(wfp_close, close_fail_invalid_param_count)
@@ -30,11 +29,9 @@ TEST(wfp_close, close_fail_invalid_param_count)
 
     wfp_impl_invokation_context context = create_context(provider);
 
-    char params[] = "[]";
-    wfp_json_doc * doc = wfp_impl_json_parse(params);
+    JsonDoc doc("[]");
 
-    wfp_impl_close(&context, wfp_impl_json_root(doc), 42);
-    wfp_impl_json_dispose(doc);
+    wfp_impl_close(&context, doc.root(), 42);
 }
 
 TEST(wfp_close, close_fail_inode_invalid_type)
@@ -44,11 +41,9 @@ TEST(wfp_close, close_fail_inode_invalid_type)
 
     wfp_impl_invokation_context context = create_context(provider);
 
-    char params[] = "[\"test.filesystem\", \"42\", 0, 0]";
-    wfp_json_doc * doc = wfp_impl_json_parse(params);
+    JsonDoc doc("[\"test.filesystem\", \"42\", 0, 0]");
 
-    wfp_impl_close(&context, wfp_impl_json_root(doc), 42);
-    wfp_impl_json_dispose(doc);
+    wfp_impl_close(&context, doc.root(), 42);
 }
 
 TEST(wfp_close, close_fail_handle_invalid_type)
@@ -58,11 +53,9 @@ TEST(wfp_close, close_fail_handle_invalid_type)
 
     wfp_impl_invokation_context context = create_context(provider);
 
-    char params[] = "[\"test.filesystem\", 0, \"42\", 0]";
-    wfp_json_doc * doc = wfp_impl_json_parse(params);
+    JsonDoc doc("[\"test.filesystem\", 0, \"42\", 0]");
 
-    wfp_impl_close(&context, wfp_impl_json_root(doc), 42);
-    wfp_impl_json_dispose(doc);
+    wfp_impl_close(&context, doc.root(), 42);
 }
 
 TEST(wfp_close, close_fail_flags_invalid_type)
@@ -72,11 +65,9 @@ TEST(wfp_close, close_fail_flags_invalid_type)
 
     wfp_impl_invokation_context context = create_context(provider);
 
-    char params[] = "[\"test.filesystem\", 0, 0, \"42\"]";
-    wfp_json_doc * doc = wfp_impl_json_parse(params);
+    JsonDoc doc("[\"test.filesystem\", 0, 0, \"42\"]");
 
-    wfp_impl_close(&context, wfp_impl_json_root(doc), 42);
-    wfp_impl_json_dispose(doc);
+    wfp_impl_close(&context, doc.root(), 42);
 }
 
 

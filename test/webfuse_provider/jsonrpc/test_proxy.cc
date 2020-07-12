@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 #include "webfuse_provider/impl/jsonrpc/proxy.h"
 #include "webfuse_provider/impl/jsonrpc/error.h"
-#include "webfuse_provider/impl/json/parser.h"
 #include "webfuse_provider/status.h"
 #include "webfuse_provider/impl/timer/manager.h"
 
 #include "webfuse_provider/jsonrpc/mock_timer.hpp"
+#include "webfuse_provider/test_util/json_doc.hpp"
 
 #include <libwebsockets.h>
 
@@ -14,6 +14,7 @@
 
 using namespace std::chrono_literals;
 using wfp_jsonrpc_test::MockTimer;
+using webfuse_test::JsonDoc;
 using testing::Return;
 using testing::_;
 using testing::DoAll;
@@ -188,11 +189,8 @@ TEST(wfp_jsonrpc_proxy, on_result)
 
     ASSERT_TRUE(send_context.is_called);
 
-    char response_text[] = "{\"result\": \"okay\", \"id\": 42}";
-    wfp_json_doc * doc = wfp_impl_json_parse(response_text);
-
-    wfp_jsonrpc_proxy_onresult(proxy, wfp_impl_json_root(doc));
-    wfp_impl_json_dispose(doc);
+    JsonDoc doc("{\"result\": \"okay\", \"id\": 42}");
+    wfp_jsonrpc_proxy_onresult(proxy, doc.root());
 
     ASSERT_TRUE(finished_context.is_called);
     ASSERT_EQ(nullptr, finished_context.error);
@@ -216,11 +214,8 @@ TEST(wfp_jsonrpc_proxy, on_result_reject_response_with_unknown_id)
 
     ASSERT_TRUE(send_context.is_called);
 
-    char response_text[] = "{\"result\": \"okay\", \"id\": 1234}";
-    wfp_json_doc * doc = wfp_impl_json_parse(response_text);
-
-    wfp_jsonrpc_proxy_onresult(proxy, wfp_impl_json_root(doc));
-    wfp_impl_json_dispose(doc);
+    JsonDoc doc("{\"result\": \"okay\", \"id\": 1234}");
+    wfp_jsonrpc_proxy_onresult(proxy, doc.root());
 
     ASSERT_FALSE(finished_context.is_called);
 
@@ -340,11 +335,8 @@ TEST(wfp_jsonrpc_proxy, on_result_swallow_if_no_request_pending)
     void * send_data = reinterpret_cast<void*>(&send_context);
     struct wfp_jsonrpc_proxy * proxy = wfp_jsonrpc_proxy_create(timer_manager, WFP_DEFAULT_TIMEOUT, &jsonrpc_send, send_data);
 
-    char response_text[] = "{\"result\": \"okay\", \"id\": 42}";
-    wfp_json_doc * doc = wfp_impl_json_parse(response_text);
-
-    wfp_jsonrpc_proxy_onresult(proxy, wfp_impl_json_root(doc));
-    wfp_impl_json_dispose(doc);
+    JsonDoc doc("{\"result\": \"okay\", \"id\": 42}");
+    wfp_jsonrpc_proxy_onresult(proxy, doc.root());
 
     wfp_jsonrpc_proxy_dispose(proxy);
     wfp_timer_manager_dispose(timer_manager);
