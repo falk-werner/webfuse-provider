@@ -78,13 +78,12 @@ wfp_impl_json_array_get(
     struct wfp_json const * json,
     size_t pos)
 {
-    struct wfp_json const * result = NULL;
     if ((WFP_JSON_ARRAY == json->type) && (pos < json->value.a.size))
     {
         return &(json->value.a.items[pos]);
     }
     
-    return result;
+    return &wfp_json_null;
 }
 
 size_t
