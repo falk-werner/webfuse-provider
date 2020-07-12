@@ -211,6 +211,20 @@ TEST(json_writer, escape_string)
     free(data);
 }
 
+TEST(json_writer, dont_escape_string_uncecked)
+{
+    wfp_json_writer * writer = wfp_impl_json_writer_create(128,0);
+    wfp_impl_json_writer_write_string_nocheck(writer, "\"\\/\b\f\n\r\t");
+
+    char * data = wfp_impl_json_writer_take_data(writer, nullptr);
+
+    ASSERT_STREQ("\"\"\\/\b\f\n\r\t\"", data);
+
+    wfp_impl_json_writer_dispose(writer);
+    free(data);
+}
+
+
 TEST(json_writer, write_bytes)
 {
     wfp_json_writer * writer = wfp_impl_json_writer_create(128,0);
@@ -219,6 +233,19 @@ TEST(json_writer, write_bytes)
     char * data = wfp_impl_json_writer_take_data(writer, nullptr);
 
     ASSERT_STREQ("\"MTIzNA==\"", data);
+
+    wfp_impl_json_writer_dispose(writer);
+    free(data);
+}
+
+TEST(json_writer, expand_buffer)
+{
+    wfp_json_writer * writer = wfp_impl_json_writer_create(1,0);
+    wfp_impl_json_writer_write_string(writer, "very large contents");
+
+    char * data = wfp_impl_json_writer_take_data(writer, nullptr);
+
+    ASSERT_STREQ("\"very large contents\"", data);
 
     wfp_impl_json_writer_dispose(writer);
     free(data);
