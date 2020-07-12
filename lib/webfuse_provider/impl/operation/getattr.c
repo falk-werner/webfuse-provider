@@ -4,22 +4,24 @@
 
 #include "webfuse_provider/impl/operation/error.h"
 #include "webfuse_provider/impl/request.h"
+#include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/impl/util/util.h"
+#include "webfuse_provider/impl/json/node.h"
 
 
 void wfp_impl_getattr(
     struct wfp_impl_invokation_context * context,
-    json_t * params,
+    struct wfp_json const * params,
     int id)
 {
-    size_t const count = json_array_size(params);
+    size_t const count = wfp_impl_json_array_size(params);
     if (2 == count)
     {
-        json_t * inode_holder = json_array_get(params, 1);
+        struct wfp_json const * inode_holder = wfp_impl_json_array_get(params, 1);
 
-        if (json_is_integer(inode_holder))
+        if (wfp_impl_json_is_int(inode_holder))
         {
-            ino_t inode = (ino_t) json_integer_value(inode_holder);
+            ino_t inode = (ino_t) wfp_impl_json_int_get(inode_holder);
             struct wfp_request * request = wfp_impl_request_create(context->request, id);
 
             context->provider->getattr(request, inode, context->user_data);
@@ -42,23 +44,23 @@ void wfp_impl_respond_getattr(
     bool const is_file = (0 != (stat->st_mode & S_IFREG));
     bool const is_dir = (0 != (stat->st_mode & S_IFDIR));
 
-    json_t * result = json_object();
-    json_object_set_new(result, "inode", json_integer(stat->st_ino));
-    json_object_set_new(result, "mode", json_integer(stat->st_mode & 0777));    
-    json_object_set_new(result, "atime", json_integer(stat->st_atime));
-    json_object_set_new(result, "mtime", json_integer(stat->st_mtime));
-    json_object_set_new(result, "ctime", json_integer(stat->st_ctime));
+    struct wfp_message_writer * writer = wfp_impl_request_get_writer(request);
+    wfp_impl_message_writer_add_int(writer, "inode", stat->st_ino);
+    wfp_impl_message_writer_add_int(writer, "mode" , stat->st_mode & 0777);    
+    wfp_impl_message_writer_add_int(writer, "atime", stat->st_atime);
+    wfp_impl_message_writer_add_int(writer, "mtime", stat->st_mtime);
+    wfp_impl_message_writer_add_int(writer, "ctime", stat->st_ctime);
 
     if (is_file)
     {
-        json_object_set_new(result, "type", json_string("file"));
-        json_object_set_new(result, "size", json_integer(stat->st_size));
+        wfp_impl_message_writer_add_string(writer, "type", "file");
+        wfp_impl_message_writer_add_int(writer, "size", stat->st_size);
     }
 
     if (is_dir)
     {
-        json_object_set_new(result, "type", json_string("dir"));
+        wfp_impl_message_writer_add_string(writer, "type", "dir");
     }
 
-    wfp_impl_respond(request, result);
+    wfp_impl_respond(request);
 }

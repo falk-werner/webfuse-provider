@@ -2,6 +2,7 @@
 #include "webfuse_provider/mocks/mock_request.hpp"
 #include "webfuse_provider/mocks/mock_provider.hpp"
 #include "webfuse_provider/mocks/fake_invokation_context.hpp"
+#include "webfuse_provider/test_util/json_doc.hpp"
 
 #include <gtest/gtest.h>
 #include <cstdlib>
@@ -10,6 +11,7 @@ using ::webfuse_test::MockProvider;
 using ::webfuse_test::MockRequest;
 using ::webfuse_test::StatMatcher;
 using ::webfuse_test::create_context;
+using ::webfuse_test::JsonDoc;
 using ::testing::_;
 using ::testing::Invoke;
 
@@ -18,7 +20,7 @@ namespace
 
 void free_request(wfp_request * request, ino_t)
 {
-    free(request);
+    wfp_impl_request_dispose(request);
 }
 
 }
@@ -60,19 +62,14 @@ TEST(wfp_impl_getattr, respond_dir)
 
 TEST(wfp_impl_getattr, invoke_provider)
 {
-    ino_t inode = 23;
     MockProvider provider;
-    EXPECT_CALL(provider,getattr(_, inode)).Times(1).WillOnce(Invoke(free_request));
+    EXPECT_CALL(provider,getattr(_, 23)).Times(1).WillOnce(Invoke(free_request));
 
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_integer(inode));
-
-    wfp_impl_getattr(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesystem\", 23]");
+    wfp_impl_getattr(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_getattr, fail_invalid_param_count)
@@ -83,11 +80,8 @@ TEST(wfp_impl_getattr, fail_invalid_param_count)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-
-    wfp_impl_getattr(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesystem\"]");
+    wfp_impl_getattr(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_getattr, fail_invalid_inode_type)
@@ -98,10 +92,6 @@ TEST(wfp_impl_getattr, fail_invalid_inode_type)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_string("42"));
-
-    wfp_impl_getattr(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesystem\", \"42\"]");
+    wfp_impl_getattr(&context, doc.root(), 42);
 }

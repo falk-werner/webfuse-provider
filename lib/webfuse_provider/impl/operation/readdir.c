@@ -2,21 +2,23 @@
 #include "webfuse_provider/impl/operation/error.h"
 #include "webfuse_provider/impl/dirbuffer.h"
 #include "webfuse_provider/impl/request.h"
+#include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/impl/util/util.h"
+#include "webfuse_provider/impl/json/node.h"
 
 void wfp_impl_readdir(
     struct wfp_impl_invokation_context * context,
-    json_t * params,
+    struct wfp_json const * params,
     int id)
 {
-    size_t const count = json_array_size(params);
+    size_t const count = wfp_impl_json_array_size(params);
     if (2 == count)
     {
-        json_t * inode_holder = json_array_get(params, 1);
+        struct wfp_json const * inode_holder = wfp_impl_json_array_get(params, 1);
 
-        if (json_is_integer(inode_holder))
+        if (wfp_impl_json_is_int(inode_holder))
         {
-            ino_t inode = (ino_t) json_integer_value(inode_holder);
+            ino_t inode = (ino_t) wfp_impl_json_int_get(inode_holder);
             struct wfp_request * request = wfp_impl_request_create(context->request, id);
 
             context->provider->readdir(request, inode, context->user_data);
@@ -36,7 +38,8 @@ void wfp_impl_respond_readdir(
     struct wfp_request * request,
     struct wfp_dirbuffer * dirbuffer)
 {
-    json_t * result = wfp_impl_dirbuffer_take(dirbuffer);
-    wfp_impl_respond(request, result);
+    struct wfp_message_writer * writer = wfp_impl_request_get_writer(request);
+    wfp_impl_message_writer_add_dirbuffer(writer, dirbuffer);
+    wfp_impl_respond(request);
 }
 

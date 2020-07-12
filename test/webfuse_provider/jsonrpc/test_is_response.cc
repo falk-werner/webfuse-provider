@@ -1,37 +1,28 @@
 #include <gtest/gtest.h>
 #include "webfuse_provider/impl/jsonrpc/response.h"
+#include "webfuse_provider/test_util/json_doc.hpp"
+
+using webfuse_test::JsonDoc;
 
 TEST(wfp_jsonrpc_is_response, valid_result)
 {
-    json_t * message = json_object();
-    json_object_set_new(message, "result", json_object());
-    json_object_set_new(message, "id", json_integer(42));
+    JsonDoc doc("{\"result\": {}, \"id\": 42}");
 
-    ASSERT_TRUE(wfp_jsonrpc_is_response(message));
-
-    json_decref(message);
+    ASSERT_TRUE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, valid_result_string)
 {
-    json_t * message = json_object();
-    json_object_set_new(message, "result", json_string("also valid"));
-    json_object_set_new(message, "id", json_integer(42));
+    JsonDoc doc("{\"result\": \"also valid\", \"id\": 42}");
 
-    ASSERT_TRUE(wfp_jsonrpc_is_response(message));
-
-    json_decref(message);
+    ASSERT_TRUE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, valid_error)
 {
-    json_t * message = json_object();
-    json_object_set_new(message, "error", json_object());
-    json_object_set_new(message, "id", json_integer(42));
+    JsonDoc doc("{\"error\": { }, \"id\": 42}");
 
-    ASSERT_TRUE(wfp_jsonrpc_is_response(message));
-
-    json_decref(message);
+    ASSERT_TRUE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, invalid_null)
@@ -41,54 +32,36 @@ TEST(wfp_jsonrpc_is_response, invalid_null)
 
 TEST(wfp_jsonrpc_is_response, invalid_message)
 {
-    json_t * message = json_array();
-    json_array_append_new(message, json_object());
-    json_array_append_new(message, json_integer(42));
+    JsonDoc doc("[{ }, 42]");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(message));
-
-    json_decref(message);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, invalid_missing_id)
 {
-    json_t * message = json_object();
-    json_object_set_new(message, "result", json_object());
+    JsonDoc doc("{\"result\": { } }");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(message));
-
-    json_decref(message);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, invalid_id_wrong_type)
 {
-    json_t * message = json_object();
-    json_object_set_new(message, "result", json_object());
-    json_object_set_new(message, "id", json_string("42"));
+    JsonDoc doc("{\"result\": { }, \"id\": \"42\"}");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(message));
-
-    json_decref(message);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 
 TEST(wfp_jsonrpc_is_response, invalid_missing_result_and_error)
 {
-    json_t * message = json_object();
-    json_object_set_new(message, "id", json_integer(42));
+    JsonDoc doc("{\"id\": \"42\"}");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(message));
-
-    json_decref(message);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }
 
 TEST(wfp_jsonrpc_is_response, invalid_error_wrong_type)
 {
-    json_t * message = json_object();
-    json_object_set_new(message, "error", json_array());
-    json_object_set_new(message, "id", json_integer(42));
+    JsonDoc doc("{\"error\": [], \"id\": \"42\"}");
 
-    ASSERT_FALSE(wfp_jsonrpc_is_response(message));
-
-    json_decref(message);
+    ASSERT_FALSE(wfp_jsonrpc_is_response(doc.root()));
 }

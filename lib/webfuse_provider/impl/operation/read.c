@@ -4,31 +4,32 @@
 
 #include "webfuse_provider/impl/operation/error.h"
 #include "webfuse_provider/impl/request.h"
+#include "webfuse_provider/impl/message_writer.h"
 #include "webfuse_provider/impl/util/util.h"
-#include "webfuse_provider/impl/util/base64.h"
+#include "webfuse_provider/impl/json/node.h"
 
 void wfp_impl_read(
     struct wfp_impl_invokation_context * context,
-    json_t * params,
+    struct wfp_json const * params,
     int id)
 {
-    size_t const count = json_array_size(params);
+    size_t const count = wfp_impl_json_array_size(params);
     if (5 == count)
     {
-        json_t * inode_holder = json_array_get(params, 1);
-        json_t * handle_holder = json_array_get(params, 2);
-        json_t * offset_holder = json_array_get(params, 3);
-        json_t * length_holder = json_array_get(params, 4);
+        struct wfp_json const * inode_holder = wfp_impl_json_array_get(params, 1);
+        struct wfp_json const * handle_holder = wfp_impl_json_array_get(params, 2);
+        struct wfp_json const * offset_holder = wfp_impl_json_array_get(params, 3);
+        struct wfp_json const * length_holder = wfp_impl_json_array_get(params, 4);
 
-        if (json_is_integer(inode_holder) &&
-            json_is_integer(handle_holder) &&
-            json_is_integer(offset_holder) &&
-            json_is_integer(length_holder))
+        if (wfp_impl_json_is_int(inode_holder) &&
+            wfp_impl_json_is_int(handle_holder) &&
+            wfp_impl_json_is_int(offset_holder) &&
+            wfp_impl_json_is_int(length_holder))
         {
-            ino_t inode = (ino_t) json_integer_value(inode_holder);
-            int handle = json_integer_value(handle_holder);
-            size_t offset = json_integer_value(offset_holder);
-            size_t length = json_integer_value(length_holder);
+            ino_t inode = (ino_t) wfp_impl_json_int_get(inode_holder);
+            int handle = wfp_impl_json_int_get(handle_holder);
+            size_t offset = wfp_impl_json_int_get(offset_holder);
+            size_t length = wfp_impl_json_int_get(length_holder);
             struct wfp_request * request = wfp_impl_request_create(context->request, id);
 
             context->provider->read(request, inode, handle, offset, length, context->user_data);
@@ -52,27 +53,19 @@ void wfp_impl_respond_read(
     char const * data,
     size_t length)
 {
+    struct wfp_message_writer * writer = wfp_impl_request_get_writer(request);
+
     if (0 < length)
     {
-        size_t const size = wfp_impl_base64_encoded_size(length) + 1;
-        char * buffer = malloc(size);
-        wfp_impl_base64_encode((uint8_t const *) data, length, buffer, size);
-
-        json_t * result = json_object();
-        json_object_set_new(result, "data", json_string(buffer));
-        json_object_set_new(result, "format", json_string("base64"));
-        json_object_set_new(result, "count", json_integer((int) length));
-
-        wfp_impl_respond(request, result);
-        free(buffer);
+        wfp_impl_message_writer_add_bytes(writer, "data", data, length);
+        wfp_impl_message_writer_add_string(writer, "format", "base64");
     }
     else
     {
-            json_t * result = json_object();
-            json_object_set_new(result, "data", json_string(""));
-            json_object_set_new(result, "format", json_string("identity"));
-            json_object_set_new(result, "count", json_integer(0));
-
-            wfp_impl_respond(request, result);        
+        wfp_impl_message_writer_add_string(writer, "data", "");
+        wfp_impl_message_writer_add_string(writer, "format", "identity");
     }
+
+    wfp_impl_message_writer_add_int(writer, "count", ((int) length));
+    wfp_impl_respond(request);        
 }

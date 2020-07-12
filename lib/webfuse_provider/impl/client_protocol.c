@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include <libwebsockets.h>
-#include <jansson.h>
 
 #include "webfuse_provider/impl/client_config.h"
 #include "webfuse_provider/impl/provider.h"
@@ -21,28 +20,29 @@
 #include "webfuse_provider/impl/jsonrpc/response.h"
 #include "webfuse_provider/impl/jsonrpc/request.h"
 #include "webfuse_provider/impl/jsonrpc/proxy.h"
+#include "webfuse_provider/impl/json/doc.h"
 
 #define WFP_DEFAULT_TIMEOUT (10 * 1000)
 
 static void wfp_impl_client_protocol_respond(
-    json_t * response,
+    struct wfp_message * message,
     void * user_data)
 {
     struct wfp_client_protocol * protocol = (struct wfp_client_protocol *) user_data;
 
-    struct wfp_message * message = wfp_message_create(response);
     wfp_slist_append(&protocol->messages, &message->item);
     lws_callback_on_writable(protocol->wsi);
 }
 
 static void wfp_impl_client_protocol_process(
      struct wfp_client_protocol * protocol, 
-     char const * data,
+     char * data,
      size_t length)
 {
-    json_t * message = json_loadb(data, length, 0, NULL);
-    if (NULL != message)
+    struct wfp_json_doc * doc = wfp_impl_json_doc_loadb(data, length);
+    if (NULL != doc)
     {
+        struct wfp_json const * message = wfp_impl_json_doc_root(doc);
         if (wfp_jsonrpc_is_response(message))
         {
             wfp_jsonrpc_proxy_onresult(protocol->proxy, message);
@@ -60,15 +60,15 @@ static void wfp_impl_client_protocol_process(
             wfp_impl_provider_invoke(&context, message);
         }
 
-        json_decref(message);
+        wfp_impl_json_doc_dispose(doc);
     }
 }
 
 static void 
 wfp_impl_client_protocol_on_add_filesystem_finished(
 	void * user_data,
-	json_t const * result,
-	json_t const * WFP_UNUSED_PARAM(error))    
+	struct wfp_json const * result,
+	struct wfp_jsonrpc_error const * WFP_UNUSED_PARAM(error))    
 {
     struct wfp_client_protocol * protocol = user_data;
     if (NULL == protocol->wsi) { return; }
@@ -100,8 +100,8 @@ static void wfp_impl_client_protocol_add_filesystem(
 static void 
 wfp_impl_client_protocol_on_authenticate_finished(
 	void * user_data,
-	json_t const * result,
-	json_t const * WFP_UNUSED_PARAM(error))    
+	struct wfp_json const * result,
+	struct wfp_jsonrpc_error const * WFP_UNUSED_PARAM(error))    
 {
     struct wfp_client_protocol * protocol = user_data;
     if (NULL == protocol->wsi) { return; }
@@ -126,8 +126,6 @@ static void wfp_impl_client_protocol_authenticate(
     protocol->provider.get_credentials(&credentials, protocol->user_data);
 
     char const * cred_type = wfp_impl_credentials_get_type(&credentials);
-    json_t * creds = wfp_impl_credentials_get(&credentials);
-    json_incref(creds);
 
     wfp_jsonrpc_proxy_invoke(
         protocol->proxy, 
@@ -135,7 +133,7 @@ static void wfp_impl_client_protocol_authenticate(
         protocol, 
         "authenticate", 
         "sj",
-        cred_type, creds);
+        cred_type, &wfp_impl_credentials_write, &credentials);
 
     wfp_impl_credentials_cleanup(&credentials);
 }
@@ -216,17 +214,16 @@ static int wfp_impl_client_protocol_callback(
     return result;
 }
 
-static bool wfp_impl_client_protocol_send(
-    json_t * request,
+static void wfp_impl_client_protocol_send(
+    char * data,
+    size_t length,
     void * user_data)
 {
     struct wfp_client_protocol * protocol = user_data;
 
-    struct wfp_message * message = wfp_message_create(request);
+    struct wfp_message * message = wfp_message_create(data, length);
     wfp_slist_append(&protocol->messages, &message->item);
     lws_callback_on_writable(protocol->wsi);
-
-    return true;
 }
 
 void wfp_impl_client_protocol_init(

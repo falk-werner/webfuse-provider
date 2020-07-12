@@ -2,6 +2,7 @@
 #include "webfuse_provider/mocks/mock_request.hpp"
 #include "webfuse_provider/mocks/mock_provider.hpp"
 #include "webfuse_provider/mocks/fake_invokation_context.hpp"
+#include "webfuse_provider/test_util/json_doc.hpp"
 
 #include <gtest/gtest.h>
 #include <cstdlib>
@@ -10,6 +11,7 @@ using ::webfuse_test::MockProvider;
 using ::webfuse_test::MockRequest;
 using ::webfuse_test::ReadResultMatcher;
 using ::webfuse_test::create_context;
+using ::webfuse_test::JsonDoc;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::StrEq;
@@ -19,33 +21,22 @@ namespace
 
 void free_request(wfp_request * request, ino_t, uint32_t, size_t ,size_t)
 {
-    free(request);
+    wfp_impl_request_dispose(request);
 }
 
 }
 
 TEST(wfp_impl_read, invoke_provider)
 {
-    ino_t inode = 42;
-    uint32_t handle = 5;
-    size_t offset = 2;
-    size_t length = 1;
     MockProvider provider;
-    EXPECT_CALL(provider, read(_, inode, handle, offset, length)).Times(1)
+    EXPECT_CALL(provider, read(_, 42, 5, 2, 1)).Times(1)
         .WillOnce(Invoke(free_request));
 
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_integer(inode));
-    json_array_append_new(params, json_integer(handle));
-    json_array_append_new(params, json_integer(offset));
-    json_array_append_new(params, json_integer(length));
-
-    wfp_impl_read(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesystem\",42,5,2,1]");
+    wfp_impl_read(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_read, fail_invalid_param_count)
@@ -56,16 +47,8 @@ TEST(wfp_impl_read, fail_invalid_param_count)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_integer(1));
-    json_array_append_new(params, json_integer(2));
-    json_array_append_new(params, json_integer(3));
-    json_array_append_new(params, json_integer(4));
-    json_array_append_new(params, json_integer(5));
-
-    wfp_impl_read(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesyste\",1,2,3,4,5]");
+    wfp_impl_read(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_read, fail_invalid_inode_type)
@@ -76,15 +59,8 @@ TEST(wfp_impl_read, fail_invalid_inode_type)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_string("42"));
-    json_array_append_new(params, json_integer(2));
-    json_array_append_new(params, json_integer(3));
-    json_array_append_new(params, json_integer(4));
-
-    wfp_impl_read(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesyste\",\"42\",2,3,4]");
+    wfp_impl_read(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_read, fail_invalid_handle_type)
@@ -95,15 +71,8 @@ TEST(wfp_impl_read, fail_invalid_handle_type)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_integer(1));
-    json_array_append_new(params, json_string("42"));
-    json_array_append_new(params, json_integer(3));
-    json_array_append_new(params, json_integer(4));
-
-    wfp_impl_read(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesyste\",1,\"42\",3,4]");
+    wfp_impl_read(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_read, fail_invalid_offset_type)
@@ -114,15 +83,8 @@ TEST(wfp_impl_read, fail_invalid_offset_type)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_integer(1));
-    json_array_append_new(params, json_integer(2));
-    json_array_append_new(params, json_string("42"));
-    json_array_append_new(params, json_integer(4));
-
-    wfp_impl_read(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesyste\",1,2,\"42\",4]");
+    wfp_impl_read(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_read, fail_invalid_length_type)
@@ -133,15 +95,8 @@ TEST(wfp_impl_read, fail_invalid_length_type)
     wfp_request request = {nullptr, nullptr, 0};
     wfp_impl_invokation_context context = create_context(provider, &request);
 
-    json_t * params = json_array();
-    json_array_append_new(params, json_string("test.filesystem"));
-    json_array_append_new(params, json_integer(1));
-    json_array_append_new(params, json_integer(2));
-    json_array_append_new(params, json_integer(3));
-    json_array_append_new(params, json_string("42"));
-
-    wfp_impl_read(&context, params, 42);
-    json_decref(params);
+    JsonDoc doc("[\"test.filesyste\",1,2,3,\"42\"]");
+    wfp_impl_read(&context, doc.root(), 42);
 }
 
 TEST(wfp_impl_read, default_responds_error)

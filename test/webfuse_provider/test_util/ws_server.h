@@ -1,7 +1,6 @@
 #ifndef WFP_TEST_UTILS_WS_SERVER_HPP
 #define WFP_TEST_UTILS_WS_SERVER_HPP
 
-#include <jansson.h>
 #include <string>
 
 namespace webfuse_test
@@ -16,8 +15,8 @@ public:
     ~WsServer();
     bool IsConnected();
     std::string GetUrl() const;
-    void SendMessage(json_t * message);
-    json_t * ReceiveMessage();
+    void SendMessage(std::string const & message);
+    std::string ReceiveMessage();
 private:
     class Private;
     Private * d;

@@ -3,16 +3,22 @@
 #include "webfuse_provider/impl/message.h"
 #include "webfuse_provider/impl/util/slist.h"
 
+#include <libwebsockets.h>
+#include <cstdlib>
+#include <cstring>
+
 namespace
 {
 
     struct wfp_slist_item * create_message(char const * content)
     {
-        json_t * value = json_object();
-        json_object_set_new(value, "content", json_string(content));
-        struct wfp_message * message = wfp_message_create(value);
+        size_t length = strlen(content);
+        char * raw_data = reinterpret_cast<char*>(malloc(LWS_PRE + length));
+        char * data = raw_data + LWS_PRE;
 
-        json_decref(value);
+        memcpy(data, content, length);
+        struct wfp_message * message = wfp_message_create(data, length);
+
         return &message->item;
     }
 

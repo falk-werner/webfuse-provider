@@ -3,14 +3,12 @@ project('webfuse-provider', 'c', 'cpp', version: '0.4.0', license: 'LGPL-3.0+')
 without_tests    = get_option('without_tests')
 without_examples = get_option('without_examples')
 
-libwebsockets_dep = dependency('libwebsockets', version: '>=4.0.13', required: false)
+libwebsockets_dep = dependency('libwebsockets', version: '>=4.0.0', required: false)
 if not libwebsockets_dep.found()
 	cmake = import('cmake')
 	libwebsockets = cmake.subproject('libwebsockets')
 	libwebsockets_dep = libwebsockets.dependency('websockets_shared')
 endif
-
-jansson_dep = dependency('jansson', version: '>=2.11', fallback: ['jansson', 'jansson_dep'])
 
 pkg_config = import('pkgconfig')
 
@@ -18,16 +16,20 @@ pkg_config = import('pkgconfig')
 
 webfuse_provider_static = static_library('webfuse_provider',
 	'lib/webfuse_provider/impl/message.c',
+	'lib/webfuse_provider/impl/message_writer.c',
 	'lib/webfuse_provider/impl/message_queue.c',
 	'lib/webfuse_provider/impl/status.c',
     'lib/webfuse_provider/impl/util/slist.c',
 	'lib/webfuse_provider/impl/util/base64.c',
 	'lib/webfuse_provider/impl/util/lws_log.c',
-	'lib/webfuse_provider/impl/util/json_util.c',
 	'lib/webfuse_provider/impl/util/url.c',
     'lib/webfuse_provider/impl/timer/manager.c',
     'lib/webfuse_provider/impl/timer/timepoint.c',
     'lib/webfuse_provider/impl/timer/timer.c',
+	'lib/webfuse_provider/impl/json/writer.c',
+	'lib/webfuse_provider/impl/json/node.c',
+	'lib/webfuse_provider/impl/json/reader.c',
+	'lib/webfuse_provider/impl/json/doc.c',
 	'lib/webfuse_provider/impl/jsonrpc/proxy.c',
 	'lib/webfuse_provider/impl/jsonrpc/proxy_variadic.c',
 	'lib/webfuse_provider/impl/jsonrpc/request.c',
@@ -49,31 +51,31 @@ webfuse_provider_static = static_library('webfuse_provider',
 	'lib/webfuse_provider/impl/operation/read.c',
     c_args: ['-fvisibility=hidden'],
     include_directories: ['include', 'lib'],
-    dependencies: [libwebsockets_dep, jansson_dep])
+    dependencies: [libwebsockets_dep])
 
 webfuse_provider_static_dep = declare_dependency(
     include_directories: ['include'],
     link_with: webfuse_provider_static,
-	dependencies: [libwebsockets_dep, jansson_dep])
+	dependencies: [libwebsockets_dep])
 
 webfuse_provider = shared_library('webfuse_provider',
     'lib/webfuse_provider/api.c',
     version: meson.project_version(),
     c_args: ['-fvisibility=hidden', '-DWFP_API=WFP_EXPORT'],
     include_directories: ['include', 'lib'],
-    dependencies: [webfuse_provider_static_dep, libwebsockets_dep, jansson_dep],
+    dependencies: [webfuse_provider_static_dep, libwebsockets_dep],
 	install: true)
 
 webfuse_provider_dep = declare_dependency(
 	include_directories: ['include'],
 	link_with: [webfuse_provider],
-	dependencies: [libwebsockets_dep, jansson_dep])
+	dependencies: [libwebsockets_dep])
 
 install_subdir('include/webfuse_provider', install_dir: 'include')
 
 pkg_config.generate(
     libraries: [webfuse_provider],
-	requires: ['libwebsockets', 'jansson'],
+	requires: ['libwebsockets'],
     subdirs: '.',
     version: meson.project_version(),
     name: 'libwebfuse_provider',
@@ -104,12 +106,14 @@ alltests = executable('alltests',
 	'test/webfuse_provider/test_util/ws_server.cc',
 	'test/webfuse_provider/test_util/webfuse_server.cc',
 	'test/webfuse_provider/test_util/client.cc',
-	'test/webfuse_provider/test_util/jansson_test_environment.cc',
+	'test/webfuse_provider/test_util/json_doc.cc',
 	'test/webfuse_provider/mocks/fake_invokation_context.cc',
 	'test/webfuse_provider/mocks/mock_request.cc',
 	'test/webfuse_provider/mocks/mock_provider_client.cc',
 	'test/webfuse_provider/mocks/mock_provider.cc',
 	'test/webfuse_provider/mocks/mock_jsonrpc_proxy.cc',
+	'test/webfuse_provider/json/test_json_writer.cc',
+	'test/webfuse_provider/json/test_json_parser.cc',
 	'test/webfuse_provider/jsonrpc/mock_timer_callback.cc',
 	'test/webfuse_provider/jsonrpc/mock_timer.cc',
 	'test/webfuse_provider/jsonrpc/test_is_request.cc',
@@ -120,7 +124,6 @@ alltests = executable('alltests',
 	'test/webfuse_provider/jsonrpc/test_response_parser.cc',
 	'test/webfuse_provider/timer/test_timepoint.cc',
 	'test/webfuse_provider/timer/test_timer.cc',
-	'test/webfuse_provider/util/test_util.cc',
 	'test/webfuse_provider/util/test_container_of.cc',
 	'test/webfuse_provider/util/test_slist.cc',
 	'test/webfuse_provider/util/test_base64.cc',
@@ -153,7 +156,6 @@ alltests = executable('alltests',
 	dependencies: [
 		webfuse_provider_static_dep,
 		libwebsockets_dep,
-		jansson_dep,
 		gtest_dep,
 		gmock_main_dep,
 		test_certs_dep

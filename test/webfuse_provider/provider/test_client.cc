@@ -2,6 +2,8 @@
 #include "webfuse_provider/test_util/webfuse_server.hpp"
 #include "webfuse_provider/mocks/mock_provider_client.hpp"
 #include "webfuse_provider/test_util/client.hpp"
+#include "webfuse_provider/test_util/json_doc.hpp"
+#include "webfuse_provider/impl/json/node.h"
 
 #include <gtest/gtest.h>
 #include <future>
@@ -10,6 +12,7 @@
 using webfuse_test::WebfuseServer;
 using webfuse_test::MockProviderClient;
 using webfuse_test::Client;
+using webfuse_test::JsonDoc;
 using testing::Invoke;
 using testing::_;
 using testing::StrEq;
@@ -146,20 +149,19 @@ TEST(Client, Lookup)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        json_t * response = server.Lookup(1, "foo");
-        ASSERT_TRUE(json_is_object(response));
-        json_t * result = json_object_get(response, "result");
+        JsonDoc doc(server.Lookup(1, "foo"));
+        wfp_json const * response = doc.root();
+        ASSERT_TRUE(wfp_impl_json_is_object(response));
+        wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
-        json_t * inode = json_object_get(result, "inode");
-        ASSERT_EQ(42, json_integer_value(inode));
+        wfp_json const * inode = wfp_impl_json_object_get(result, "inode");
+        ASSERT_EQ(42, wfp_impl_json_int_get(inode));
 
-        json_t * mode = json_object_get(result, "mode");
-        ASSERT_EQ(0644, json_integer_value(mode));
+        wfp_json const * mode = wfp_impl_json_object_get(result, "mode");
+        ASSERT_EQ(0644, wfp_impl_json_int_get(mode));
 
-        json_t * type = json_object_get(result, "type");
-        ASSERT_STREQ("file", json_string_value(type));
-
-        json_decref(response);
+        wfp_json const * type = wfp_impl_json_object_get(result, "type");
+        ASSERT_STREQ("file", wfp_impl_json_string_get(type));
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -194,14 +196,14 @@ TEST(Client, LookupFail)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        json_t * response = server.Lookup(1, "foo");
-        ASSERT_TRUE(json_is_object(response));
-        json_t * error = json_object_get(response, "error");
+        JsonDoc doc(server.Lookup(1, "foo"));
+        wfp_json const * response = doc.root();
 
-        json_t * code = json_object_get(error, "code");
-        ASSERT_NE(0, json_integer_value(code));
+        ASSERT_TRUE(wfp_impl_json_is_object(response));
+        wfp_json const * error = wfp_impl_json_object_get(response, "error");
 
-        json_decref(response);
+        wfp_json const * code = wfp_impl_json_object_get(error, "code");
+        ASSERT_NE(0, wfp_impl_json_int_get(code));
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -236,14 +238,14 @@ TEST(Client, Open)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        json_t * response = server.Open(1, 0);
-        ASSERT_TRUE(json_is_object(response));
-        json_t * result = json_object_get(response, "result");
+        JsonDoc doc(server.Open(1, 0));
+        wfp_json const * response = doc.root();
 
-        json_t * handle = json_object_get(result, "handle");
-        ASSERT_EQ(4711, json_integer_value(handle));
+        ASSERT_TRUE(wfp_impl_json_is_object(response));
+        wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
-        json_decref(response);
+        wfp_json const * handle = wfp_impl_json_object_get(result, "handle");
+        ASSERT_EQ(4711, wfp_impl_json_int_get(handle));
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -279,20 +281,20 @@ TEST(Client, Read)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        json_t * response = server.Read(42, 5, 0, 1);
-        ASSERT_TRUE(json_is_object(response));
-        json_t * result = json_object_get(response, "result");
+        JsonDoc doc(server.Read(42, 5, 0, 1));
+        wfp_json const * response = doc.root();
 
-        json_t * format = json_object_get(result, "format");
-        ASSERT_STREQ("base64", json_string_value(format));
+        ASSERT_TRUE(wfp_impl_json_is_object(response));
+        wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
-        json_t * count = json_object_get(result, "count");
-        ASSERT_EQ(1, json_integer_value(count));
+        wfp_json const * format = wfp_impl_json_object_get(result, "format");
+        ASSERT_STREQ("base64", wfp_impl_json_string_get(format));
 
-        json_t * data = json_object_get(result, "data");
-        ASSERT_STREQ("Kg==", json_string_value(data));
+        wfp_json const * count = wfp_impl_json_object_get(result, "count");
+        ASSERT_EQ(1, wfp_impl_json_int_get(count));
 
-        json_decref(response);
+        wfp_json const * data = wfp_impl_json_object_get(result, "data");
+        ASSERT_STREQ("Kg==", wfp_impl_json_string_get(data));
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));
@@ -329,14 +331,14 @@ TEST(Client, ReadDir)
 
         ASSERT_EQ(std::future_status::ready, connected.get_future().wait_for(TIMEOUT));
 
-        json_t * response = server.ReadDir(42);
-        ASSERT_TRUE(json_is_object(response));
-        json_t * result = json_object_get(response, "result");
+        JsonDoc doc(server.ReadDir(42));
+        wfp_json const * response = doc.root();
 
-        ASSERT_TRUE(json_is_array(result));
-        ASSERT_EQ(3, json_array_size(result));
+        ASSERT_TRUE(wfp_impl_json_is_object(response));
+        wfp_json const * result = wfp_impl_json_object_get(response, "result");
 
-        json_decref(response);
+        ASSERT_TRUE(wfp_impl_json_is_array(result));
+        ASSERT_EQ(3, wfp_impl_json_array_size(result));
 
         client.Disconnect();
         ASSERT_EQ(std::future_status::ready, disconnected.get_future().wait_for(TIMEOUT));

@@ -35,8 +35,8 @@ public:
     ~Private();
     bool IsConnected();
     std::string GetUrl() const;
-    void SendMessage(json_t * message);
-    json_t * ReceiveMessage();
+    void SendMessage(std::string const & message);
+    std::string ReceiveMessage();
     void OnConnected(lws * wsi) override;
     void OnConnectionClosed(lws * wsi) override;
     void OnMessageReceived(struct lws * wsi, char const * data, size_t length) override;
@@ -123,12 +123,12 @@ bool WsServer::IsConnected()
     return d->IsConnected();
 }
 
-void WsServer::SendMessage(json_t * message)
+void WsServer::SendMessage(std::string const & message)
 {
     d->SendMessage(message);
 }
 
-json_t * WsServer::ReceiveMessage()
+std::string WsServer::ReceiveMessage()
 {
     return d->ReceiveMessage();
 }
@@ -248,7 +248,7 @@ void WsServer::Private::OnWritable(struct lws * wsi)
 }
 
 
-void WsServer::Private::SendMessage(json_t * message)
+void WsServer::Private::SendMessage(std::string const & message)
 {
     lws * wsi = nullptr;
 
@@ -257,10 +257,7 @@ void WsServer::Private::SendMessage(json_t * message)
 
         if (nullptr != wsi_)
         {
-            char* message_text = json_dumps(message, JSON_COMPACT);
-            writeQueue.push(message_text);
-            json_decref(message);
-            free(message_text);
+            writeQueue.push(message);
             wsi = wsi_;
         }
     }
@@ -280,19 +277,18 @@ void WsServer::Private::OnMessageReceived(struct lws * wsi, char const * data, s
     }
 }
 
-json_t * WsServer::Private::ReceiveMessage()
+std::string WsServer::Private::ReceiveMessage()
 {
     std::unique_lock<std::mutex> lock(mutex);
  
-    json_t * result = nullptr;
+    std::string message;
     if (!recvQueue.empty())
     {
-        std::string const & message_text = recvQueue.front();
-        result = json_loads(message_text.c_str(), JSON_DECODE_ANY, nullptr);
+        message = recvQueue.front();
         recvQueue.pop();
     }
 
-    return result;
+    return message;
 }
 
 std::string WsServer::Private::GetUrl() const

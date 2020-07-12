@@ -1,10 +1,15 @@
 #include "webfuse_provider/impl/dirbuffer.h"
 #include <stdlib.h>
+#include <string.h>
+
+#define WFP_IMPL_DIRBUFFER_DEFAULT_CAPACITY 8
 
 struct wfp_dirbuffer * wfp_impl_dirbuffer_create(void)
 {
     struct wfp_dirbuffer * buffer = malloc(sizeof(struct wfp_dirbuffer));
-    buffer->entries = json_array();
+    buffer->size = 0;
+    buffer->capacity = WFP_IMPL_DIRBUFFER_DEFAULT_CAPACITY;
+    buffer->entries = malloc(sizeof(struct wfp_dirbuffer_entry) * buffer->capacity);
 
     return buffer;
 }
@@ -12,11 +17,12 @@ struct wfp_dirbuffer * wfp_impl_dirbuffer_create(void)
 void wfp_impl_dirbuffer_dispose(
     struct wfp_dirbuffer * buffer)
 {
-    if (NULL != buffer->entries)
+    for (size_t i = 0; i < buffer->size; i++)
     {
-        json_decref(buffer->entries);
+        free(buffer->entries[i].name);
     }
 
+    free(buffer->entries);
     free(buffer);
 }
 
@@ -25,18 +31,35 @@ void wfp_impl_dirbuffer_add(
     char const * name,
     ino_t inode)
 {
-    json_t * entry = json_object();
-    json_object_set_new(entry, "name", json_string(name));
-    json_object_set_new(entry, "inode", json_integer(inode));
+    if (buffer->size >= buffer->capacity)
+    {
+        buffer->capacity *= 2;
+        buffer->entries = realloc(buffer->entries, (sizeof(struct wfp_dirbuffer_entry) * buffer->capacity));
+    }
 
-    json_array_append_new(buffer->entries, entry);
+    buffer->entries[buffer->size].name = strdup(name);
+    buffer->entries[buffer->size].inode = inode;
+    buffer->size++;
 }
 
-json_t * wfp_impl_dirbuffer_take(
+size_t
+wfp_impl_dirbuffer_size(
     struct wfp_dirbuffer * buffer)
 {
-    json_t * entries = buffer->entries;
+    return buffer->size;
+}
 
-    buffer->entries = NULL;
-    return entries;
+struct wfp_dirbuffer_entry const *
+wfp_impl_dirbuffer_entry_at(
+    struct wfp_dirbuffer * buffer,
+    size_t pos)
+{
+    struct wfp_dirbuffer_entry const * entry = NULL;
+
+    if (pos < buffer->size)
+    {
+        entry = &(buffer->entries[pos]);
+    }
+
+    return entry;
 }
