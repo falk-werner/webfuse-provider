@@ -92,10 +92,10 @@ gmock_main_dep = dependency('gmock_main', version: '>=1.10.0', fallback: ['gtest
 
 openssl = find_program('openssl')
 test_server_certs = custom_target('test_server_certs',
-	output: ['server-key.pem', 'server-cert.pem'],
+	output: 'server-key.pem',
 	command: [openssl, 'req', '-x509', '-newkey', 'rsa:4096', '-keyout', 'server-key.pem', '-out', 'server-cert.pem', '-days', '365', '-nodes', '-batch', '-subj', '/CN=localhost'])
 test_client_certs = custom_target('test_client_certs',
-	output: ['client-key.pem', 'client-cert.pem'],
+	output: 'client-key.pem',
 	command: [openssl, 'req', '-x509', '-newkey', 'rsa:4096', '-keyout', 'client-key.pem', '-out', 'client-cert.pem', '-days', '365', '-nodes', '-batch', '-subj', '/CN=localhost'])
 
 test_certs_dep = declare_dependency(

@@ -22,7 +22,7 @@ addons:
             - lcov
 
 before_install:
-    - sudo pip3 install --system meson
+    - sudo pip3 install --system 'meson==0.54.3'
 
 before_script:
     - meson -Db_coverage=true build
