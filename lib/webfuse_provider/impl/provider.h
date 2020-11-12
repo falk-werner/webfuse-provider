@@ -3,6 +3,9 @@
 
 #ifndef __cplusplus
 #include <stdbool.h>
+#include <stdarg.h>
+#else
+#include <cstdarg>
 #endif
 
 #include "webfuse_provider/client_config.h"
@@ -26,6 +29,7 @@ struct wfp_provider
     wfp_close_fn * close;
     wfp_read_fn * read;
     wfp_get_credentials_fn * get_credentials;
+    wfp_log_fn * log;
 };
 
 struct wfp_impl_invokation_context
@@ -49,14 +53,20 @@ extern void wfp_impl_provider_invoke(
 
 extern bool wfp_impl_provider_is_authentication_enabled(
     struct wfp_provider * provider);
-    
+
 extern void wfp_impl_connected_default(
     void * user_data);
 
 extern void wfp_impl_disconnected_default(
     void * user_data);
 
-#ifdef __cplusplus    
+extern void wfp_impl_log_default(
+    void * user_data,
+    int level,
+    char const * format,
+    ...);
+
+#ifdef __cplusplus
 }
 #endif
 

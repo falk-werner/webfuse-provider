@@ -165,6 +165,20 @@ void wfp_client_config_enable_authentication(
     wfp_impl_client_config_enable_authentication(config, get_credentials);
 }
 
+void wfp_client_config_set_fsname(
+    struct wfp_client_config * config,
+    char const * name)
+{
+    wfp_impl_client_config_set_fsname(config, name);
+}
+
+void wfp_client_config_set_logger(
+    struct wfp_client_config * config,
+    wfp_log_fn * log)
+{
+    wfp_impl_client_config_set_logger(config, log);
+}
+
 // protocol
 
 

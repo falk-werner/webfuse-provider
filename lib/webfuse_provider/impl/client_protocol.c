@@ -35,7 +35,7 @@ static void wfp_impl_client_protocol_respond(
 }
 
 static void wfp_impl_client_protocol_process(
-     struct wfp_client_protocol * protocol, 
+     struct wfp_client_protocol * protocol,
      char * data,
      size_t length)
 {
@@ -64,62 +64,71 @@ static void wfp_impl_client_protocol_process(
     }
 }
 
-static void 
+static void
 wfp_impl_client_protocol_on_add_filesystem_finished(
 	void * user_data,
 	struct wfp_json const * result,
-	struct wfp_jsonrpc_error const * WFP_UNUSED_PARAM(error))    
+	struct wfp_jsonrpc_error const * WFP_UNUSED_PARAM(error))
 {
     struct wfp_client_protocol * protocol = user_data;
     if (NULL == protocol->wsi) { return; }
 
     if (NULL != result)
     {
+        protocol->provider.log(protocol->user_data, 0, "filesystem added");
+        protocol->provider.log(protocol->user_data, 0, "handshake finished");
         protocol->is_connected = true;
         protocol->provider.connected(protocol->user_data);
     }
     else
     {
+        protocol->provider.log(protocol->user_data, 0, "add filesystem failed");
         protocol->is_shutdown_requested = true;
         lws_callback_on_writable(protocol->wsi);
-    }    
+    }
 }
 
 static void wfp_impl_client_protocol_add_filesystem(
      struct wfp_client_protocol * protocol)
 {
+    protocol->provider.log(protocol->user_data, 0, "begin add filesystem");
+
     wfp_jsonrpc_proxy_invoke(
-        protocol->proxy, 
+        protocol->proxy,
         &wfp_impl_client_protocol_on_add_filesystem_finished,
         protocol,
         "add_filesystem",
         "s",
-        "cprovider");
+        protocol->fs_name);
 }
 
-static void 
+static void
 wfp_impl_client_protocol_on_authenticate_finished(
 	void * user_data,
 	struct wfp_json const * result,
-	struct wfp_jsonrpc_error const * WFP_UNUSED_PARAM(error))    
+	struct wfp_jsonrpc_error const * WFP_UNUSED_PARAM(error))
 {
     struct wfp_client_protocol * protocol = user_data;
     if (NULL == protocol->wsi) { return; }
 
     if (NULL != result)
     {
+        protocol->provider.log(protocol->user_data, 0, "authentication finished");
         wfp_impl_client_protocol_add_filesystem(protocol);
     }
     else
     {
+        protocol->provider.log(protocol->user_data, 0, "authentication failed");
         protocol->is_shutdown_requested = true;
         lws_callback_on_writable(protocol->wsi);
-    }    
+    }
 }
 
 static void wfp_impl_client_protocol_authenticate(
     struct wfp_client_protocol * protocol)
 {
+    protocol->provider.log(protocol->user_data, 0, "begin authenticate");
+
     struct wfp_credentials credentials;
     wfp_impl_credentials_init(&credentials);
 
@@ -128,10 +137,10 @@ static void wfp_impl_client_protocol_authenticate(
     char const * cred_type = wfp_impl_credentials_get_type(&credentials);
 
     wfp_jsonrpc_proxy_invoke(
-        protocol->proxy, 
-        &wfp_impl_client_protocol_on_authenticate_finished, 
-        protocol, 
-        "authenticate", 
+        protocol->proxy,
+        &wfp_impl_client_protocol_on_authenticate_finished,
+        protocol,
+        "authenticate",
         "sj",
         cred_type, &wfp_impl_credentials_write, &credentials);
 
@@ -141,12 +150,15 @@ static void wfp_impl_client_protocol_authenticate(
 static void wfp_impl_client_protocol_handshake(
     struct wfp_client_protocol * protocol)
 {
+    protocol->provider.log(protocol->user_data, 0, "begin connection handshake");
+
     if (wfp_impl_provider_is_authentication_enabled(&protocol->provider))
     {
         wfp_impl_client_protocol_authenticate(protocol);
     }
     else
     {
+        protocol->provider.log(protocol->user_data, 0, "skip authentication");
         wfp_impl_client_protocol_add_filesystem(protocol);
     }
 }
@@ -159,7 +171,7 @@ static int wfp_impl_client_protocol_callback(
 	size_t len)
 {
     int result = 0;
-    struct lws_protocols const * ws_protocol = lws_get_protocol(wsi);     
+    struct lws_protocols const * ws_protocol = lws_get_protocol(wsi);
     struct wfp_client_protocol * protocol = (NULL != ws_protocol) ? ws_protocol->user: NULL;
 
     if (NULL != protocol)
@@ -169,24 +181,28 @@ static int wfp_impl_client_protocol_callback(
         switch (reason)
         {
         case LWS_CALLBACK_CLIENT_ESTABLISHED:
+            protocol->provider.log(protocol->user_data, 0, "connection established");
             wfp_impl_client_protocol_handshake(protocol);
             break;
         case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
+            protocol->provider.log(protocol->user_data, 0, "connect error");
             protocol->is_connected = false;
             protocol->provider.disconnected(protocol->user_data);
             break;
         case LWS_CALLBACK_CLIENT_CLOSED:
+            protocol->provider.log(protocol->user_data, 0, "connection closed");
             protocol->is_connected = false;
-            protocol->provider.disconnected(protocol->user_data);   
+            protocol->provider.disconnected(protocol->user_data);
             protocol->wsi = NULL;
             break;
         case LWS_CALLBACK_CLIENT_RECEIVE:
+            protocol->provider.log(protocol->user_data, 0, "received: \"%.*s\"", len, in);
             wfp_impl_client_protocol_process(protocol, in, len);
             break;
         case LWS_CALLBACK_SERVER_WRITEABLE:
             // fall-through
         case LWS_CALLBACK_CLIENT_WRITEABLE:
-			if (wsi == protocol->wsi) 
+			if (wsi == protocol->wsi)
             {
                 if (protocol->is_shutdown_requested)
                 {
@@ -194,8 +210,10 @@ static int wfp_impl_client_protocol_callback(
                 }
                 else if (!wfp_slist_empty(&protocol->messages))
                 {
+
                     struct wfp_slist_item * item = wfp_slist_remove_first(&protocol->messages);
                     struct wfp_message * message = wfp_container_of(item, struct wfp_message, item);
+                    protocol->provider.log(protocol->user_data, 0, "send: \"%.*s\"", message->length, message->data);
                     lws_write(wsi, (unsigned char*) message->data, message->length, LWS_WRITE_TEXT);
                     wfp_message_dispose(message);
 
@@ -207,7 +225,7 @@ static int wfp_impl_client_protocol_callback(
             }
             break;
         default:
-            break;            
+            break;
         }
     }
 
@@ -229,6 +247,7 @@ static void wfp_impl_client_protocol_send(
 void wfp_impl_client_protocol_init(
     struct wfp_client_protocol * protocol,
     struct wfp_provider const * provider,
+    char const * fs_name,
     void * user_data)
 {
     protocol->is_connected = false;
@@ -243,6 +262,7 @@ void wfp_impl_client_protocol_init(
     protocol->timer_manager = wfp_timer_manager_create();
     protocol->proxy = wfp_jsonrpc_proxy_create(protocol->timer_manager, WFP_DEFAULT_TIMEOUT, &wfp_impl_client_protocol_send, protocol);
 
+    protocol->fs_name = strdup(fs_name);
     protocol->user_data = user_data;
     wfp_impl_provider_init_from_prototype(&protocol->provider, provider);
 }
@@ -253,13 +273,14 @@ void wfp_impl_client_protocol_cleanup(
     wfp_jsonrpc_proxy_dispose(protocol->proxy);
     wfp_timer_manager_dispose(protocol->timer_manager);
     wfp_message_queue_cleanup(&protocol->messages);
+    free(protocol->fs_name);
 }
 
 struct wfp_client_protocol * wfp_impl_client_protocol_create(
     struct wfp_client_config const * config)
 {
     struct wfp_client_protocol * protocol = malloc(sizeof(struct wfp_client_protocol));
-    wfp_impl_client_protocol_init(protocol, &config->provider, config->user_data);
+    wfp_impl_client_protocol_init(protocol, &config->provider, config->fs_name, config->user_data);
 
     return protocol;
 }
@@ -311,7 +332,7 @@ void wfp_impl_client_protocol_connect(
     {
         protocol->provider.disconnected(protocol->user_data);
     }
-    
+
 }
 
 void wfp_impl_client_protocol_disconnect(
