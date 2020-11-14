@@ -101,11 +101,9 @@ public:
         info.mounts = NULL;
         info.protocols = protocols;
         info.vhost_name = "localhost";
-        info.ws_ping_pong_interval = 10;
+        // info.ws_ping_pong_interval = 10;
         info.options = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
         info.options |= LWS_SERVER_OPTION_EXPLICIT_VHOSTS;
-
-        context = lws_create_context(&info);
 
         if (use_tls)
         {
@@ -114,9 +112,11 @@ public:
             info.ssl_private_key_filepath = "server-key.pem";
         }
 
+        context = lws_create_context(&info);
+
         struct lws_vhost * vhost = lws_create_vhost(context, &info);
         int port = lws_get_vhost_port(vhost);
-        std::ostringstream stream;        
+        std::ostringstream stream;
         stream << (use_tls ? "wss://" : "ws://") << "localhost:" << port << "/";
         url = stream.str();
 
@@ -149,7 +149,7 @@ public:
     std::string Invoke(std::string const & method, std::string const & params)
     {
         std::promise<std::string> response;
-        {            
+        {
             std::unique_lock<std::mutex> lock(mutex);
             message = &response;
             id++;
@@ -220,7 +220,7 @@ public:
                     lws_callback_on_writable(wsi);
                 }
             }
-            
+
             wfp_impl_json_doc_dispose(doc);
         }
     }

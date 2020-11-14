@@ -16,6 +16,12 @@
 #include <webfuse_provider/operation/read.h>
 #include <webfuse_provider/credentials.h>
 
+#ifndef __cplusplus
+#include <stdarg.h>
+#else
+#include <cstdarg>
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -44,6 +50,20 @@ typedef void wfp_connected_fn(
 //------------------------------------------------------------------------------
 typedef void wfp_disconnected_fn(
     void * user_data);
+
+//------------------------------------------------------------------------------
+/// \brief Callback to log
+///
+/// \param user data user defined context
+/// \param level log level
+/// \param format format string (see printf)
+/// \param ... arguments
+//------------------------------------------------------------------------------
+typedef void wfp_log_fn(
+    void * user_data,
+    int level,
+    char const * format,
+    ...);
 
 //------------------------------------------------------------------------------
 /// \brief Creates a new client configuration.
@@ -225,12 +245,32 @@ extern WFP_API void wfp_client_config_set_onread(
 /// \brief Enabled authentication.
 ///
 /// \param config pointer to client configuration
-/// \param get_credentials pointer to function providing credentials when 
+/// \param get_credentials pointer to function providing credentials when
 //         needed.
 //------------------------------------------------------------------------------
 extern WFP_API void wfp_client_config_enable_authentication(
     struct wfp_client_config * config,
     wfp_get_credentials_fn * get_credentials);
+
+//------------------------------------------------------------------------------
+/// \brief Set filesystem name.
+///
+/// \param config pointer to client configuration
+/// \param name Name of the filesystem ("cprovider" will be used if unset)
+//------------------------------------------------------------------------------
+extern WFP_API void wfp_client_config_set_fsname(
+    struct wfp_client_config * config,
+    char const * name);
+
+//------------------------------------------------------------------------------
+/// \brief Set logger function.
+///
+/// \param config pointer to client configuration
+/// \param log logger function
+//------------------------------------------------------------------------------
+extern WFP_API void wfp_client_config_set_logger(
+    struct wfp_client_config * config,
+    wfp_log_fn * log);
 
 #ifdef __cplusplus
 }

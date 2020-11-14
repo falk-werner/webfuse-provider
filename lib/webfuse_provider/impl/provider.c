@@ -28,7 +28,7 @@ struct wfp_impl_method
 };
 
 static void wfp_impl_provider_invoke_method(
-    struct wfp_impl_invokation_context * context, 
+    struct wfp_impl_invokation_context * context,
     char const * method_name,
     struct wfp_json const * params,
     int id)
@@ -70,6 +70,7 @@ void wfp_impl_provider_init(
     provider->connected = &wfp_impl_connected_default;
     provider->disconnected = &wfp_impl_disconnected_default;
     provider->get_credentials = NULL;
+    provider->log = &wfp_impl_log_default;
 }
 
 void wfp_impl_provider_init_from_prototype(
@@ -85,6 +86,7 @@ void wfp_impl_provider_init_from_prototype(
     provider->connected =  prototype->connected;
     provider->disconnected = prototype->disconnected;
     provider->get_credentials = prototype->get_credentials;
+    provider->log = prototype->log;
 }
 
 void wfp_impl_provider_invoke(
@@ -120,9 +122,22 @@ void wfp_impl_disconnected_default(
     // empty
 }
 
+void wfp_impl_log_default(
+    void * user_data,
+    int level,
+    char const * format,
+    ...)
+{
+    (void) user_data;
+    (void) level;
+    (void) format;
+
+    // empty
+}
+
+
  bool wfp_impl_provider_is_authentication_enabled(
     struct wfp_provider * provider)
 {
     return (NULL != provider->get_credentials);
 }
-

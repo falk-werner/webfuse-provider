@@ -13,8 +13,10 @@
 #include <libwebsockets.h>
 
 #include <cstring>
+#include <queue>
 #include <sstream>
 #include <thread>
+#include <mutex>
 
 using webfuse_test::WsServer;
 using webfuse_test::MockProviderClient;
@@ -37,7 +39,10 @@ class ClientProtocolFixture
 public:
     explicit ClientProtocolFixture(IProviderClient& client, bool enableAuthentication = false)
     {
-        server = new WsServer(WFP_PROTOCOL_NAME_ADAPTER_SERVER);
+        server = new WsServer(WFP_PROTOCOL_NAME_ADAPTER_SERVER,
+            [&](std::string const& message) mutable {
+                OnMessageReceived(message);
+        });
 
         config = wfp_client_config_create();
         client.AttachTo(config, enableAuthentication);
@@ -67,7 +72,7 @@ public:
     {
         TimeoutWatcher watcher(DEFAULT_TIMEOUT);
 
-        wfp_client_protocol_connect(protocol, context, server->GetUrl().c_str());        
+        wfp_client_protocol_connect(protocol, context, server->GetUrl().c_str());
         while (!server->IsConnected())
         {
             watcher.check();
@@ -85,15 +90,36 @@ public:
         server->SendMessage(request);
     }
 
+    void OnMessageReceived(std::string const message)
+    {
+        {
+            std::lock_guard<std::mutex> lock(mutex);
+            recv_queue.push(message);
+        }
+        lws_cancel_service(context);
+    }
+
+    std::string ReceiveMessage()
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        std::string result;
+        if (!recv_queue.empty())
+        {
+            result = recv_queue.front();
+            recv_queue.pop();
+        }
+        return result;
+    }
+
     std::string ReceiveMessageFromClient()
     {
         TimeoutWatcher watcher(DEFAULT_TIMEOUT);
-        std::string result = server->ReceiveMessage();
+        std::string result = ReceiveMessage();
         while (result.empty())
         {
             watcher.check();
             lws_service(context, 0);
-            result = server->ReceiveMessage();
+            result = ReceiveMessage();
         }
 
         return result;
@@ -128,7 +154,7 @@ public:
         wfp_json const * username = wfp_impl_json_object_get(credentials, "username");
         ASSERT_TRUE(wfp_impl_json_is_string(username));
         ASSERT_STREQ(expected_username.c_str(), wfp_impl_json_string_get(username));
-        
+
         wfp_json const * password = wfp_impl_json_object_get(credentials, "password");
         ASSERT_TRUE(wfp_impl_json_is_string(password));
         ASSERT_STREQ(expected_password.c_str(), wfp_impl_json_string_get(password));
@@ -171,6 +197,8 @@ private:
     struct lws_context_creation_info info;
     struct lws_protocols protocols[2];
     struct lws_context * context;
+    std::queue<std::string> recv_queue;
+    std::mutex mutex;
 
 };
 
@@ -217,7 +245,7 @@ TEST(client_protocol, connect_with_username_authentication)
     EXPECT_CALL(provider, OnConnected()).Times(AtMost(1));
     EXPECT_CALL(provider, OnDisconnected()).Times(1);
     EXPECT_CALL(provider, GetCredentials(_)).Times(1).WillOnce(Invoke(GetCredentials));
-    
+
     fixture.Connect();
     if (HasFatalFailure()) { return; }
 

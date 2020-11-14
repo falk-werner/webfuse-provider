@@ -31,7 +31,10 @@ class WsServer::Private : IServer
     Private(Private const &) = delete;
     Private & operator=(Private const &) = delete;
 public:
-    Private(std::string const & protocol, int port);
+    Private(
+        std::string const & protocol,
+        std::function<void(std::string const &)> handleMessage,
+        int port);
     ~Private();
     bool IsConnected();
     std::string GetUrl() const;
@@ -45,6 +48,7 @@ public:
 private:
     static void run(Private * self);
     std::string protocol_;
+    std::function<void(std::string const &)> handleMessage_;
     int port_;
     bool is_connected;
     bool is_shutdown_requested;
@@ -55,7 +59,6 @@ private:
     std::thread context;
     std::mutex mutex;
     std::queue<std::string> writeQueue;
-    std::queue<std::string> recvQueue;
 };
 
 }
@@ -107,8 +110,11 @@ static int wfp_test_utils_ws_server_callback(
 namespace webfuse_test
 {
 
-WsServer::WsServer(std::string const & protocol, int port)
-: d(new Private(protocol, port))
+WsServer::WsServer(
+    std::string const & protocol,
+    std::function<void(std::string const &)> handleMessage,
+    int port)
+: d(new Private(protocol, handleMessage, port))
 {
 
 }
@@ -128,19 +134,18 @@ void WsServer::SendMessage(std::string const & message)
     d->SendMessage(message);
 }
 
-std::string WsServer::ReceiveMessage()
-{
-    return d->ReceiveMessage();
-}
-
 std::string WsServer::GetUrl() const
 {
     return d->GetUrl();
 }
 
 
-WsServer::Private::Private(std::string const & protocol, int port)
+WsServer::Private::Private(
+    std::string const & protocol,
+    std::function<void(std::string const &)> handleMessage,
+    int port)
 : protocol_(protocol)
+, handleMessage_(handleMessage)
 , port_(port)
 , is_connected(false)
 , is_shutdown_requested(false)
@@ -160,7 +165,7 @@ WsServer::Private::Private(std::string const & protocol, int port)
     info.mounts = NULL;
     info.protocols =ws_protocols;
     info.vhost_name = "localhost";
-    info.ws_ping_pong_interval = 10;
+    // info.ws_ping_pong_interval = 10;
     info.options = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
     info.options |= LWS_SERVER_OPTION_EXPLICIT_VHOSTS;
 
@@ -270,25 +275,16 @@ void WsServer::Private::SendMessage(std::string const & message)
 
 void WsServer::Private::OnMessageReceived(struct lws * wsi, char const * data, size_t length)
 {
-    std::unique_lock<std::mutex> lock(mutex);
-    if (wsi == wsi_)
+    bool handleMessage;
     {
-        recvQueue.push(std::string(data, length));
-    }
-}
-
-std::string WsServer::Private::ReceiveMessage()
-{
-    std::unique_lock<std::mutex> lock(mutex);
- 
-    std::string message;
-    if (!recvQueue.empty())
-    {
-        message = recvQueue.front();
-        recvQueue.pop();
+        std::unique_lock<std::mutex> lock(mutex);
+        handleMessage = (wsi == wsi_);
     }
 
-    return message;
+    if (handleMessage)
+    {
+        handleMessage_(std::string(data, length));
+    }
 }
 
 std::string WsServer::Private::GetUrl() const

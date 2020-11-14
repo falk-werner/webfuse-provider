@@ -1,4 +1,5 @@
-project('webfuse-provider', 'c', 'cpp', version: '0.3.0', license: 'LGPL-3.0+')
+project('webfuse-provider', 'c', 'cpp', version: '0.3.0', license: 'LGPL-3.0+',
+	default_options: ['c_std=gnu99', 'cpp_std=gnu++14'])
 
 without_tests    = get_option('without_tests')
 without_examples = get_option('without_examples')
@@ -87,7 +88,7 @@ pkg_config.generate(
 
 if not without_tests
 
-gtest_dep = dependency('gtest', version: '>=1.10.0', fallback: ['gtest', 'gtest_dep']) 
+gtest_dep = dependency('gtest', version: '>=1.10.0', fallback: ['gtest', 'gtest_dep'])
 gmock_main_dep = dependency('gmock_main', version: '>=1.10.0', fallback: ['gtest', 'gmock_main_dep'])
 
 openssl = find_program('openssl')

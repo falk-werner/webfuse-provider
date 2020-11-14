@@ -16,6 +16,7 @@ struct wfp_client_config
     char * key_path;
     char * cert_path;
     char * ca_filepath;
+    char * fs_name;
 };
 
 extern struct wfp_client_config * wfp_impl_client_config_create(void);
@@ -74,6 +75,14 @@ extern void wfp_impl_client_config_set_onread(
 extern void wfp_impl_client_config_enable_authentication(
     struct wfp_client_config * config,
     wfp_get_credentials_fn * get_credentials);
+
+extern void wfp_impl_client_config_set_fsname(
+    struct wfp_client_config * config,
+    char const * name);
+
+extern void wfp_impl_client_config_set_logger(
+    struct wfp_client_config * config,
+    wfp_log_fn * log);
 
 #ifdef __cplusplus
 }

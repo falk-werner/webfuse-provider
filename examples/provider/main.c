@@ -16,6 +16,7 @@ struct config
     char * url;
     struct wfp_client_config * client_config;
     bool show_help;
+    bool is_verbose;
 };
 
 enum fs_entry_type
@@ -37,6 +38,8 @@ struct fs_entry
 
 struct fs
 {
+    bool is_verbose;
+    bool connection_closed;
     struct fs_entry const * entries;
 };
 
@@ -49,10 +52,12 @@ static void show_help()
         "Usage: webfuse-provider -u <url> [-k <key_path>] [-c <cert_path>]\n"
         "\n"
         "Options:\n"
-        "\t-u, --url       URL of webfuse server (required)\n"
-        "\t-k, --key_path  Path to private key of provider (default: not set, TLS disabled)\n"
-        "\t-c, --cert_path Path to certificate of provider (defautl: not set, TLS disabled)\n"
-        "\t-h, --help      prints this message\n"
+        "\t-u, --url             URL of webfuse server (required)\n"
+        "\t-k, --key_path        Path to private key of provider (default: not set, TLS disabled)\n"
+        "\t-c, --cert_path       Path to certificate of provider (defautl: not set, TLS disabled)\n"
+        "\t-n, --filesystem_name Name of the filesystem (default: \"cprovider\")\n"
+        "\t-v, --verbose         print additional log messages\n"
+        "\t-h, --help            prints this message\n"
         "\n"
         "Example:\n"
         "\twebfuse-provider -u ws://localhost:8080/\n"
@@ -70,16 +75,20 @@ static int parse_arguments(
         {"url", required_argument, NULL, 'u'},
         {"key_path", required_argument, NULL, 'k'},
         {"cert_path", required_argument, NULL, 'c'},
+        {"filesystem_name", required_argument, NULL, 'n'},
+        {"verbose", required_argument, NULL, 'v'},
         {"help", no_argument, NULL, 'h'},
         {NULL, 0, NULL, 0}
     };
 
+    optind = 0;
+    opterr = 0;
     int result = EXIT_SUCCESS;
     bool finished = false;
     while (!finished)
     {
         int option_index = 0;
-        int const c = getopt_long(argc, argv, "u:k:c:h", options, &option_index);
+        int const c = getopt_long(argc, argv, "u:k:c:n:vh", options, &option_index);
 
         switch (c)
         {
@@ -99,6 +108,12 @@ static int parse_arguments(
                 break;
             case 'c':
                 wfp_client_config_set_certpath(config->client_config, optarg);
+                break;
+            case 'n':
+                wfp_client_config_set_fsname(config->client_config, optarg);
+                break;
+            case 'v':
+                config->is_verbose = true;
                 break;
             default:
                 fprintf(stderr, "error: unknown argument\n");
@@ -133,7 +148,7 @@ static struct fs_entry const * fs_getentry(
         {
             return entry;
         }
-    } 
+    }
 
     return NULL;
 }
@@ -269,7 +284,7 @@ static void fs_open(
         else
         {
             wfp_respond_error(request, WFP_BAD_ACCESS_DENIED);
-        }        
+        }
     }
     else
     {
@@ -306,7 +321,7 @@ static void fs_read(
         else
         {
             wfp_respond_error(request, WFP_BAD);
-        }        
+        }
     }
     else
     {
@@ -322,11 +337,43 @@ static void on_interrupt(int signal_id)
     shutdown_requested = true;
 }
 
+static void on_connected(void* user_data)
+{
+    struct fs * fs = user_data;
+    if (fs->is_verbose) { puts("connected"); }
+}
+
+static void on_disconnected(void* user_data)
+{
+    struct fs * fs = user_data;
+    if (fs->is_verbose) { puts("disconnected"); }
+    fs->connection_closed = true;
+}
+
+static void do_log(
+    void * user_data,
+    int level,
+    char const * format,
+    ...)
+{
+    struct fs * fs = user_data;
+    if (fs->is_verbose)
+    {
+        printf("LOG: ");
+        va_list args;
+        va_start(args, format);
+        vprintf(format, args);
+        va_end(args);
+        puts("");
+    }
+}
+
 int main(int argc, char* argv[])
 {
     struct config config;
     config.url = NULL;
     config.show_help = false;
+    config.is_verbose = false;
     config.client_config = wfp_client_config_create();
     int result = parse_arguments(argc, argv, &config);
 
@@ -349,6 +396,8 @@ int main(int argc, char* argv[])
 
         struct fs fs =
         {
+            .is_verbose = config.is_verbose,
+            .connection_closed = false,
             .entries = entries
         };
 
@@ -360,17 +409,20 @@ int main(int argc, char* argv[])
         wfp_client_config_set_onreaddir(config.client_config, &fs_readdir);
         wfp_client_config_set_onopen(config.client_config, &fs_open);
         wfp_client_config_set_onread(config.client_config, &fs_read);
+        wfp_client_config_set_onconnected(config.client_config, &on_connected);
+        wfp_client_config_set_ondisconnected(config.client_config, &on_disconnected);
+        wfp_client_config_set_logger(config.client_config, &do_log);
 
         struct wfp_client * client = wfp_client_create(config.client_config);
         wfp_client_connect(client, config.url);
 
-        while (!shutdown_requested)
+        while ((!shutdown_requested) && (!fs.connection_closed))
         {
             wfp_client_service(client);
         }
 
         wfp_client_dispose(client);
-    }   
+    }
 
     if (config.show_help)
     {

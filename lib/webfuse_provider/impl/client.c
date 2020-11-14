@@ -28,9 +28,9 @@ struct wfp_client * wfp_impl_client_create(
     struct wfp_client_config * config)
 {
 	wfp_impl_lwslog_disable();
-   
+
     struct wfp_client * client = malloc(sizeof(struct wfp_client));
-    wfp_impl_client_protocol_init(&client->protocol, &config->provider, config->user_data);
+    wfp_impl_client_protocol_init(&client->protocol, &config->provider, config->fs_name, config->user_data);
 
     memset(client->protocols, 0, sizeof(struct lws_protocols) * WFP_CLIENT_PROTOCOL_COUNT);
     wfp_impl_client_protocol_init_lws(&client->protocol, &client->protocols[0]);
@@ -65,7 +65,7 @@ void wfp_impl_client_dispose(
     struct wfp_client * client)
 {
     lws_context_destroy(client->context);
-    wfp_impl_client_protocol_cleanup(&client->protocol);    
+    wfp_impl_client_protocol_cleanup(&client->protocol);
     free(client);
 }
 

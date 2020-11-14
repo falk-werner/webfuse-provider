@@ -11,6 +11,7 @@ struct wfp_client_config * wfp_impl_client_config_create(void)
     config->key_path = NULL;
     config->cert_path = NULL;
     config->ca_filepath = NULL;
+    config->fs_name = strdup("cprovider");
 
     return config;
 }
@@ -18,6 +19,7 @@ struct wfp_client_config * wfp_impl_client_config_create(void)
 void wfp_impl_client_config_dispose(
     struct wfp_client_config * config)
 {
+    free(config->fs_name);
     free(config->key_path);
     free(config->cert_path);
     free(config->ca_filepath);
@@ -52,7 +54,7 @@ void wfp_impl_client_config_set_ca_filepath(
     char const * ca_filepath)
 {
     free(config->ca_filepath);
-    config->ca_filepath = strdup(ca_filepath); 
+    config->ca_filepath = strdup(ca_filepath);
 }
 
 void wfp_impl_client_config_set_onconnected(
@@ -116,4 +118,19 @@ void wfp_impl_client_config_enable_authentication(
     wfp_get_credentials_fn * get_credentials)
 {
     config->provider.get_credentials = get_credentials;
+}
+
+void wfp_impl_client_config_set_fsname(
+    struct wfp_client_config * config,
+    char const * name)
+{
+    free(config->fs_name);
+    config->fs_name = strdup(name);
+}
+
+void wfp_impl_client_config_set_logger(
+    struct wfp_client_config * config,
+    wfp_log_fn * log)
+{
+    config->provider.log = log;
 }

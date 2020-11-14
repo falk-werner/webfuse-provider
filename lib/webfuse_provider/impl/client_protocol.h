@@ -23,6 +23,7 @@ struct wfp_client_protocol
     bool is_shutdown_requested;
     struct wfp_request request;
     struct wfp_provider provider;
+    char * fs_name;
     void * user_data;
     struct lws * wsi;
     struct wfp_timer_manager * timer_manager;
@@ -33,6 +34,7 @@ struct wfp_client_protocol
 extern void wfp_impl_client_protocol_init(
     struct wfp_client_protocol * protocol,
     struct wfp_provider const * provider,
+    char const * fs_name,
     void * user_data);
 
 extern void wfp_impl_client_protocol_cleanup(
@@ -57,7 +59,7 @@ extern void wfp_impl_client_protocol_disconnect(
     struct wfp_client_protocol * protocol);
 
 #ifdef __cplusplus
-} 
+}
 #endif
 
 #endif
